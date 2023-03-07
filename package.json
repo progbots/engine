@@ -1,0 +1,25 @@
+{
+  "name": "engine",
+  "version": "1.0.0",
+  "description": "Main engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx ts-standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/progbots/engine.git"
+  },
+  "author": "Arnaud Buchholz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/progbots/engine/issues"
+  },
+  "homepage": "https://github.com/progbots/engine#readme",
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "ts-standard": "^12.0.2",
+    "typescript": "^4.9.5"
+  }
+}
