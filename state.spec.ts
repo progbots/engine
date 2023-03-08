@@ -1,6 +1,6 @@
 import { State } from './state'
 import { ValueType } from './types'
-import { StackUnderflow } from './errors'
+import { RangeCheck, StackUnderflow } from './errors'
 
 describe('state', () => {
   describe('State', () => {
@@ -59,10 +59,20 @@ describe('state', () => {
 
           it('fails on indexing beyond the stack', () => {
             const state = new State([{
-                type: ValueType.number,
-                data: 1
-              }])
+              type: ValueType.number,
+              data: 1
+            }])
             expect(() => state.index(1)).toThrowError(StackUnderflow)
+          })
+        })
+
+        describe('RangeCheck', () => {
+          it('fails on indexing with negative number', () => {
+            const state = new State([{
+              type: ValueType.number,
+              data: 1
+            }])
+            expect(() => state.index(-1)).toThrowError(RangeCheck)
           })
         })
       })
