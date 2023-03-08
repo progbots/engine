@@ -10,9 +10,9 @@ export interface Value {
   data: number | string
 }
 
-export type Dictionary = Record<string, Value>
-
-export interface State {
-  contexts: Dictionary[]
-  stack: Value[]
+export interface IState {
+  count: () => number
+  pop: () => void // StackUnderflow
+  push: (value: Value) => void
+  index: (pos: number) => Value // StackUnderflow
 }
