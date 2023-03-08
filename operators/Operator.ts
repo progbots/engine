@@ -2,7 +2,7 @@ import { State, ValueType } from '../types'
 import { StackUnderflow, TypeCheck } from '../errors'
 
 export abstract class Operator {
-  checkStack (state: State, ...types: ValueType[]) {
+  checkStack (state: State, ...types: ValueType[]): void {
     const { stack } = state
     if (types.length > stack.length) {
       throw new StackUnderflow()
