@@ -1,5 +1,5 @@
 import { IState, Value, ValueType } from './types'
-import { StackUnderflow, TypeCheck } from './errors'
+import { RangeCheck, StackUnderflow, TypeCheck } from './errors'
 
 export function checkStack (state: IState, ...types: ValueType[]): Value[] {
   return types.map((type: ValueType, pos: number): Value => {
@@ -34,6 +34,9 @@ export class State implements IState {
   index (pos: number): Value {
     if (pos >= this.stack.length) {
       throw new StackUnderflow()
+    }
+    if (pos < 0) {
+      throw new RangeCheck()
     }
     return this.stack[pos]
   }
