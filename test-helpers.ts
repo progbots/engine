@@ -1,6 +1,5 @@
 import { IState, Value, ValueType } from './types'
 import { State } from './state'
-import { StackUnderflow } from './errors'
 
 type StackItem = string | number | Value
 interface StackInitializer {
