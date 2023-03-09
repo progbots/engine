@@ -13,6 +13,10 @@ describe('contexts/root', () => {
     })).toThrowError(InvalidAccess)
   })
 
+  it('returns null on unknown name', () => {
+    expect(context.lookup('unknown_name')).toStrictEqual(null)
+  })
+
   describe('implemented names', () => {
     const expectedOperators = [add, index, sub]
 
