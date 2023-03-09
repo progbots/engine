@@ -1,6 +1,7 @@
 import { State } from './state'
 import { ValueType } from './types'
-import { RangeCheck, StackUnderflow } from './errors'
+import { RangeCheck, StackUnderflow, Undefined } from './errors'
+import { add } from './operators'
 
 describe('state', () => {
   describe('State', () => {
@@ -74,6 +75,22 @@ describe('state', () => {
             }])
             expect(() => state.index(-1)).toThrowError(RangeCheck)
           })
+        })
+      })
+    })
+
+    describe('context management', () => {
+      it('fails on unknown name', () => {
+        const state = new State()
+        expect(() => state.lookup('unknown_name')).toThrowError(Undefined)
+      })
+
+      it('returns add operator', () => {
+        const state = new State()
+        const value = state.lookup('add')
+        expect(value).toStrictEqual({
+          type: ValueType.operator,
+          data: add
         })
       })
     })

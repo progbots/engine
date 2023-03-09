@@ -1,5 +1,6 @@
-import { IState, Value, ValueType } from './types'
-import { RangeCheck, StackUnderflow, TypeCheck } from './errors'
+import { IContext, IState, Value, ValueType } from './types'
+import { RangeCheck, StackUnderflow, TypeCheck, Undefined } from './errors'
+import { RootContext } from './contexts'
 
 export function checkStack (state: IState, ...types: ValueType[]): Value[] {
   return types.map((type: ValueType, pos: number): Value => {
@@ -12,6 +13,10 @@ export function checkStack (state: IState, ...types: ValueType[]): Value[] {
 }
 
 export class State implements IState {
+  private readonly contexts: IContext[] = [
+    new RootContext()
+  ]
+
   constructor (
     private readonly stack: Value[] = []
   ) {}
@@ -39,5 +44,15 @@ export class State implements IState {
       throw new RangeCheck()
     }
     return this.stack[pos]
+  }
+
+  lookup (name: string): Value {
+    for (const context of this.contexts) {
+      const value = context.lookup(name)
+      if (value !== null) {
+        return value
+      }
+    }
+    throw new Undefined()
   }
 }
