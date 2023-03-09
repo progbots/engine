@@ -23,4 +23,6 @@ export interface IState {
   pop: () => void // StackUnderflow
   push: (value: Value) => void
   index: (pos: number) => Value // StackUnderflow
+
+  lookup: (name: string) => Value // Undefined
 }
