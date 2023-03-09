@@ -2,12 +2,20 @@ export enum ValueType {
   number,
   string,
   id,
-  function
+  operator,
+  block
 }
+
+export type OperatorFunction = (state: IState) => void
 
 export interface Value {
   type: ValueType
-  data: number | string
+  data: number | string | OperatorFunction | Value[]
+}
+
+export interface IContext {
+  def: (name: string, value: Value) => void
+  lookup: (name: string) => Value | null
 }
 
 export interface IState {
