@@ -1,5 +1,5 @@
-import { IContext, IState, Value, ValueType } from './types'
-import { RangeCheck, StackUnderflow, TypeCheck, Undefined } from './errors'
+import { IContext, IState, OperatorFunction, Value, ValueType } from './types'
+import { Busy, RangeCheck, StackUnderflow, TypeCheck, Undefined } from './errors'
 import { RootContext } from './contexts'
 
 export function checkStack (state: IState, ...types: ValueType[]): Value[] {
@@ -13,41 +13,45 @@ export function checkStack (state: IState, ...types: ValueType[]): Value[] {
 }
 
 export class State implements IState {
-  private readonly contexts: IContext[] = [
+  private readonly _contexts: IContext[] = [
     new RootContext()
   ]
 
   constructor (
-    private readonly stack: Value[] = []
+    private readonly _stack: Value[] = []
   ) {}
 
   count (): number {
-    return this.stack.length
+    return this._stack.length
   }
 
   pop (): void {
-    if (this.stack.length === 0) {
+    if (this._stack.length === 0) {
       throw new StackUnderflow()
     }
-    this.stack.shift()
+    this._stack.shift()
   }
 
   push (value: Value): void {
-    this.stack.unshift(value)
+    this._stack.unshift(value)
   }
 
   index (pos: number): Value {
-    if (pos >= this.stack.length) {
+    if (pos >= this._stack.length) {
       throw new StackUnderflow()
     }
     if (pos < 0) {
       throw new RangeCheck()
     }
-    return this.stack[pos]
+    return this._stack[pos]
+  }
+
+  contexts (): IContext[] {
+    return [...this._contexts]
   }
 
   lookup (name: string): Value {
-    for (const context of this.contexts) {
+    for (const context of this._contexts) {
       const value = context.lookup(name)
       if (value !== null) {
         return value
