@@ -2,6 +2,7 @@ import { State } from './state'
 import { ValueType } from './types'
 import { RangeCheck, StackUnderflow, Undefined } from './errors'
 import { add } from './operators'
+import { RootContext } from './contexts'
 
 describe('state', () => {
   describe('State', () => {
@@ -83,6 +84,13 @@ describe('state', () => {
       it('fails on unknown name', () => {
         const state = new State()
         expect(() => state.lookup('unknown_name')).toThrowError(Undefined)
+      })
+
+      it('returns the list of contexts', () => {
+        const state = new State()
+        const contexts = state.contexts()
+        expect(contexts.length).toStrictEqual(1)
+        expect(contexts[0]).toBeInstanceOf(RootContext)
       })
 
       it('returns add operator', () => {
