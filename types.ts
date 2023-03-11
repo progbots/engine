@@ -1,9 +1,9 @@
 export enum ValueType {
-  number,
-  string,
-  id,
-  operator,
-  block
+  integer = 'integertype',
+  string = 'stringtype',
+  name = 'nametype',
+  operator = 'operatortype',
+  array = 'arraytype'
 }
 
 export type OperatorFunction = (state: IState) => void
@@ -19,11 +19,12 @@ export interface IContext {
 }
 
 export interface IState {
-  count: () => number
+  stack: () => readonly Value[]
   pop: () => void // StackUnderflow
   push: (value: Value) => void
-  index: (pos: number) => Value // StackUnderflow
 
-  contexts: () => IContext[]
+  contexts: () => readonly IContext[]
   lookup: (name: string) => Value // Undefined
+
+  eval: (value: Value) => void
 }

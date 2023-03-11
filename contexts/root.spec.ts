@@ -8,7 +8,7 @@ describe('contexts/root', () => {
 
   it('is read-only', () => {
     expect(() => context.def('test', {
-      type: ValueType.number,
+      type: ValueType.integer,
       data: 1
     })).toThrowError(InvalidAccess)
   })

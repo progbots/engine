@@ -1,10 +1,14 @@
 import { IContext, IState, OperatorFunction, Value, ValueType } from './types'
-import { Busy, RangeCheck, StackUnderflow, TypeCheck, Undefined } from './errors'
+import { StackUnderflow, TypeCheck, Undefined } from './errors'
 import { RootContext } from './contexts'
 
 export function checkStack (state: IState, ...types: ValueType[]): Value[] {
+  const stack = state.stack()
+  if (types.length > stack.length) {
+    throw new StackUnderflow()
+  }
   return types.map((type: ValueType, pos: number): Value => {
-    const value = state.index(pos)
+    const value = stack[pos]
     if (value.type !== type) {
       throw new TypeCheck()
     }
@@ -21,8 +25,8 @@ export class State implements IState {
     private readonly _stack: Value[] = []
   ) {}
 
-  count (): number {
-    return this._stack.length
+  stack (): readonly Value[] {
+    return this._stack
   }
 
   pop (): void {
@@ -36,18 +40,8 @@ export class State implements IState {
     this._stack.unshift(value)
   }
 
-  index (pos: number): Value {
-    if (pos >= this._stack.length) {
-      throw new StackUnderflow()
-    }
-    if (pos < 0) {
-      throw new RangeCheck()
-    }
-    return this._stack[pos]
-  }
-
-  contexts (): IContext[] {
-    return [...this._contexts]
+  contexts (): readonly IContext[] {
+    return this._contexts
   }
 
   lookup (name: string): Value {
@@ -58,5 +52,19 @@ export class State implements IState {
       }
     }
     throw new Undefined()
+  }
+
+  eval (value: Value): void {
+    if (value.type === ValueType.name) {
+      const resolvedValue = this.lookup(value.data as string)
+      if (resolvedValue.type === ValueType.operator) {
+        const operator = resolvedValue.data as OperatorFunction
+        operator(this)
+      } else {
+        this.push(resolvedValue)
+      }
+    } else {
+      this.push(value)
+    }
   }
 }

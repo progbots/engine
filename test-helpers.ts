@@ -18,7 +18,7 @@ export function createState ({
     }
     if (typeof item === 'number') {
       return {
-        type: ValueType.number,
+        type: ValueType.integer,
         data: item
       }
     }

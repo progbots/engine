@@ -9,8 +9,8 @@ describe('operators/add', () => {
       stack: [1, 2]
     })
     add(state)
-    expect(state.index(0)).toStrictEqual({
-      type: ValueType.number,
+    expect(state.stack()[0]).toStrictEqual({
+      type: ValueType.integer,
       data: 3
     })
   })

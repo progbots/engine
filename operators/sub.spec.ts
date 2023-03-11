@@ -9,8 +9,8 @@ describe('operators/sub', () => {
       stack: [3, 2]
     })
     sub(state)
-    expect(state.index(0)).toStrictEqual({
-      type: ValueType.number,
+    expect(state.stack()[0]).toStrictEqual({
+      type: ValueType.integer,
       data: 1
     })
   })

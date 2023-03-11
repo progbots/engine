@@ -9,7 +9,7 @@ describe('operators/index', () => {
       stack: [1, 'a', 'b']
     })
     index(state)
-    expect(state.index(0)).toStrictEqual({
+    expect(state.stack()[0]).toStrictEqual({
       type: ValueType.string,
       data: 'b'
     })

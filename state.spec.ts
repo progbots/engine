@@ -1,6 +1,6 @@
 import { State } from './state'
 import { ValueType } from './types'
-import { RangeCheck, StackUnderflow, Undefined } from './errors'
+import { StackUnderflow, Undefined } from './errors'
 import { add } from './operators'
 import { RootContext } from './contexts'
 
@@ -10,25 +10,25 @@ describe('state', () => {
       describe('happy path', () => {
         it('starts with an empty stack', () => {
           const state = new State()
-          expect(state.count()).toStrictEqual(0)
+          expect(state.stack().length).toStrictEqual(0)
         })
 
         it('allows stack initialization', () => {
           const state = new State([{
-            type: ValueType.number,
+            type: ValueType.integer,
             data: 1
           }])
-          expect(state.count()).toStrictEqual(1)
+          expect(state.stack().length).toStrictEqual(1)
         })
 
         it('enables getting stack items', () => {
           const state = new State([{
-            type: ValueType.number,
+            type: ValueType.integer,
             data: 1
           }])
-          const value = state.index(0)
+          const value = state.stack()[0]
           expect(value).toStrictEqual({
-            type: ValueType.number,
+            type: ValueType.integer,
             data: 1
           })
         })
@@ -36,19 +36,19 @@ describe('state', () => {
         it('enables pushing stack items', () => {
           const state = new State()
           state.push({
-            type: ValueType.number,
+            type: ValueType.integer,
             data: 1
           })
-          expect(state.count()).toStrictEqual(1)
+          expect(state.stack().length).toStrictEqual(1)
         })
 
         it('enables popping stack items', () => {
           const state = new State([{
-            type: ValueType.number,
+            type: ValueType.integer,
             data: 1
           }])
           state.pop()
-          expect(state.count()).toStrictEqual(0)
+          expect(state.stack().length).toStrictEqual(0)
         })
       })
 
@@ -57,24 +57,6 @@ describe('state', () => {
           it('fails on popping an empty stack', () => {
             const state = new State()
             expect(() => state.pop()).toThrowError(StackUnderflow)
-          })
-
-          it('fails on indexing beyond the stack', () => {
-            const state = new State([{
-              type: ValueType.number,
-              data: 1
-            }])
-            expect(() => state.index(1)).toThrowError(StackUnderflow)
-          })
-        })
-
-        describe('RangeCheck', () => {
-          it('fails on indexing with negative number', () => {
-            const state = new State([{
-              type: ValueType.number,
-              data: 1
-            }])
-            expect(() => state.index(-1)).toThrowError(RangeCheck)
           })
         })
       })
@@ -100,6 +82,40 @@ describe('state', () => {
           type: ValueType.operator,
           data: add
         })
+      })
+    })
+
+    describe('execution management', () => {
+      it('stacks integer value', () => {
+        const state = new State()
+        state.eval({
+          type: ValueType.integer,
+          data: 1
+        })
+        expect(state.stack()).toStrictEqual([{
+          type: ValueType.integer,
+          data: 1
+        }])
+      })
+
+      it('resolves and call an operator', () => {
+        const state = new State()
+        state.eval({
+          type: ValueType.integer,
+          data: 1
+        })
+        state.eval({
+          type: ValueType.integer,
+          data: 2
+        })
+        state.eval({
+          type: ValueType.name,
+          data: 'add'
+        })
+        expect(state.stack()).toStrictEqual([{
+          type: ValueType.integer,
+          data: 3
+        }])
       })
     })
   })
