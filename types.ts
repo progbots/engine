@@ -24,5 +24,6 @@ export interface IState {
   push: (value: Value) => void
   index: (pos: number) => Value // StackUnderflow
 
+  contexts: () => IContext[]
   lookup: (name: string) => Value // Undefined
 }
