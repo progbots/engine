@@ -1,4 +1,4 @@
-import { State } from './state'
+import { cycles, State } from './state'
 import { ValueType } from './types'
 import { StackUnderflow, Undefined } from './errors'
 import { add } from './operators'
@@ -88,35 +88,45 @@ describe('state', () => {
     describe('execution management', () => {
       it('stacks integer value', () => {
         const state = new State()
-        state.eval({
+        const count = cycles(state.eval({
           type: ValueType.integer,
           data: 1
-        })
+        }))
+        expect(count).toStrictEqual(1)
         expect(state.stack()).toStrictEqual([{
           type: ValueType.integer,
           data: 1
         }])
       })
 
-      it('resolves and call an operator', () => {
+      it('resolves and call an operator (Values version)', () => {
         const state = new State()
-        state.eval({
+        expect(cycles(state.eval({
           type: ValueType.integer,
           data: 1
-        })
-        state.eval({
+        }))).toStrictEqual(1)
+        expect(cycles(state.eval({
           type: ValueType.integer,
           data: 2
-        })
-        state.eval({
+        }))).toStrictEqual(1)
+        expect(cycles(state.eval({
           type: ValueType.name,
           data: 'add'
-        })
+        }))).toStrictEqual(1)
         expect(state.stack()).toStrictEqual([{
           type: ValueType.integer,
           data: 3
         }])
       })
+    })
+
+    it('resolves and call an operator (string version)', () => {
+      const state = new State()
+      expect(cycles(state.eval('1 2 add'))).toStrictEqual(6) // 3 + 3x parsing cycles
+      expect(state.stack()).toStrictEqual([{
+        type: ValueType.integer,
+        data: 3
+      }])
     })
   })
 })
