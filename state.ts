@@ -1,6 +1,7 @@
 import { IContext, IState, OperatorFunction, Value, ValueType } from './types'
 import { StackUnderflow, TypeCheck, Undefined } from './errors'
 import { RootContext } from './contexts'
+import { parse } from './parser'
 
 export function checkStack (state: IState, ...types: ValueType[]): Value[] {
   const stack = state.stack()
@@ -14,6 +15,16 @@ export function checkStack (state: IState, ...types: ValueType[]): Value[] {
     }
     return value
   })
+}
+
+export function cycles (iterator: Generator<void>): number {
+  let count = 0
+  let { done } = iterator.next()
+  while (done === false) {
+    ++count
+    done = iterator.next().done
+  }
+  return count
 }
 
 export class State implements IState {
@@ -54,17 +65,33 @@ export class State implements IState {
     throw new Undefined()
   }
 
-  eval (value: Value): void {
+  private * _eval (value: Value): Generator<void> {
     if (value.type === ValueType.name) {
       const resolvedValue = this.lookup(value.data as string)
       if (resolvedValue.type === ValueType.operator) {
         const operator = resolvedValue.data as OperatorFunction
-        operator(this)
+        const result = operator(this)
+        if (result !== undefined) {
+          yield * result
+        }
       } else {
         this.push(resolvedValue)
       }
     } else {
       this.push(value)
+    }
+    yield // execution cycle
+  }
+
+  * eval (value: Value | string): Generator<void> {
+    if (typeof value === 'string') {
+      const parser = parse(value, this)
+      for (const parsedValue of parser) {
+        yield // parse cycle
+        yield * this._eval(parsedValue)
+      }
+    } else {
+      yield * this._eval(value)
     }
   }
 }
