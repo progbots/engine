@@ -1,7 +1,6 @@
 import * as readline from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
-import { State } from './state'
-import { parse } from './parser'
+import { cycles, State } from './state'
 import { BaseError } from './errors/BaseError'
 
 async function main (): Promise<void> {
@@ -23,7 +22,8 @@ async function main (): Promise<void> {
       })
     } else {
       try {
-        parse(src, state).forEach(value => state.eval(value))
+        const count = cycles(state.eval(src))
+        console.log('cycles', count)
       } catch (e) {
         if (e instanceof BaseError) {
           console.log(`-${e.name}- ${e.message}`)
