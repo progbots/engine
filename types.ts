@@ -6,7 +6,7 @@ export enum ValueType {
   array = 'arraytype'
 }
 
-export type OperatorFunction = (state: IState) => void
+export type OperatorFunction = (state: IState) => void | Generator<void>
 
 export interface Value {
   type: ValueType
@@ -26,5 +26,5 @@ export interface IState {
   contexts: () => readonly IContext[]
   lookup: (name: string) => Value // Undefined
 
-  eval: (value: Value) => void
+  eval: (value: Value | string) => Generator<void>
 }
