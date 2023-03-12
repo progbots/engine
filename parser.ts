@@ -1,23 +1,21 @@
 import { IState, Value, ValueType } from './types'
 
-export function parse (src: string, state: IState): Value[] {
-  const values: Value[] = []
-
-  // Very basic implementation
-  src.replace(/(\d+)|(\w+)/g, (_: string, digits: string | undefined, id: string | undefined): string => {
+export function * parse (src: string, state: IState): Generator<Value> {
+  const matcher = /(\d+)|(\w+)/g
+  let match = matcher.exec(src)
+  while (match !== null) {
+    const [, digits, name] = match
     if (digits !== undefined) {
-      values.push({
+      yield {
         type: ValueType.integer,
         data: parseInt(digits, 10)
-      })
-    } else if (id !== undefined) {
-      values.push({
+      }
+    } else if (name !== undefined) {
+      yield {
         type: ValueType.name,
-        data: id
-      })
+        data: name
+      }
     }
-    return _
-  })
-
-  return values
+    match = matcher.exec(src)
+  }
 }
