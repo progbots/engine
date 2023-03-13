@@ -3,7 +3,7 @@ import { executeTests } from '../test-helpers'
 
 describe('operators/pop', () => {
   executeTests({
-    'removes top item of the stack integers': {
+    'removes top item of the stack': {
       src: '1 2 pop',
       expect: '1'
     },
