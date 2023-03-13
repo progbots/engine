@@ -1,28 +1,57 @@
 import { IState, Value, ValueType } from './types'
-import { State } from './state'
+import { cycles, State } from './state'
 
-type StackItem = string | number | Value
-interface StackInitializer {
-  stack?: StackItem[]
+interface TestDescription {
+  src: string
+  cycles?: number // default to 1
+  error?: Function // Subclass of BaseError
+  expect?: Value[] | string // top of the stack
 }
 
-export function createState ({
-  stack
-}: StackInitializer = {}): IState {
-  const initialStack = (stack ?? []).map((item: StackItem): Value => {
-    if (typeof item === 'string') {
-      return {
-        type: ValueType.string,
-        data: item
-      }
+function executeTest (test: TestDescription): void {
+  const {
+    src,
+    cycles: expectedCycles,
+    error: expectedError,
+    expect: expectedStack
+  } = test
+  const state = new State()
+  try {
+    const cyclesCount = cycles(state.eval(src))
+    if (expectedCycles !== undefined) {
+      expect(cyclesCount).toStrictEqual(expectedCycles)
     }
-    if (typeof item === 'number') {
-      return {
-        type: ValueType.integer,
-        data: item
+    if (expectedStack !== undefined) {
+      let expectedStackItems
+      if (typeof expectedStack === 'string') {
+        const expectedState = new State()
+        cycles(expectedState.eval(expectedStack))
+        expectedStackItems = expectedState.stack()
+      } else {
+        expectedStackItems = expectedStack
       }
+      const stack = state.stack()
+      expect(stack.length).toBeGreaterThanOrEqual(expectedStackItems.length)
+      expect(stack.slice(0, expectedStackItems.length)).toStrictEqual(expectedStackItems)
     }
-    return item
+  } catch (e) {
+    if (expectedError !== undefined) {
+      expect(e).toBeInstanceOf(expectedError)
+      return
+    }
+    throw e
+  }
+}
+
+export function executeTests (tests: Record<string, TestDescription | TestDescription[]>): void {
+  Object.keys(tests).forEach((label: string) => {
+    const test = tests[label]
+    if (Array.isArray(test)) {
+      test.forEach((item, index) => {
+        it(`${label} (${index + 1})`, executeTest.bind(null, item))
+      })
+    } else {
+      it(label, executeTest.bind(null, test))
+    }
   })
-  return new State(initialStack)
 }
