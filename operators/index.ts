@@ -1,5 +1,6 @@
 export * from './add'
 export * from './clear'
+export * from './dup'
 export * from './index-op'
 export * from './pop'
 export * from './sub'

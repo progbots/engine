@@ -3,6 +3,7 @@ import { InvalidAccess } from '../errors'
 import {
   add,
   clear,
+  dup,
   index,
   pop,
   sub
@@ -11,6 +12,7 @@ import {
 const operators: Record<string, OperatorFunction> = {
   add,
   clear,
+  dup,
   index,
   pop,
   sub
