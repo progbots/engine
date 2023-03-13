@@ -2,6 +2,7 @@ import { IContext, OperatorFunction, Value, ValueType } from '../types'
 import { InvalidAccess } from '../errors'
 import {
   add,
+  clear,
   index,
   pop,
   sub
@@ -9,6 +10,7 @@ import {
 
 const operators: Record<string, OperatorFunction> = {
   add,
+  clear,
   index,
   pop,
   sub

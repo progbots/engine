@@ -1,4 +1,5 @@
 export * from './add'
+export * from './clear'
 export * from './index-op'
 export * from './pop'
 export * from './sub'
