@@ -1,4 +1,4 @@
-import { checkStack } from '../state'
+import { checkStack } from './check-state'
 import { IState, ValueType } from '../types'
 import { RangeCheck, StackUnderflow } from '../errors'
 
