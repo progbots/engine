@@ -1,11 +1,11 @@
-import { Value } from './types'
+import { Value, IState } from './types'
 import { cycles, State } from './state'
 
 interface TestDescription {
   src: string
   cycles?: number // default to 1
   error?: Function // Subclass of BaseError
-  expect?: Value[] | string // top of the stack
+  expect?: Value[] | string | ((state: IState) => void)
 }
 
 function executeTest (test: TestDescription): void {
@@ -13,7 +13,7 @@ function executeTest (test: TestDescription): void {
     src,
     cycles: expectedCycles,
     error: expectedError,
-    expect: expectedStack
+    expect: expectedResult
   } = test
   const state = new State()
   try {
@@ -21,14 +21,16 @@ function executeTest (test: TestDescription): void {
     if (expectedCycles !== undefined) {
       expect(cyclesCount).toStrictEqual(expectedCycles)
     }
-    if (expectedStack !== undefined) {
+    if (typeof expectedResult === 'function') {
+      expectedResult(state)
+    } else if (expectedResult !== undefined) {
       let expectedStackItems
-      if (typeof expectedStack === 'string') {
+      if (typeof expectedResult === 'string') {
         const expectedState = new State()
-        cycles(expectedState.eval(expectedStack))
+        cycles(expectedState.eval(expectedResult))
         expectedStackItems = expectedState.stack()
       } else {
-        expectedStackItems = expectedStack
+        expectedStackItems = expectedResult
       }
       const stack = state.stack()
       expect(stack.length).toBeGreaterThanOrEqual(expectedStackItems.length)
