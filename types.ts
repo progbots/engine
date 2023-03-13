@@ -19,7 +19,7 @@ export interface IContext {
 }
 
 export interface IState {
-  stack: () => readonly Value[]
+  stack: () => readonly Value[] // ref
   pop: () => void // StackUnderflow
   push: (value: Value) => void
 
