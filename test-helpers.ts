@@ -1,4 +1,4 @@
-import { IState, Value, ValueType } from './types'
+import { Value } from './types'
 import { cycles, State } from './state'
 
 interface TestDescription {
