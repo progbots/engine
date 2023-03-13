@@ -1,21 +1,7 @@
 import { IContext, IState, OperatorFunction, Value, ValueType } from './types'
-import { StackUnderflow, TypeCheck, Undefined } from './errors'
+import { StackUnderflow, Undefined } from './errors'
 import { RootContext } from './contexts'
 import { parse } from './parser'
-
-export function checkStack (state: IState, ...types: ValueType[]): Value[] {
-  const stack = state.stack()
-  if (types.length > stack.length) {
-    throw new StackUnderflow()
-  }
-  return types.map((type: ValueType, pos: number): Value => {
-    const value = stack[pos]
-    if (value.type !== type) {
-      throw new TypeCheck()
-    }
-    return value
-  })
-}
 
 export function cycles (iterator: Generator<void>): number {
   let count = 0
