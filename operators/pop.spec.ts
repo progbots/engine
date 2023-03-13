@@ -1,0 +1,15 @@
+import { StackUnderflow } from '../errors'
+import { executeTests } from '../test-helpers'
+
+describe('operators/pop', () => {
+  executeTests({
+    'removes top item of the stack integers': {
+      src: '1 2 pop',
+      expect: '1'
+    },
+    'fails with StackUnderflow on empty stack': {
+      src: 'pop',
+      error: StackUnderflow
+    }
+  })
+})

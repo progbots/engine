@@ -1,10 +1,16 @@
 import { IContext, OperatorFunction, Value, ValueType } from '../types'
 import { InvalidAccess } from '../errors'
-import { add, index, sub } from '../operators'
+import {
+  add,
+  index,
+  pop,
+  sub
+} from '../operators'
 
 const operators: Record<string, OperatorFunction> = {
   add,
   index,
+  pop,
   sub
 }
 
