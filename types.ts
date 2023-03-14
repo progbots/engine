@@ -20,7 +20,7 @@ export interface IDictionary {
   keys: () => string[]
 }
 
-export type StateMemory = {
+export interface StateMemory {
   used: number
   total: number
 }

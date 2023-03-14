@@ -18,7 +18,7 @@ const VALUE_TYPE_BYTES = 1
 
 const stringSizer = (data: string): number => {
   const encoder = new TextEncoder()
-  const buffer = encoder.encode(data as string)
+  const buffer = encoder.encode(data)
   return buffer.length + 1 // terminal 0
 }
 
@@ -49,7 +49,7 @@ export class State implements IState {
 
   private readonly _stack: Value[] = []
 
-  private _bytes: number = 0;
+  private _bytes: number = 0
 
   memory (): StateMemory {
     return {
@@ -67,12 +67,12 @@ export class State implements IState {
       throw new StackUnderflow()
     }
     const value = this._stack[0]
-    this._bytes -= size(value) + STACK_SLOT_BYTES;
+    this._bytes -= size(value) + STACK_SLOT_BYTES
     this._stack.shift()
   }
 
   push (value: Value): void {
-    this._bytes += size(value) + STACK_SLOT_BYTES;
+    this._bytes += size(value) + STACK_SLOT_BYTES
     this._stack.unshift(value)
   }
 
