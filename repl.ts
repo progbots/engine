@@ -16,6 +16,8 @@ async function main (): Promise<void> {
       break
     }
     if (src === 'state') {
+      const { used, total } = state.memory()
+      console.log('Memory :', used, '/', total)
       console.log('Dictionaries :', state.dictionaries().length)
       state.dictionaries().forEach((dictionary, index) => {
         let type = ''
@@ -32,7 +34,8 @@ async function main (): Promise<void> {
     } else {
       try {
         const count = cycles(state.eval(src))
-        console.log('Cycles :', count)
+        const { used, total } = state.memory()
+        console.log('Cycles :', count, 'Memory :', used, '/', total)
       } catch (e) {
         if (e instanceof BaseError) {
           console.log(`-${e.name}- ${e.message}`)

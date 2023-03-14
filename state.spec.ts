@@ -149,15 +149,44 @@ describe('state', () => {
           data: 3
         }])
       })
+
+      it('resolves and call an operator (string version)', () => {
+        const state = new State()
+        expect(cycles(state.eval('1 2 add'))).toStrictEqual(6) // 3 + 3x parsing cycles
+        expect(state.stack()).toStrictEqual([{
+          type: ValueType.integer,
+          data: 3
+        }])
+      })
     })
 
-    it('resolves and call an operator (string version)', () => {
-      const state = new State()
-      expect(cycles(state.eval('1 2 add'))).toStrictEqual(6) // 3 + 3x parsing cycles
-      expect(state.stack()).toStrictEqual([{
-        type: ValueType.integer,
-        data: 3
-      }])
+    describe('memory monitoring', () => {
+      it('starts with 0 memory used', () => {
+        const state = new State()
+        const { used } = state.memory()
+        expect(used).toStrictEqual(0)
+      })
+
+      it('grows by filling the stack', () => {
+        const state = new State()
+        state.push({
+          type: ValueType.integer,
+          data: 1
+        })
+        const { used } = state.memory()
+        expect(used).not.toStrictEqual(0)
+      })
+
+      it('gets back to 0 after clearing the stack', () => {
+        const state = new State()
+        state.push({
+          type: ValueType.integer,
+          data: 1
+        })
+        state.pop()
+        const { used } = state.memory()
+        expect(used).toStrictEqual(0)
+      })
     })
   })
 })

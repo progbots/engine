@@ -20,13 +20,20 @@ export interface IDictionary {
   keys: () => string[]
 }
 
+export type StateMemory = {
+  used: number
+  total: number
+}
+
 export interface IState {
+  memory: () => StateMemory
+
   stack: () => readonly Value[] // ref
-  pop: () => void // StackUnderflow
+  pop: () => void // throw StackUnderflow
   push: (value: Value) => void
 
   dictionaries: () => readonly IDictionary[] // ref
-  lookup: (name: string) => Value // Undefined
+  lookup: (name: string) => Value // throw Undefined
 
   eval: (value: Value | string) => Generator<void>
 }
