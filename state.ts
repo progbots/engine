@@ -1,6 +1,6 @@
-import { IContext, IState, OperatorFunction, Value, ValueType } from './types'
+import { IDictionary, IState, OperatorFunction, Value, ValueType } from './types'
 import { StackUnderflow, Undefined } from './errors'
-import { RootContext } from './contexts'
+import { SystemDictionary } from './dictionaries'
 import { parse } from './parser'
 
 export function cycles (iterator: Generator<void>): number {
@@ -14,8 +14,8 @@ export function cycles (iterator: Generator<void>): number {
 }
 
 export class State implements IState {
-  private readonly _contexts: IContext[] = [
-    new RootContext()
+  private readonly _dictionaries: IDictionary[] = [
+    new SystemDictionary()
   ]
 
   private readonly _stack: Value[] = []
@@ -35,13 +35,13 @@ export class State implements IState {
     this._stack.unshift(value)
   }
 
-  contexts (): readonly IContext[] {
-    return this._contexts
+  dictionaries (): readonly IDictionary[] {
+    return this._dictionaries
   }
 
   lookup (name: string): Value {
-    for (const context of this._contexts) {
-      const value = context.lookup(name)
+    for (const dictionary of this._dictionaries) {
+      const value = dictionary.lookup(name)
       if (value !== null) {
         return value
       }

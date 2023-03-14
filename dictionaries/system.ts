@@ -1,4 +1,4 @@
-import { IContext, OperatorFunction, Value, ValueType } from '../types'
+import { IDictionary, OperatorFunction, Value, ValueType } from '../types'
 import { InvalidAccess } from '../errors'
 import {
   add,
@@ -18,7 +18,7 @@ const operators: Record<string, OperatorFunction> = {
   sub
 }
 
-export class RootContext implements IContext {
+export class SystemDictionary implements IDictionary {
   def (name: string, value: Value): void {
     throw new InvalidAccess()
   }
@@ -32,5 +32,9 @@ export class RootContext implements IContext {
       type: ValueType.operator,
       data: operator
     }
+  }
+
+  keys (): string [] {
+    return Object.keys(operators)
   }
 }

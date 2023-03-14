@@ -3,7 +3,8 @@ export enum ValueType {
   string = 'stringtype',
   name = 'nametype',
   operator = 'operatortype',
-  array = 'arraytype'
+  array = 'arraytype',
+  dict = 'dicttype'
 }
 
 export type OperatorFunction = (state: IState) => void | Generator<void>
@@ -13,9 +14,10 @@ export interface Value {
   data: number | string | OperatorFunction | Value[]
 }
 
-export interface IContext {
+export interface IDictionary {
   def: (name: string, value: Value) => void
   lookup: (name: string) => Value | null
+  keys: () => string[]
 }
 
 export interface IState {
@@ -23,7 +25,7 @@ export interface IState {
   pop: () => void // StackUnderflow
   push: (value: Value) => void
 
-  contexts: () => readonly IContext[]
+  dictionaries: () => readonly IDictionary[] // ref
   lookup: (name: string) => Value // Undefined
 
   eval: (value: Value | string) => Generator<void>

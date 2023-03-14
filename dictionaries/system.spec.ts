@@ -1,10 +1,10 @@
-import { RootContext } from './root'
+import { SystemDictionary } from './system'
 import { ValueType } from '../types'
 import { InvalidAccess } from '../errors'
 import { add, index, sub } from '../operators'
 
 describe('contexts/root', () => {
-  const context = new RootContext()
+  const context = new SystemDictionary()
 
   it('is read-only', () => {
     expect(() => context.def('test', {

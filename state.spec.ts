@@ -2,7 +2,7 @@ import { cycles, State } from './state'
 import { ValueType } from './types'
 import { StackUnderflow, Undefined } from './errors'
 import { add } from './operators'
-import { RootContext } from './contexts'
+import { SystemDictionary } from './dictionaries'
 
 describe('state', () => {
   describe('State', () => {
@@ -79,7 +79,7 @@ describe('state', () => {
       })
     })
 
-    describe('context management', () => {
+    describe('dictionaries management', () => {
       it('fails on unknown name', () => {
         const state = new State()
         expect(() => state.lookup('unknown_name')).toThrowError(Undefined)
@@ -87,9 +87,9 @@ describe('state', () => {
 
       it('returns the list of contexts', () => {
         const state = new State()
-        const contexts = state.contexts()
-        expect(contexts.length).toStrictEqual(1)
-        expect(contexts[0]).toBeInstanceOf(RootContext)
+        const dictionaries = state.dictionaries()
+        expect(dictionaries.length).toStrictEqual(1)
+        expect(dictionaries[0]).toBeInstanceOf(SystemDictionary)
       })
 
       it('returns add operator', () => {
