@@ -18,9 +18,7 @@ export class State implements IState {
     new RootContext()
   ]
 
-  constructor (
-    private readonly _stack: Value[] = []
-  ) {}
+  private readonly _stack: Value[] = []
 
   stack (): readonly Value[] {
     return this._stack

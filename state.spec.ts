@@ -13,26 +13,6 @@ describe('state', () => {
           expect(state.stack().length).toStrictEqual(0)
         })
 
-        it('allows stack initialization', () => {
-          const state = new State([{
-            type: ValueType.integer,
-            data: 1
-          }])
-          expect(state.stack().length).toStrictEqual(1)
-        })
-
-        it('enables getting stack items', () => {
-          const state = new State([{
-            type: ValueType.integer,
-            data: 1
-          }])
-          const value = state.stack()[0]
-          expect(value).toStrictEqual({
-            type: ValueType.integer,
-            data: 1
-          })
-        })
-
         it('enables pushing stack items', () => {
           const state = new State()
           state.push({
@@ -42,13 +22,50 @@ describe('state', () => {
           expect(state.stack().length).toStrictEqual(1)
         })
 
-        it('enables popping stack items', () => {
-          const state = new State([{
+        it('enables getting stack items', () => {
+          const state = new State()
+          state.push({
             type: ValueType.integer,
             data: 1
-          }])
+          })
+          const value = state.stack()[0]
+          expect(value).toStrictEqual({
+            type: ValueType.integer,
+            data: 1
+          })
+        })
+
+        it('enables popping stack items', () => {
+          const state = new State()
+          state.push({
+            type: ValueType.integer,
+            data: 1
+          })
           state.pop()
           expect(state.stack().length).toStrictEqual(0)
+        })
+
+        describe('stack order', () => {
+          it('considers the first item as the last pushed', () => {
+            const state = new State()
+            state.push({
+              type: ValueType.integer,
+              data: 1
+            })
+            state.push({
+              type: ValueType.integer,
+              data: 2
+            })
+            const [first, second] = state.stack()
+            expect(first).toStrictEqual({
+              type: ValueType.integer,
+              data: 2
+            })
+            expect(second).toStrictEqual({
+              type: ValueType.integer,
+              data: 1
+            })
+          })
         })
       })
 
@@ -97,6 +114,20 @@ describe('state', () => {
           type: ValueType.integer,
           data: 1
         }])
+      })
+
+      it('considers the first item as the last pushed', () => {
+        const state = new State()
+        expect(cycles(state.eval('1 2'))).toStrictEqual(4)
+        const [first, second] = state.stack()
+        expect(first).toStrictEqual({
+          type: ValueType.integer,
+          data: 2
+        })
+        expect(second).toStrictEqual({
+          type: ValueType.integer,
+          data: 1
+        })
       })
 
       it('resolves and call an operator (Values version)', () => {
