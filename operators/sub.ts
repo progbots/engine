@@ -7,6 +7,6 @@ export function sub (state: IState): void {
   state.pop()
   state.push({
     type: ValueType.integer,
-    data: num1 - num2
+    data: num2 - num1
   })
 }

@@ -4,7 +4,7 @@ import { executeTests } from '../test-helpers'
 describe('operators/sub', () => {
   executeTests({
     'substracts two numbers': {
-      src: '3 2 sub',
+      src: '2 3 sub',
       expect: '-1'
     },
     'fails with StackUnderflow on empty stack': {
