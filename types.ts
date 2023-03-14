@@ -11,7 +11,7 @@ export type OperatorFunction = (state: IState) => void | Generator<void>
 
 export interface Value {
   type: ValueType
-  data: number | string | OperatorFunction | Value[]
+  data: number | string | OperatorFunction | Value[] | IDictionary
 }
 
 export interface IDictionary {
