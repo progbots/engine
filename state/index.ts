@@ -1,4 +1,3 @@
-export * from './cycle'
 export * from './memory'
 export * from './parser'
 export * from './stack'
