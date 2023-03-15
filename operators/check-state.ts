@@ -2,7 +2,7 @@ import { IState, Value, ValueType } from '../types'
 import { StackUnderflow, TypeCheck } from '../errors'
 
 export function checkStack (state: IState, ...types: Array<ValueType | null>): Value[] {
-  const stack = state.stack()
+  const stack = state.stackRef()
   if (types.length > stack.length) {
     throw new StackUnderflow()
   }

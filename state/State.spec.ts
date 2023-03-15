@@ -1,16 +1,17 @@
-import { cycles, State } from './state'
-import { ValueType } from './types'
-import { StackUnderflow, Undefined } from './errors'
-import { add } from './operators'
-import { SystemDictionary } from './dictionaries'
+import { State } from './State'
+import { ValueType } from '../types'
+import { StackUnderflow, Undefined } from '../errors'
+import { length as itLength } from '../iterators'
+import { add } from '../operators'
+import { SystemDictionary } from '../dictionaries'
 
-describe('state', () => {
+describe('state/State', () => {
   describe('State', () => {
     describe('stack management', () => {
       describe('happy path', () => {
         it('starts with an empty stack', () => {
           const state = new State()
-          expect(state.stack().length).toStrictEqual(0)
+          expect(state.stackRef().length).toStrictEqual(0)
         })
 
         it('enables pushing stack items', () => {
@@ -19,7 +20,7 @@ describe('state', () => {
             type: ValueType.integer,
             data: 1
           })
-          expect(state.stack().length).toStrictEqual(1)
+          expect(state.stackRef().length).toStrictEqual(1)
         })
 
         it('enables getting stack items', () => {
@@ -28,7 +29,7 @@ describe('state', () => {
             type: ValueType.integer,
             data: 1
           })
-          const value = state.stack()[0]
+          const value = state.stackRef()[0]
           expect(value).toStrictEqual({
             type: ValueType.integer,
             data: 1
@@ -42,7 +43,7 @@ describe('state', () => {
             data: 1
           })
           state.pop()
-          expect(state.stack().length).toStrictEqual(0)
+          expect(state.stackRef().length).toStrictEqual(0)
         })
 
         describe('stack order', () => {
@@ -56,7 +57,7 @@ describe('state', () => {
               type: ValueType.integer,
               data: 2
             })
-            const [first, second] = state.stack()
+            const [first, second] = state.stackRef()
             expect(first).toStrictEqual({
               type: ValueType.integer,
               data: 2
@@ -87,9 +88,9 @@ describe('state', () => {
 
       it('returns the list of contexts', () => {
         const state = new State()
-        const dictionaries = state.dictionaries()
-        expect(dictionaries.length).toStrictEqual(1)
-        expect(dictionaries[0]).toBeInstanceOf(SystemDictionary)
+        expect(itLength(state.dictionaries())).toStrictEqual(1)
+        const [topDictionary] = state.dictionaries()
+        expect(topDictionary).toBeInstanceOf(SystemDictionary)
       })
 
       it('returns add operator', () => {
@@ -105,12 +106,12 @@ describe('state', () => {
     describe('execution management', () => {
       it('stacks integer value', () => {
         const state = new State()
-        const count = cycles(state.eval({
+        const count = itLength(state.eval({
           type: ValueType.integer,
           data: 1
         }))
         expect(count).toStrictEqual(1)
-        expect(state.stack()).toStrictEqual([{
+        expect(state.stackRef()).toStrictEqual([{
           type: ValueType.integer,
           data: 1
         }])
@@ -118,8 +119,8 @@ describe('state', () => {
 
       it('considers the first item as the last pushed', () => {
         const state = new State()
-        expect(cycles(state.eval('1 2'))).toStrictEqual(4)
-        const [first, second] = state.stack()
+        expect(itLength(state.eval('1 2'))).toStrictEqual(4)
+        const [first, second] = state.stackRef()
         expect(first).toStrictEqual({
           type: ValueType.integer,
           data: 2
@@ -132,19 +133,19 @@ describe('state', () => {
 
       it('resolves and call an operator (Values version)', () => {
         const state = new State()
-        expect(cycles(state.eval({
+        expect(itLength(state.eval({
           type: ValueType.integer,
           data: 1
         }))).toStrictEqual(1)
-        expect(cycles(state.eval({
+        expect(itLength(state.eval({
           type: ValueType.integer,
           data: 2
         }))).toStrictEqual(1)
-        expect(cycles(state.eval({
+        expect(itLength(state.eval({
           type: ValueType.name,
           data: 'add'
         }))).toStrictEqual(1)
-        expect(state.stack()).toStrictEqual([{
+        expect(state.stackRef()).toStrictEqual([{
           type: ValueType.integer,
           data: 3
         }])
@@ -152,8 +153,8 @@ describe('state', () => {
 
       it('resolves and call an operator (string version)', () => {
         const state = new State()
-        expect(cycles(state.eval('1 2 add'))).toStrictEqual(6) // 3 + 3x parsing cycles
-        expect(state.stack()).toStrictEqual([{
+        expect(itLength(state.eval('1 2 add'))).toStrictEqual(6) // 3 + 3x parsing itLength
+        expect(state.stackRef()).toStrictEqual([{
           type: ValueType.integer,
           data: 3
         }])
@@ -161,10 +162,16 @@ describe('state', () => {
     })
 
     describe('memory monitoring', () => {
-      it('starts with 0 memory used', () => {
+      let initialMemoryUsed: number
+
+      beforeAll(() => {
         const state = new State()
         const { used } = state.memory()
-        expect(used).toStrictEqual(0)
+        initialMemoryUsed = used
+      })
+
+      it('starts with initial memory used', () => {
+        expect(initialMemoryUsed).not.toStrictEqual(0)
       })
 
       it('grows by filling the stack', () => {
@@ -174,10 +181,10 @@ describe('state', () => {
           data: 1
         })
         const { used } = state.memory()
-        expect(used).not.toStrictEqual(0)
+        expect(used).toBeGreaterThan(initialMemoryUsed)
       })
 
-      it('gets back to 0 after clearing the stack', () => {
+      it('gets back to initial after clearing the stack', () => {
         const state = new State()
         state.push({
           type: ValueType.integer,
@@ -185,7 +192,7 @@ describe('state', () => {
         })
         state.pop()
         const { used } = state.memory()
-        expect(used).toStrictEqual(0)
+        expect(used).toStrictEqual(initialMemoryUsed)
       })
     })
   })

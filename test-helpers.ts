@@ -1,5 +1,6 @@
 import { Value, IState } from './types'
-import { cycles, State } from './state'
+import { State } from './state'
+import { length as itLength } from './iterators'
 
 interface TestDescription {
   src: string
@@ -17,7 +18,7 @@ function executeTest (test: TestDescription): void {
   } = test
   const state = new State()
   try {
-    const cyclesCount = cycles(state.eval(src))
+    const cyclesCount = itLength(state.eval(src))
     if (expectedCycles !== undefined) {
       expect(cyclesCount).toStrictEqual(expectedCycles)
     }
@@ -27,12 +28,12 @@ function executeTest (test: TestDescription): void {
       let expectedStackItems
       if (typeof expectedResult === 'string') {
         const expectedState = new State()
-        cycles(expectedState.eval(expectedResult))
-        expectedStackItems = expectedState.stack()
+        itLength(expectedState.eval(expectedResult))
+        expectedStackItems = expectedState.stackRef()
       } else {
         expectedStackItems = expectedResult
       }
-      const stack = state.stack()
+      const stack = state.stackRef()
       expect(stack.length).toBeGreaterThanOrEqual(expectedStackItems.length)
       expect(stack.slice(0, expectedStackItems.length)).toStrictEqual(expectedStackItems)
     }
