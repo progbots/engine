@@ -9,15 +9,19 @@ export enum ValueType {
 
 export type OperatorFunction = (state: IState) => void | Generator<void>
 
-export interface Value {
-  type: ValueType
-  data: number | string | OperatorFunction | Value[] | IDictionary
-}
-
 export interface IDictionary {
   def: (name: string, value: Value) => void
   lookup: (name: string) => Value | null
   keys: () => string[]
+}
+
+export interface Value {
+  type: ValueType
+  data: number // integer
+  | string // string, name
+  | OperatorFunction // operator
+  | Value[] // array
+  | IDictionary // dict
 }
 
 export interface StateMemory {
@@ -28,12 +32,14 @@ export interface StateMemory {
 export interface IState {
   memory: () => StateMemory
 
-  stack: () => Generator<Value>
-  pop: () => number // throw StackUnderflow
-  push: (value: Value) => number
+  stackRef: () => readonly Value[]
+  pop: () => void // throw StackUnderflow
+  push: (value: Value) => void
 
   dictionaries: () => Generator<IDictionary>
   lookup: (name: string) => Value // throw Undefined
+  begin: (dictionary: IDictionary) => void
+  end: () => void // throw dictstackunderflow
 
   eval: (value: Value | string) => Generator<void>
 }
