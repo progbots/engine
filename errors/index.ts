@@ -1,3 +1,4 @@
+export * from './DictStackUnderflow'
 export * from './InvalidAccess'
 export * from './RangeCheck'
 export * from './StackUnderflow'
