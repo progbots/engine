@@ -1,6 +1,7 @@
 import { IDictionary, IState, OperatorFunction, StateMemory, Value, ValueType } from '../types'
-import { Undefined } from '../errors'
+import { DictStackUnderflow, Undefined } from '../errors'
 import { parse, Stack, MemoryTracker } from '.'
+import { SystemDictionary } from '../dictionaries'
 
 export class State implements IState {
   private readonly _dictionaries: Stack
@@ -10,6 +11,7 @@ export class State implements IState {
   constructor () {
     this._memoryTracker = new MemoryTracker()
     this._dictionaries = new Stack(this._memoryTracker)
+    this.begin(new SystemDictionary())
     this._stack = new Stack(this._memoryTracker)
   }
 
@@ -21,16 +23,16 @@ export class State implements IState {
     }
   }
 
-  stack (): Generator<Value> {
-    return this._stack[Symbol.iterator]()
+  stackRef (): readonly Value[] {
+    return this._stack.ref
   }
 
-  pop (): number {
-    return this._stack.pop()
+  pop (): void {
+    this._stack.pop()
   }
 
-  push (value: Value): number {
-    return this._stack.push(value)
+  push (value: Value): void {
+    this._stack.push(value)
   }
 
   * dictionaries (): Generator<IDictionary> {
@@ -47,6 +49,20 @@ export class State implements IState {
       }
     }
     throw new Undefined()
+  }
+
+  begin (dictionary: IDictionary): void {
+    this._dictionaries.push({
+      type: ValueType.dict,
+      data: dictionary
+    })
+  }
+
+  end (): void {
+    if (this._dictionaries.ref.length === 1) {
+      throw new DictStackUnderflow()
+    }
+    this._dictionaries.pop()
   }
 
   private * _eval (value: Value): Generator<void> {
