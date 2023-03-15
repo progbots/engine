@@ -2,7 +2,7 @@ import { State } from '../state'
 import { Value, ValueType } from '../types'
 import { parse } from './parser'
 
-describe('parser', () => {
+describe('state/parser', () => {
   const values: Record<string, Value> = {
     1: {
       type: ValueType.integer,
