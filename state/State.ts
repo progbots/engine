@@ -1,12 +1,14 @@
 import { IDictionary, IState, OperatorFunction, StateMemory, Value, ValueType } from '../types'
 import { DictStackUnderflow, Undefined } from '../errors'
-import { parse, Stack, MemoryTracker } from '.'
+import { parse } from '.'
+import { Stack } from './Stack'
+import { MemoryTracker } from './MemoryTracker'
 import { SystemDictionary } from '../dictionaries'
 
 export class State implements IState {
+  private readonly _memoryTracker: MemoryTracker
   private readonly _dictionaries: Stack
   private readonly _stack: Stack
-  private readonly _memoryTracker: MemoryTracker
 
   constructor () {
     this._memoryTracker = new MemoryTracker()

@@ -1,11 +1,11 @@
-import { State } from './state'
+import { State } from './State'
 import { ValueType } from '../types'
 import { StackUnderflow, Undefined } from '../errors'
 import { length as itLength } from '../iterators'
 import { add } from '../operators'
 import { SystemDictionary } from '../dictionaries'
 
-describe('state', () => {
+describe('state/State', () => {
   describe('State', () => {
     describe('stack management', () => {
       describe('happy path', () => {
