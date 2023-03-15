@@ -11,14 +11,13 @@ export class Stack {
     private readonly _memoryTracker: MemoryTracker
   ) {}
 
-  push (value: Value): number {
+  push (value: Value): void {
     this._memoryTracker.addRef(value)
     this._memoryTracker.increment(STACK_SLOT_BYTES)
     this._values.unshift(value)
-    return this._values.length
   }
 
-  pop (): number {
+  pop (): void {
     if (this._values.length === 0) {
       throw new StackUnderflow()
     }
@@ -26,7 +25,10 @@ export class Stack {
     this._memoryTracker.release(value)
     this._memoryTracker.decrement(STACK_SLOT_BYTES)
     this._values.shift()
-    return this._values.length
+  }
+
+  get ref (): readonly Value[] {
+    return this._values
   }
 
   * [Symbol.iterator] (): Generator<Value> {
