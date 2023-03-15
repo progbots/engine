@@ -7,7 +7,7 @@ export function index (state: IState): void {
   if (pos < 0) {
     throw new RangeCheck()
   }
-  const stack = state.stack()
+  const stack = state.stackRef()
   if (pos + 1 >= stack.length) {
     throw new StackUnderflow()
   }
