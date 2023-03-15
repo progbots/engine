@@ -1,8 +1,9 @@
 import * as readline from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
-import { cycles, State } from './state'
+import { State } from './state'
 import { BaseError } from './errors/BaseError'
 import { SystemDictionary } from './dictionaries'
+import { length as itLength } from './iterators'
 
 async function main (): Promise<void> {
   const rl = readline.createInterface({ input, output })
@@ -11,29 +12,31 @@ async function main (): Promise<void> {
   const state = new State()
 
   while (true) {
-    const src = await rl.question(`${state.stack().length}> `)
+    const src = await rl.question(`${state.stackRef().length}> `)
     if (src === 'exit') {
       break
     }
     if (src === 'state') {
       const { used, total } = state.memory()
       console.log('Memory :', used, '/', total)
-      console.log('Dictionaries :', state.dictionaries().length)
-      state.dictionaries().forEach((dictionary, index) => {
+      console.log('Dictionaries :', itLength(state.dictionaries()))
+      let index = 0
+      for (const dictionary of state.dictionaries()) {
         let type = ''
         if (dictionary instanceof SystemDictionary) {
           type = 'system'
         }
         const keys = dictionary.keys()
         console.log(index, ''.padEnd(3 - index.toString().length, ' '), `(${type})`, keys.length)
-      })
-      console.log('Stack :', state.stack().length)
-      state.stack().forEach(({ type, data }, index) => {
+        ++index
+      }
+      console.log('Stack :', state.stackRef().length)
+      state.stackRef().forEach(({ type, data }, index) => {
         console.log(index, ''.padEnd(3 - index.toString().length, ' '), `(${type})`, data)
       })
     } else {
       try {
-        const count = cycles(state.eval(src))
+        const count = itLength(state.eval(src))
         const { used, total } = state.memory()
         console.log('Cycles :', count, 'Memory :', used, '/', total)
       } catch (e) {
