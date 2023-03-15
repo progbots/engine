@@ -24,7 +24,7 @@ const sizers: Record<ValueType, (value: Value) => number> = {
 }
 
 function size (value: Value): number {
-  return 1 + sizers[value.type](value)
+  return 1 /* type */ + sizers[value.type](value)
 }
 
 export class MemoryTracker {
@@ -42,11 +42,11 @@ export class MemoryTracker {
     return this._total
   }
 
-  addRef (value: Value): void {
+  addValueRef (value: Value): void {
     this._used += size(value)
   }
 
-  release (value: Value): void {
+  releaseValue (value: Value): void {
     this._used -= size(value)
   }
 
