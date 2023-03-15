@@ -1,5 +1,5 @@
-import { State } from './state'
-import { Value, ValueType } from './types'
+import { State } from '../state'
+import { Value, ValueType } from '../types'
 import { parse } from './parser'
 
 describe('parser', () => {

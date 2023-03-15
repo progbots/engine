@@ -1,8 +1,8 @@
 import { cycles, State } from './state'
-import { ValueType } from './types'
-import { StackUnderflow, Undefined } from './errors'
-import { add } from './operators'
-import { SystemDictionary } from './dictionaries'
+import { ValueType } from '../types'
+import { StackUnderflow, Undefined } from '../errors'
+import { add } from '../operators'
+import { SystemDictionary } from '../dictionaries'
 
 describe('state', () => {
   describe('State', () => {

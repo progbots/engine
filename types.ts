@@ -28,11 +28,11 @@ export interface StateMemory {
 export interface IState {
   memory: () => StateMemory
 
-  stack: () => readonly Value[] // ref
-  pop: () => void // throw StackUnderflow
-  push: (value: Value) => void
+  stack: () => Generator<Value>
+  pop: () => number // throw StackUnderflow
+  push: (value: Value) => number
 
-  dictionaries: () => readonly IDictionary[] // ref
+  dictionaries: () => Generator<IDictionary>
   lookup: (name: string) => Value // throw Undefined
 
   eval: (value: Value | string) => Generator<void>
