@@ -4,6 +4,39 @@ import { State } from './state'
 import { BaseError } from './errors/BaseError'
 import { SystemDictionary } from './objects/dictionaries'
 import { length as itLength } from './iterators'
+import { OperatorFunction, Value, ValueType } from './types'
+
+const types: Record<ValueType, string> = {
+  [ValueType.integer]: 'Z', // R
+  [ValueType.string]: '🖹',
+  [ValueType.name]: '🏷️',
+  [ValueType.call]: '⚡',
+  [ValueType.operator]: '🔩',
+  [ValueType.array]: '📦',
+  [ValueType.dict]: '📕'
+}
+
+function * fmt (value: Value): Generator<number | string> {
+  if (value.type === ValueType.integer) {
+    yield value.data as number
+  } else if (value.type === ValueType.name) {
+    yield value.data as string
+  } else if (value.type === ValueType.operator) {
+    yield (value.data as OperatorFunction).name
+  }
+}
+
+function * memory (state: State): Generator<number | string> {
+  const { used, total } = state.memory()
+  yield '💾'
+  yield used
+  if (total === Infinity) {
+    yield '/∞'
+  } else {
+    yield '/'
+    yield total
+  }
+}
 
 async function main (): Promise<void> {
   const rl = readline.createInterface({ input, output })
@@ -17,31 +50,28 @@ async function main (): Promise<void> {
       break
     }
     if (src === 'state') {
-      const { used, total } = state.memory()
-      console.log('Memory :', used, '/', total)
-      console.log('Dictionaries :', itLength(state.dictionaries()))
+      console.log(...memory(state))
       let index = 0
       for (const dictionary of state.dictionaries()) {
         let type = ''
         if (dictionary instanceof SystemDictionary) {
-          type = 'system'
+          type = '🔩'
         }
         const keys = dictionary.keys()
-        console.log(index, ''.padEnd(3 - index.toString().length, ' '), `(${type})`, keys.length)
+        console.log('📕', index, ''.padEnd(3 - index.toString().length, ' '), type, '🔑', keys.length)
         ++index
       }
-      console.log('Stack :', state.stackRef().length)
-      state.stackRef().forEach(({ type, data }, index) => {
-        console.log(index, ''.padEnd(3 - index.toString().length, ' '), `(${type})`, data)
+      state.stackRef().forEach((value, index) => {
+        console.log('📥', index, ''.padEnd(3 - index.toString().length, ' '), types[value.type], ...fmt(value))
       })
+      console.log()
     } else {
       try {
         const count = itLength(state.eval(src))
-        const { used, total } = state.memory()
-        console.log('Cycles :', count, 'Memory :', used, '/', total)
+        console.log('↻', count, ...memory(state))
       } catch (e) {
         if (e instanceof BaseError) {
-          console.log(`-${e.name}- ${e.message}`)
+          console.error(`🛑 ${e.name} ${e.message}`)
         } else {
           console.error(e)
           break
