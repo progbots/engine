@@ -68,7 +68,7 @@ export class State implements IState {
   }
 
   private * _eval (value: Value): Generator<void> {
-    if (value.type === ValueType.name) {
+    if (value.type === ValueType.call) {
       const resolvedValue = this.lookup(value.data as string)
       if (resolvedValue.type === ValueType.operator) {
         const operator = resolvedValue.data as OperatorFunction

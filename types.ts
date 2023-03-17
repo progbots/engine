@@ -2,6 +2,7 @@ export enum ValueType {
   integer = 'integertype',
   string = 'stringtype',
   name = 'nametype',
+  call = 'calltype',
   operator = 'operatortype',
   array = 'arraytype',
   dict = 'dicttype'
@@ -18,7 +19,7 @@ export interface IDictionary {
 export interface Value {
   type: ValueType
   data: number // integer
-  | string // string, name
+  | string // string, name, call
   | OperatorFunction // operator
   | Value[] // array
   | IDictionary // dict

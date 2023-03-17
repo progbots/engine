@@ -8,7 +8,7 @@ const stringSizer = (data: string): number => {
 }
 
 function isCachableString (value: Value): boolean {
-  if ([ValueType.string, ValueType.name].includes(value.type)) {
+  if ([ValueType.string, ValueType.name, ValueType.call].includes(value.type)) {
     const text = value.data as string
     return text.length >= MemoryTracker.CACHABLE_STRING_LENGTH
   }

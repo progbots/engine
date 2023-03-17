@@ -142,7 +142,7 @@ describe('state/State', () => {
           data: 2
         }))).toStrictEqual(1)
         expect(itLength(state.eval({
-          type: ValueType.name,
+          type: ValueType.call,
           data: 'add'
         }))).toStrictEqual(1)
         expect(state.stackRef()).toStrictEqual([{

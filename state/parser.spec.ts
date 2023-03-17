@@ -13,12 +13,16 @@ describe('state/parser', () => {
       data: -1
     },
     add: {
-      type: ValueType.name,
+      type: ValueType.call,
       data: 'add'
     },
     '"a"': {
       type: ValueType.string,
       data: 'a'
+    },
+    '/add': {
+      type: ValueType.name,
+      data: 'add'
     }
   }
 
@@ -41,7 +45,7 @@ describe('state/parser', () => {
       type: ValueType.integer,
       data: 2
     }, {
-      type: ValueType.name,
+      type: ValueType.call,
       data: 'add'
     }])
   })
