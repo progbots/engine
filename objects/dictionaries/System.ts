@@ -1,23 +1,7 @@
 import { IDictionary, OperatorFunction, Value, ValueType } from '../../types'
 import { ShareableObject } from '../ShareableObject'
 import { InvalidAccess } from '../../errors'
-import {
-  add,
-  clear,
-  dup,
-  index,
-  pop,
-  sub
-} from '../../operators'
-
-const operators: Record<string, OperatorFunction> = {
-  add,
-  clear,
-  dup,
-  index,
-  pop,
-  sub
-}
+import * as operators from '../../operators'
 
 export class SystemDictionary extends ShareableObject implements IDictionary {
   def (name: string, value: Value): void {
@@ -25,7 +9,7 @@ export class SystemDictionary extends ShareableObject implements IDictionary {
   }
 
   lookup (name: string): Value | null {
-    const operator = operators[name]
+    const operator = (operators as Record<string, OperatorFunction>)[name]
     if (operator === undefined) {
       return null
     }
