@@ -1,5 +1,5 @@
-import { ValueType } from "../types";
-import { MemoryTracker } from "./MemoryTracker";
+import { ValueType } from '../types'
+import { MemoryTracker } from './MemoryTracker'
 
 describe('state/MemoryTracker', () => {
   describe('initial state', () => {
@@ -22,8 +22,7 @@ describe('state/MemoryTracker', () => {
     })
 
     it('counts bytes for the value', () => {
-      expect(integerValueSize).not.toStrictEqual(0);
-      console.log(integerValueSize)
+      expect(integerValueSize).not.toStrictEqual(0)
     })
 
     it('accumulates Value sizes', () => {
@@ -31,10 +30,71 @@ describe('state/MemoryTracker', () => {
       const value = {
         type: ValueType.integer,
         data: 1
-      };
+      }
       tracker.addValueRef(value)
       tracker.addValueRef(value)
-      expect(tracker.used).toStrictEqual(2 * integerValueSize);
+      expect(tracker.used).toStrictEqual(2 * integerValueSize)
+    })
+  })
+
+  describe('string management', () => {
+    it('duplicates small strings', () => {
+      const tracker = new MemoryTracker()
+      tracker.addValueRef({
+        type: ValueType.string,
+        data: 'small'
+      })
+      const { used } = tracker
+      tracker.addValueRef({
+        type: ValueType.string,
+        data: 'small'
+      })
+      expect(tracker.used).toStrictEqual(2 * used)
+    })
+
+    describe('reference counts big strings', () => {
+      const bigString = ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef')
+      let tracker: MemoryTracker
+      let initial: number
+      let addedOnce: number
+
+      beforeAll(() => {
+        tracker = new MemoryTracker()
+        initial = tracker.used
+      })
+
+      it('stores string in a buffer', () => {
+        tracker.addValueRef({
+          type: ValueType.string,
+          data: bigString
+        })
+        addedOnce = tracker.used
+        expect(addedOnce).toBeGreaterThan(initial)
+      })
+
+      it('does not duplicate string if already reference counted', () => {
+        tracker.addValueRef({
+          type: ValueType.string,
+          data: bigString
+        })
+        expect(tracker.used).toBeLessThan(2 * addedOnce)
+      })
+
+      it('does not free memory until removed the right number of times', () => {
+        tracker.releaseValue({
+          type: ValueType.string,
+          data: bigString
+        })
+        expect(tracker.used).toStrictEqual(addedOnce)
+      })
+
+      it('frees memory on last release', () => {
+        tracker.releaseValue({
+          type: ValueType.string,
+          data: bigString
+        })
+        expect(tracker.used).toStrictEqual(initial)
+      })
     })
   })
 })

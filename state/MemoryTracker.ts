@@ -1,5 +1,5 @@
-import { IDictionary, Value, ValueType } from '../types'
-import { SystemDictionary } from '../dictionaries'
+import { Value, ValueType } from '../types'
+import { ShareableObject } from '../objects/ShareableObject'
 
 const stringSizer = (data: string): number => {
   const encoder = new TextEncoder()
@@ -7,28 +7,56 @@ const stringSizer = (data: string): number => {
   return buffer.length + 1 // terminal 0
 }
 
-const sizers: Record<ValueType, (value: Value) => number> = {
-  [ValueType.integer]: () => 4,
-  [ValueType.string]: (value) => stringSizer(value.data as string),
-  [ValueType.name]: (value) => stringSizer(value.data as string),
-  [ValueType.operator]: () => 0, // considered ROM
-  [ValueType.array]: (value) => (value.data as Value[]).reduce((sum: number, subValue: Value) => sum + size(subValue), 0),
-  [ValueType.dict]: (value) => {
-    const dictionary = value.data as IDictionary
-    if (dictionary instanceof SystemDictionary) {
-      return 0 // considered ROM
-    }
-    const keys = dictionary.keys()
-    return keys.reduce((sum: number, key: string) => sum + stringSizer(key) + size(dictionary.lookup(key) as Value), 0)
+function isCachableString (value: Value): boolean {
+  if ([ValueType.string, ValueType.name].includes(value.type)) {
+    const text = value.data as string
+    return text.length >= MemoryTracker.CACHABLE_STRING_LENGTH
   }
+  return false
 }
 
-function size (value: Value): number {
-  return 1 /* type */ + sizers[value.type](value)
+function isShareableObject (value: Value): boolean {
+  return ![
+    ValueType.integer,
+    ValueType.name,
+    ValueType.string,
+    ValueType.operator
+  ].includes(value.type)
 }
 
 export class MemoryTracker {
+  public static readonly POINTER_SIZE = 4
+  public static readonly INTEGER_SIZE = 4
+  public static readonly VALUE_TYPE_SIZE = 1
+  public static readonly VALUE_SIZE = MemoryTracker.VALUE_TYPE_SIZE + MemoryTracker.POINTER_SIZE
+  public static readonly CACHABLE_STRING_LENGTH = 32
+
   private _used: number = 0
+
+  private readonly _strings: string[] = []
+  private readonly _stringsRefCount: number[] = []
+
+  private _addStringRef (value: Value): number {
+    const text = value.data as string
+    const pos = this._strings.indexOf(text)
+    if (pos === -1) {
+      this._strings.push(text)
+      this._stringsRefCount.push(1)
+      return stringSizer(text) + MemoryTracker.INTEGER_SIZE
+    }
+    ++this._stringsRefCount[pos]
+    return 0
+  }
+
+  private _releaseString (value: Value): number {
+    const text = value.data as string
+    const pos = this._strings.indexOf(text)
+    const refCount = --this._stringsRefCount[pos]
+    if (refCount === 0) {
+      return stringSizer(text) + MemoryTracker.INTEGER_SIZE
+    }
+    return 0
+  }
 
   constructor (
     private readonly _total: number = Infinity
@@ -43,11 +71,25 @@ export class MemoryTracker {
   }
 
   addValueRef (value: Value): void {
-    this._used += size(value)
+    let valueSize: number = MemoryTracker.VALUE_SIZE
+    if (isCachableString(value)) {
+      valueSize += this._addStringRef(value)
+    } else if (isShareableObject(value)) {
+      const shareableObject = value.data as unknown as ShareableObject
+      shareableObject.addRef()
+    }
+    this.increment(valueSize)
   }
 
   releaseValue (value: Value): void {
-    this._used -= size(value)
+    let valueSize: number = MemoryTracker.VALUE_SIZE
+    if (isCachableString(value)) {
+      valueSize += this._releaseString(value)
+    } else if (isShareableObject(value)) {
+      const shareableObject = value.data as unknown as ShareableObject
+      shareableObject.release()
+    }
+    this.decrement(valueSize)
   }
 
   increment (bytes: number): void {
