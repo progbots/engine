@@ -12,6 +12,7 @@ const types: Record<ValueType, string> = {
   [ValueType.name]: '🏷️',
   [ValueType.call]: '⚡',
   [ValueType.operator]: '🔩',
+  [ValueType.mark]: '🚩',
   [ValueType.array]: '📦',
   [ValueType.dict]: '📕'
 }
@@ -19,10 +20,12 @@ const types: Record<ValueType, string> = {
 function * fmt (value: Value): Generator<number | string> {
   if (value.type === ValueType.integer) {
     yield value.data as number
-  } else if (value.type === ValueType.name) {
+  } else if ([ValueType.string, ValueType.name, ValueType.call].includes(value.type)) {
     yield value.data as string
   } else if (value.type === ValueType.operator) {
     yield (value.data as OperatorFunction).name
+  } else if (value.type === ValueType.mark) {
+    yield ''
   }
 }
 
@@ -45,7 +48,7 @@ async function main (): Promise<void> {
   const state = new State()
 
   while (true) {
-    const src = await rl.question(`${state.stackRef().length}> `)
+    const src = await rl.question('❔ ')
     if (src === 'exit') {
       break
     }
@@ -64,11 +67,10 @@ async function main (): Promise<void> {
       state.stackRef().forEach((value, index) => {
         console.log('📥', index, ''.padEnd(3 - index.toString().length, ' '), types[value.type], ...fmt(value))
       })
-      console.log()
     } else {
       try {
         const count = itLength(state.eval(src))
-        console.log('↻', count, ...memory(state))
+        console.log('↻', count, '📥', state.stackRef().length, ...memory(state))
       } catch (e) {
         if (e instanceof BaseError) {
           console.error(`🛑 ${e.name} ${e.message}`)

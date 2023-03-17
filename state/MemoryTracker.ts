@@ -20,7 +20,8 @@ function isShareableObject (value: Value): boolean {
     ValueType.integer,
     ValueType.name,
     ValueType.string,
-    ValueType.operator
+    ValueType.operator,
+    ValueType.mark
   ].includes(value.type)
 }
 
