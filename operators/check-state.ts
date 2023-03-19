@@ -1,7 +1,8 @@
-import { IState, Value, ValueType } from '../types'
+import { State } from '../state'
+import { Value, ValueType } from '../types'
 import { StackUnderflow, TypeCheck } from '../errors'
 
-export function checkStack (state: IState, ...types: Array<ValueType | null>): Value[] {
+export function checkStack (state: State, ...types: Array<ValueType | null>): Value[] {
   const stack = state.stackRef()
   if (types.length > stack.length) {
     throw new StackUnderflow()

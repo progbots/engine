@@ -1,7 +1,7 @@
 import { IState, Value, ValueType } from '../types'
 
 export function * parse (src: string, state: IState): Generator<Value> {
-  const matcher = /(?:"([^"]*)")|(-?\d+)|\/(\w+)|(\w+)/g
+  const matcher = /(?:"([^"]*)")|(-?\d+)|\/(\w+)|(\w+|\[|\])/g
   let match = matcher.exec(src)
   while (match !== null) {
     const [, string, integer, name, call] = match

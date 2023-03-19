@@ -1,5 +1,6 @@
 import { State } from '../state'
 import { UnmatchedMark } from '../errors'
+import { Array } from '../objects/Array'
 import { Value, ValueType } from '../types'
 
 export function counttomark (state: State): void {
@@ -7,8 +8,7 @@ export function counttomark (state: State): void {
   if (pos === -1) {
     throw new UnmatchedMark()
   }
-  state.push({
-    type: ValueType.integer,
-    data: pos
-  })
+  const array = new Array()
+
+  state.push(array)
 }
