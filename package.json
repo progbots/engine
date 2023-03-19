@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "lint": "ts-standard --fix",
-    "repl": "ts-node repl"
+    "start": "ts-node repl"
   },
   "repository": {
     "type": "git",
