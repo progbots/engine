@@ -22,6 +22,7 @@ function executeTest (test: TestDescription): void {
     if (expectedCycles !== undefined) {
       expect(cyclesCount).toStrictEqual(expectedCycles)
     }
+    expect(expectedError).toBeUndefined()
     if (typeof expectedResult === 'function') {
       expectedResult(state)
     } else if (expectedResult !== undefined) {
