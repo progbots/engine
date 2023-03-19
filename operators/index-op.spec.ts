@@ -8,7 +8,7 @@ describe('operators/index', () => {
       expect: '"a"'
     },
     'fails with StackUnderflow when going beyond the stack size': {
-      src: '"a" "b" 1 index',
+      src: '"a" "b" 2 index',
       error: StackUnderflow
     },
     'fails with RangeError when using negative index': {
