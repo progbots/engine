@@ -1,6 +1,7 @@
 export * from './add'
 export * from './clear'
 export * from './cleartomark'
+export * from './counttomark'
 export * from './dup'
 export * from './index-op'
 export * from './mark'
