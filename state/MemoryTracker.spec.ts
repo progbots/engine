@@ -1,4 +1,4 @@
-import { ValueType } from '../types'
+import { ValueType } from '..'
 import { MemoryTracker } from './MemoryTracker'
 
 describe('state/MemoryTracker', () => {

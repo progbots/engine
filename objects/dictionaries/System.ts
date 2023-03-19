@@ -1,6 +1,7 @@
-import { IDictionary, OperatorFunction, Value, ValueType } from '../../types'
+import { IDictionary, Value, ValueType } from '../..'
 import { ShareableObject } from '../ShareableObject'
 import { InvalidAccess } from '../../errors'
+import { OperatorFunction } from '../../state'
 import * as operatorFunctions from '../../operators'
 
 const operators: Record<string, OperatorFunction> = {}
@@ -10,8 +11,10 @@ Object.values(operatorFunctions).forEach(operator => {
 })
 
 export class SystemDictionary extends ShareableObject implements IDictionary {
-  def (name: string, value: Value): void {
-    throw new InvalidAccess()
+  // region IDictionary
+
+  get keys (): string [] {
+    return Object.keys(operators)
   }
 
   lookup (name: string): Value | null {
@@ -25,8 +28,10 @@ export class SystemDictionary extends ShareableObject implements IDictionary {
     }
   }
 
-  keys (): string [] {
-    return Object.keys(operators)
+  // endregion IDictionary
+
+  def (name: string, value: Value): void {
+    throw new InvalidAccess()
   }
 
   protected _dispose (): void {}

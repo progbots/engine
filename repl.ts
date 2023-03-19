@@ -1,10 +1,9 @@
 import * as readline from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
-import { State } from './state'
 import { BaseError } from './errors/BaseError'
 import { SystemDictionary } from './objects/dictionaries'
 import { length as itLength } from './iterators'
-import { OperatorFunction, Value, ValueType } from './types'
+import { Value, ValueType, IOperator, IArray, IDictionary, IState, createState } from '.'
 
 const types: Record<ValueType, string> = {
   [ValueType.integer]: 'Z', // R
@@ -23,16 +22,16 @@ function * fmt (value: Value): Generator<number | string> {
   } else if ([ValueType.string, ValueType.name, ValueType.call].includes(value.type)) {
     yield value.data as string
   } else if (value.type === ValueType.operator) {
-    yield (value.data as OperatorFunction).name
+    yield (value.data as IOperator).name
   } else if (value.type === ValueType.mark) {
     yield ''
   }
 }
 
-function * memory (state: State): Generator<number | string> {
-  const { used, total } = state.memory()
+function * memory (state: IState): Generator<number | string> {
   yield '💾'
-  yield used
+  yield state.usedMemory
+  const total = state.totalMemory
   if (total === Infinity) {
     yield '/∞'
   } else {
@@ -41,11 +40,18 @@ function * memory (state: State): Generator<number | string> {
   }
 }
 
+function forEach (array: IArray, callback: (value: Value, index: number) => void): void {
+  const { length } = array
+  for (let index = 0; index < length; ++index) {
+    callback(array.at(index), index)
+  }
+}
+
 async function main (): Promise<void> {
   const rl = readline.createInterface({ input, output })
   console.log('Use \'exit\' to quit')
   console.log('Use \'state\' to print a state summary')
-  const state = new State()
+  const state = createState()
 
   while (true) {
     const src = await rl.question('❔ ')
@@ -54,23 +60,22 @@ async function main (): Promise<void> {
     }
     if (src === 'state') {
       console.log(...memory(state))
-      let index = 0
-      for (const dictionary of state.dictionaries()) {
+      forEach(state.dictionaries, (value, index) => {
+        const dictionary = value.data as IDictionary
         let type = ''
         if (dictionary instanceof SystemDictionary) {
           type = '🔩'
         }
-        const keys = dictionary.keys()
+        const { keys } = dictionary
         console.log('📕', index, ''.padEnd(3 - index.toString().length, ' '), type, '🔑', keys.length)
-        ++index
-      }
-      state.stackRef().forEach((value, index) => {
+      })
+      forEach(state.stack, (value, index) => {
         console.log('📥', index, ''.padEnd(3 - index.toString().length, ' '), types[value.type], ...fmt(value))
       })
     } else {
       try {
         const count = itLength(state.eval(src))
-        console.log('↻', count, '📥', state.stackRef().length, ...memory(state))
+        console.log('↻', count, '📥', state.stack.length, ...memory(state))
       } catch (e) {
         if (e instanceof BaseError) {
           console.error(`🛑 ${e.name} ${e.message}`)

@@ -1,5 +1,5 @@
 import { SystemDictionary } from './System'
-import { ValueType } from '../../types'
+import { ValueType } from '../..'
 import { InvalidAccess } from '../../errors'
 import { add, index, sub } from '../../operators'
 

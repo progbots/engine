@@ -1,6 +1,6 @@
-import { IState, Value, ValueType } from '../types'
+import { Value, ValueType } from '..'
 
-export function * parse (src: string, state: IState): Generator<Value> {
+export function * parse (src: string): Generator<Value> {
   const matcher = /(?:"([^"]*)")|(-?\d+)|\/(\w+)|(\w+|\[|\])/g
   let match = matcher.exec(src)
   while (match !== null) {

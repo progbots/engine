@@ -1,6 +1,6 @@
 import { Stack } from './Stack'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { ValueType } from '../types'
+import { ValueType } from '..'
 
 describe('objects/Stack', () => {
   let tracker: MemoryTracker
@@ -41,8 +41,8 @@ describe('objects/Stack', () => {
     }])
   })
 
-  it('exposes an iterator interface', () => {
-    const values = [...stack]
+  it('exposes array items', () => {
+    const values = stack.ref
     expect(values).toStrictEqual([{
       type: ValueType.integer,
       data: 2

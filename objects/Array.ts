@@ -1,22 +1,14 @@
-import { ShareableObject } from './ShareableObject'
-import { Value } from '../types'
-import { MemoryTracker } from '../state/MemoryTracker'
+import { Value } from '..'
+import { BaseArray } from './BaseArray'
 
-export class Array extends ShareableObject {
-  public static readonly VALUE_ADDITIONAL_SIZE = MemoryTracker.POINTER_SIZE
-
-  private readonly _values: Value[] = []
-
-  constructor (
-    private readonly _memoryTracker: MemoryTracker
-  ) {
-    super()
+export class Array extends BaseArray {
+  protected pushImpl (value: Value): void {
+    this._values.push(value)
   }
 
-  get ref (): readonly Value[] {
-    return this._values
-  }
-
-  protected _dispose (): void {
+  protected popImpl (): Value {
+    const value = this._values.at(-1) as Value
+    this._values.pop()
+    return value
   }
 }

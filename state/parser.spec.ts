@@ -1,6 +1,5 @@
-import { State } from '../state'
-import { Value, ValueType } from '../types'
 import { parse } from './parser'
+import { Value, ValueType } from '..'
 
 describe('state/parser', () => {
   const values: Record<string, Value> = {
@@ -29,15 +28,13 @@ describe('state/parser', () => {
   Object.keys(values).forEach(src => {
     const expected = values[src]
     it(`generates ${expected.type} ${JSON.stringify(expected.data)}`, () => {
-      const state = new State()
-      const value = [...parse(src, state)]
+      const value = [...parse(src)]
       expect(value).toStrictEqual([expected])
     })
   })
 
   it('generates values', () => {
-    const state = new State()
-    const block = [...parse('1 2 add', state)]
+    const block = [...parse('1 2 add')]
     expect(block).toStrictEqual([{
       type: ValueType.integer,
       data: 1

@@ -1,5 +1,5 @@
 import { executeTests } from '../test-helpers'
-import { ValueType } from '../types'
+import { ValueType } from '..'
 
 describe('operators/mark', () => {
   executeTests({
