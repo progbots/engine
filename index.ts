@@ -1,5 +1,3 @@
-import { State } from './state'
-
 export enum ValueType {
   integer = 'integertype',
   string = 'stringtype',
@@ -43,8 +41,4 @@ export interface IState {
   readonly dictionaries: IArray
 
   eval: (value: string) => Generator
-}
-
-export function createState (): IState {
-  return new State()
 }
