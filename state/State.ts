@@ -7,13 +7,14 @@ import { SystemDictionary } from '../objects/dictionaries'
 
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
+  private readonly _systemdict: SystemDictionary = new SystemDictionary()
   private readonly _dictionaries: Stack
   private readonly _stack: Stack
 
   constructor () {
     this._memoryTracker = new MemoryTracker()
     this._dictionaries = new Stack(this._memoryTracker)
-    this.begin(new SystemDictionary())
+    this.begin(this._systemdict)
     this._stack = new Stack(this._memoryTracker)
   }
 
@@ -47,6 +48,10 @@ export class State implements IState {
 
   get memoryTracker (): MemoryTracker {
     return this._memoryTracker
+  }
+
+  get systemdict (): SystemDictionary {
+    return this._systemdict
   }
 
   get stackRef (): readonly Value[] {

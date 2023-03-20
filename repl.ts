@@ -34,6 +34,12 @@ function * fmt (value: Value): Generator<number | string> {
       yield * fmt(array.at(index))
     }
     yield ']'
+  } else if (value.type === ValueType.dict) {
+    if (value.data instanceof SystemDictionary) {
+      yield '-systemdict-'
+    } else {
+      yield '// not handled //'
+    }
   }
 }
 
