@@ -25,6 +25,14 @@ function * fmt (value: Value): Generator<number | string> {
     yield (value.data as IOperator).name
   } else if (value.type === ValueType.mark) {
     yield ''
+  } else if (value.type === ValueType.array) {
+    yield '['
+    const array: IArray = value.data as IArray
+    const { length } = array
+    for (let index = 0; index < length; ++index) {
+      yield * fmt(array.at(index))
+    }
+    yield ']'
   }
 }
 
