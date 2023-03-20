@@ -11,7 +11,7 @@ describe('state/State', () => {
       describe('happy path', () => {
         it('starts with an empty stack', () => {
           const state = new State()
-          expect(state.stack().length).toStrictEqual(0)
+          expect(state.stackRef.length).toStrictEqual(0)
         })
 
         it('enables pushing stack items', () => {
@@ -20,7 +20,7 @@ describe('state/State', () => {
             type: ValueType.integer,
             data: 1
           })
-          expect(state.stack().length).toStrictEqual(1)
+          expect(state.stackRef.length).toStrictEqual(1)
         })
 
         it('enables getting stack items', () => {
@@ -29,7 +29,7 @@ describe('state/State', () => {
             type: ValueType.integer,
             data: 1
           })
-          const value = state.stack()[0]
+          const value = state.stackRef[0]
           expect(value).toStrictEqual({
             type: ValueType.integer,
             data: 1
@@ -43,7 +43,7 @@ describe('state/State', () => {
             data: 1
           })
           state.pop()
-          expect(state.stack().length).toStrictEqual(0)
+          expect(state.stackRef.length).toStrictEqual(0)
         })
 
         describe('stack order', () => {
@@ -57,7 +57,7 @@ describe('state/State', () => {
               type: ValueType.integer,
               data: 2
             })
-            const [first, second] = state.stack()
+            const [first, second] = state.stackRef
             expect(first).toStrictEqual({
               type: ValueType.integer,
               data: 2
@@ -88,8 +88,8 @@ describe('state/State', () => {
 
       it('returns the list of contexts', () => {
         const state = new State()
-        expect(itLength(state.dictionaries())).toStrictEqual(1)
-        const [topDictionary] = state.dictionaries()
+        expect(state.dictionaries.length).toStrictEqual(1)
+        const { data: topDictionary } = state.dictionaries.at(0)
         expect(topDictionary).toBeInstanceOf(SystemDictionary)
       })
 
@@ -108,7 +108,7 @@ describe('state/State', () => {
         const state = new State()
         const count = itLength(state.eval('1'))
         expect(count).toStrictEqual(2)
-        expect(state.stack()).toStrictEqual([{
+        expect(state.stackRef).toStrictEqual([{
           type: ValueType.integer,
           data: 1
         }])
@@ -117,7 +117,7 @@ describe('state/State', () => {
       it('considers the first item as the last pushed', () => {
         const state = new State()
         expect(itLength(state.eval('1 2'))).toStrictEqual(4)
-        const [first, second] = state.stack()
+        const [first, second] = state.stackRef
         expect(first).toStrictEqual({
           type: ValueType.integer,
           data: 2
@@ -131,7 +131,7 @@ describe('state/State', () => {
       it('resolves and call an operator', () => {
         const state = new State()
         expect(itLength(state.eval('1 2 add'))).toStrictEqual(6) // 3 + 3x parsing itLength
-        expect(state.stack()).toStrictEqual([{
+        expect(state.stackRef).toStrictEqual([{
           type: ValueType.integer,
           data: 3
         }])
@@ -143,7 +143,7 @@ describe('state/State', () => {
 
       beforeAll(() => {
         const state = new State()
-        const used = state.usedMemory()
+        const used = state.usedMemory
         initialMemoryUsed = used
       })
 
@@ -157,7 +157,7 @@ describe('state/State', () => {
           type: ValueType.integer,
           data: 1
         })
-        const used = state.usedMemory()
+        const used = state.usedMemory
         expect(used).toBeGreaterThan(initialMemoryUsed)
       })
 
@@ -168,7 +168,7 @@ describe('state/State', () => {
           data: 1
         })
         state.pop()
-        const used = state.usedMemory()
+        const used = state.usedMemory
         expect(used).toStrictEqual(initialMemoryUsed)
       })
     })
