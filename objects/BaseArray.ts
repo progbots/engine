@@ -1,7 +1,7 @@
 import { ShareableObject } from './ShareableObject'
 import { IArray, Value } from '..'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { StackUnderflow } from '../errors'
+import { RangeCheck, StackUnderflow } from '../errors'
 
 export abstract class BaseArray extends ShareableObject implements IArray {
   public static readonly VALUE_ADDITIONAL_SIZE = MemoryTracker.POINTER_SIZE
@@ -23,7 +23,7 @@ export abstract class BaseArray extends ShareableObject implements IArray {
   at (index: number): Value {
     const value = this._values[index]
     if (value === undefined) {
-      throw new RangeError()
+      throw new RangeCheck()
     }
     // copy to avoid alterations
     const { type, data } = value
