@@ -1,6 +1,6 @@
-import { IDictionary, IState, OperatorFunction, StateMemory, Value, ValueType } from '../types'
+import { ValueType, IArray, IDictionary, Value, IState } from '..'
 import { DictStackUnderflow, Undefined } from '../errors'
-import { parse } from '.'
+import { OperatorFunction, parse } from '.'
 import { Stack } from '../objects/Stack'
 import { MemoryTracker } from './MemoryTracker'
 import { SystemDictionary } from '../objects/dictionaries'
@@ -17,15 +17,39 @@ export class State implements IState {
     this._stack = new Stack(this._memoryTracker)
   }
 
-  memory (): StateMemory {
-    const { used, total } = this._memoryTracker
-    return {
-      used,
-      total
+  // region IState
+
+  get usedMemory (): number {
+    return this._memoryTracker.used
+  }
+
+  get totalMemory (): number {
+    return this._memoryTracker.total
+  }
+
+  get stack (): IArray {
+    return this._stack
+  }
+
+  get dictionaries (): IArray {
+    return this._dictionaries
+  }
+
+  * eval (value: string): Generator {
+    const parser = parse(value)
+    for (const parsedValue of parser) {
+      yield // parse cycle
+      yield * this._eval(parsedValue)
     }
   }
 
-  stackRef (): readonly Value[] {
+  // endregion IState
+
+  get memoryTracker (): MemoryTracker {
+    return this._memoryTracker
+  }
+
+  get stackRef (): readonly Value[] {
     return this._stack.ref
   }
 
@@ -37,14 +61,9 @@ export class State implements IState {
     this._stack.push(value)
   }
 
-  * dictionaries (): Generator<IDictionary> {
-    for (const value of this._dictionaries) {
-      yield value.data as IDictionary
-    }
-  }
-
   lookup (name: string): Value {
-    for (const dictionary of this.dictionaries()) {
+    for (const dictionaryValue of this._dictionaries.ref) {
+      const dictionary = dictionaryValue.data as IDictionary
       const value = dictionary.lookup(name)
       if (value !== null) {
         return value
@@ -67,15 +86,12 @@ export class State implements IState {
     this._dictionaries.pop()
   }
 
-  private * _eval (value: Value): Generator<void> {
+  private * _eval (value: Value): Generator {
     if (value.type === ValueType.call) {
       const resolvedValue = this.lookup(value.data as string)
       if (resolvedValue.type === ValueType.operator) {
         const operator = resolvedValue.data as OperatorFunction
-        const result = operator(this)
-        if (result !== undefined) {
-          yield * result
-        }
+        yield * operator(this)
       } else {
         this.push(resolvedValue)
       }
@@ -83,17 +99,5 @@ export class State implements IState {
       this.push(value)
     }
     yield // execution cycle
-  }
-
-  * eval (value: Value | string): Generator<void> {
-    if (typeof value === 'string') {
-      const parser = parse(value, this)
-      for (const parsedValue of parser) {
-        yield // parse cycle
-        yield * this._eval(parsedValue)
-      }
-    } else {
-      yield * this._eval(value)
-    }
   }
 }

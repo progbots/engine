@@ -1,4 +1,4 @@
-import { Value, ValueType } from '../types'
+import { Value, ValueType } from '..'
 import { ShareableObject } from '../objects/ShareableObject'
 
 const stringSizer = (data: string): number => {

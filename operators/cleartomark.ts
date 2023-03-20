@@ -1,8 +1,9 @@
+import { State } from '../state'
 import { UnmatchedMark } from '../errors'
-import { IState, Value, ValueType } from '../types'
+import { Value, ValueType } from '..'
 
-export function cleartomark (state: IState): void {
-  let pos = state.stackRef().findIndex((value: Value) => value.type === ValueType.mark)
+export function * cleartomark (state: State): Generator {
+  let pos = state.stackRef.findIndex((value: Value) => value.type === ValueType.mark)
   if (pos === -1) {
     throw new UnmatchedMark()
   }

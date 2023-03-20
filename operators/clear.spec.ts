@@ -1,11 +1,11 @@
-import { IState } from '../types'
+import { State } from '../state'
 import { executeTests } from '../test-helpers'
 
 describe('operators/clear', () => {
   executeTests({
     'removes all items of the stack': {
       src: '1 2 clear',
-      expect: (state: IState) => expect(state.stackRef().length).toStrictEqual(0)
+      expect: (state: State) => expect(state.stackRef.length).toStrictEqual(0)
     }
   })
 })
