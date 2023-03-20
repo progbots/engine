@@ -3,7 +3,8 @@ import { stdin as input, stdout as output } from 'node:process'
 import { BaseError } from './errors/BaseError'
 import { SystemDictionary } from './objects/dictionaries'
 import { length as itLength } from './iterators'
-import { Value, ValueType, IOperator, IArray, IDictionary, IState, createState } from '.'
+import { Value, ValueType, IOperator, IArray, IDictionary, IState } from '.'
+import { createState } from './factory'
 
 const types: Record<ValueType, string> = {
   [ValueType.integer]: 'Z', // R
