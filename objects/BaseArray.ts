@@ -4,6 +4,7 @@ import { MemoryTracker } from '../state/MemoryTracker'
 import { RangeCheck, StackUnderflow } from '../errors'
 
 export abstract class BaseArray extends ShareableObject implements IArray {
+  public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
   public static readonly VALUE_ADDITIONAL_SIZE = MemoryTracker.POINTER_SIZE
 
   protected readonly _values: Value[] = []
@@ -12,6 +13,7 @@ export abstract class BaseArray extends ShareableObject implements IArray {
     private readonly _memoryTracker: MemoryTracker
   ) {
     super()
+    this._memoryTracker.increment(BaseArray.INITIAL_SIZE)
   }
 
   // region IArray
@@ -70,5 +72,6 @@ export abstract class BaseArray extends ShareableObject implements IArray {
     while (this._values.length > 0) {
       this.pop()
     }
+    this._memoryTracker.decrement(BaseArray.INITIAL_SIZE)
   }
 }
