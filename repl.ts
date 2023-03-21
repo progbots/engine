@@ -14,7 +14,8 @@ const types: Record<ValueType, string> = {
   [ValueType.operator]: '🔩',
   [ValueType.mark]: '🚩',
   [ValueType.array]: '📦',
-  [ValueType.dict]: '📕'
+  [ValueType.dict]: '📕',
+  [ValueType.proc]: '⚡'
 }
 
 function * fmt (value: Value): Generator<number | string> {
