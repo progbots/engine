@@ -1,27 +1,9 @@
 import { State } from '../state'
-import { UnmatchedMark } from '../errors'
-import { ArrayLike } from '../objects/Array'
-import { Value, ValueType } from '..'
+import { ValueType } from '..'
+import { closeToMark } from './close-helper'
 
 export function * closeArray (state: State): Generator {
-  const stack = state.stackRef
-  const markPos = stack.findIndex((value: Value) => value.type === ValueType.mark)
-  if (markPos === -1) {
-    throw new UnmatchedMark()
-  }
-  const array = new ArrayLike(state.memoryTracker)
-  let index: number
-  for (index = 0; index < markPos; ++index) {
-    array.unshift(stack[index])
-  }
-  for (index = 0; index <= markPos; ++index) {
-    state.pop()
-  }
-  state.push({
-    type: ValueType.array,
-    data: array
-  })
-  array.release()
+  closeToMark(state, ValueType.array)
 }
 
 Object.defineProperty(closeArray, 'name', {
