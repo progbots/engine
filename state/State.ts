@@ -3,18 +3,21 @@ import { DictStackUnderflow, Undefined } from '../errors'
 import { OperatorFunction, parse } from '.'
 import { Stack } from '../objects/Stack'
 import { MemoryTracker } from './MemoryTracker'
-import { SystemDictionary } from '../objects/dictionaries'
+import { Dictionary, SystemDictionary } from '../objects/dictionaries'
 
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
   private readonly _systemdict: SystemDictionary = new SystemDictionary()
+  private readonly _globaldict: Dictionary
   private readonly _dictionaries: Stack
   private readonly _stack: Stack
 
   constructor () {
     this._memoryTracker = new MemoryTracker()
     this._dictionaries = new Stack(this._memoryTracker)
+    this._globaldict = new Dictionary(this._memoryTracker)
     this.begin(this._systemdict)
+    this.begin(this._globaldict)
     this._stack = new Stack(this._memoryTracker)
   }
 
@@ -52,6 +55,10 @@ export class State implements IState {
 
   get systemdict (): SystemDictionary {
     return this._systemdict
+  }
+
+  get globaldict (): Dictionary {
+    return this._globaldict
   }
 
   get stackRef (): readonly Value[] {

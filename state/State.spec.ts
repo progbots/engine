@@ -88,9 +88,11 @@ describe('state/State', () => {
 
       it('returns the list of contexts', () => {
         const state = new State()
-        expect(state.dictionaries.length).toStrictEqual(1)
-        const { data: topDictionary } = state.dictionaries.at(0)
-        expect(topDictionary).toBeInstanceOf(SystemDictionary)
+        expect(state.dictionaries.length).toStrictEqual(2)
+        const { data: dict0 } = state.dictionaries.at(0)
+        expect(dict0).toStrictEqual(state.globaldict)
+        const { data: dict1 } = state.dictionaries.at(1)
+        expect(dict1).toStrictEqual(state.systemdict)
       })
 
       it('returns add operator', () => {
