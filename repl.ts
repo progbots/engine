@@ -38,8 +38,17 @@ function * fmt (value: Value): Generator<number | string> {
     if (value.data instanceof SystemDictionary) {
       yield '-systemdict-'
     } else {
-      yield '// not handled //'
+      const dict = value.data as IDictionary
+      yield `<< 🔑${dict.names.length.toString()} >>`
     }
+  } else if (value.type === ValueType.proc) {
+    yield '{'
+    const array: IArray = value.data as IArray
+    const { length } = array
+    for (let index = 0; index < length; ++index) {
+      yield * fmt(array.at(index))
+    }
+    yield '}'
   }
 }
 
