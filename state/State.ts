@@ -11,6 +11,7 @@ export class State implements IState {
   private readonly _globaldict: Dictionary
   private readonly _dictionaries: Stack
   private readonly _stack: Stack
+  private _noCall: number = 0
 
   constructor () {
     this._memoryTracker = new MemoryTracker()
@@ -102,8 +103,16 @@ export class State implements IState {
     this._dictionaries.pop()
   }
 
+  preventCall (): void {
+    ++this._noCall
+  }
+
+  allowCall (): void {
+    --this._noCall
+  }
+
   private * _eval (value: Value): Generator {
-    if (value.type === ValueType.call) {
+    if (value.type === ValueType.call && this._noCall === 0) {
       const resolvedValue = this.lookup(value.data as string)
       if (resolvedValue.type === ValueType.operator) {
         const operator = resolvedValue.data as OperatorFunction

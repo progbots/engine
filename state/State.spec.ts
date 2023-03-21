@@ -3,7 +3,6 @@ import { ValueType } from '..'
 import { StackUnderflow, Undefined } from '../errors'
 import { length as itLength } from '../iterators'
 import { add } from '../operators'
-import { SystemDictionary } from '../objects/dictionaries'
 
 describe('state/State', () => {
   describe('State', () => {
