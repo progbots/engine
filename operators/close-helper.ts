@@ -18,7 +18,7 @@ export function closeToMark (state: State, type: ValueType.array | ValueType.pro
     state.pop()
   }
   state.push({
-    type: ValueType.array,
+    type,
     data: array
   })
   array.release()
