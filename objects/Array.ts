@@ -2,7 +2,7 @@ import { Value } from '..'
 import { Internal } from '../errors'
 import { BaseArray } from './BaseArray'
 
-export class Array extends BaseArray {
+export class ArrayLike extends BaseArray {
   protected pushImpl (value: Value): void {
     this._values.push(value)
   }

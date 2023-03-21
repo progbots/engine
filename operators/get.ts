@@ -2,7 +2,7 @@ import { IDictionary, Value, ValueType } from '..'
 import { RangeCheck, TypeCheck, Undefined } from '../errors'
 import { State } from '../state'
 import { checkStack } from './check-state'
-import { Array as ArrayImpl } from '../objects/Array'
+import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 
 interface GetterResult {
@@ -35,7 +35,7 @@ const getters: Record<string, (state: State) => GetterResult> = {
       throw new TypeCheck()
     }
     const pos = index.data as number
-    const array = container.data as ArrayImpl
+    const array = container.data as ArrayLike
     const value = array.at(pos)
     return {
       shareable: array,

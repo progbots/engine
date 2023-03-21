@@ -1,6 +1,6 @@
 import { State } from '../state'
 import { UnmatchedMark } from '../errors'
-import { Array } from '../objects/Array'
+import { ArrayLike } from '../objects/Array'
 import { Value, ValueType } from '..'
 
 export function * closeArray (state: State): Generator {
@@ -9,7 +9,7 @@ export function * closeArray (state: State): Generator {
   if (markPos === -1) {
     throw new UnmatchedMark()
   }
-  const array = new Array(state.memoryTracker)
+  const array = new ArrayLike(state.memoryTracker)
   let index: number
   for (index = 0; index < markPos; ++index) {
     array.unshift(stack[index])
