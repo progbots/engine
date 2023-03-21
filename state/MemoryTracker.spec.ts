@@ -38,6 +38,15 @@ describe('state/MemoryTracker', () => {
   })
 
   describe('string management', () => {
+    it('counts small string size', () => {
+      const tracker = new MemoryTracker()
+      tracker.addValueRef({
+        type: ValueType.string,
+        data: 'small'
+      })
+      expect(tracker.used).toStrictEqual(MemoryTracker.VALUE_SIZE + 6)
+    })
+
     it('duplicates small strings', () => {
       const tracker = new MemoryTracker()
       tracker.addValueRef({

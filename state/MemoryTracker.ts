@@ -7,19 +7,20 @@ const stringSizer = (data: string): number => {
   return buffer.length + 1 // terminal 0
 }
 
-function isCachableString (value: Value): boolean {
-  if ([ValueType.string, ValueType.name, ValueType.call].includes(value.type)) {
-    const text = value.data as string
-    return text.length >= MemoryTracker.CACHABLE_STRING_LENGTH
-  }
-  return false
+function isString (value: Value): boolean {
+  return [
+    ValueType.string,
+    ValueType.name,
+    ValueType.call
+  ].includes(value.type)
 }
 
 function isShareableObject (value: Value): boolean {
   return ![
     ValueType.integer,
-    ValueType.name,
     ValueType.string,
+    ValueType.name,
+    ValueType.call,
     ValueType.operator,
     ValueType.mark
   ].includes(value.type)
@@ -39,24 +40,32 @@ export class MemoryTracker {
 
   private _addStringRef (value: Value): number {
     const text = value.data as string
-    const pos = this._strings.indexOf(text)
-    if (pos === -1) {
-      this._strings.push(text)
-      this._stringsRefCount.push(1)
-      return stringSizer(text) + MemoryTracker.INTEGER_SIZE
+    const size = stringSizer(text)
+    if (text.length >= MemoryTracker.CACHABLE_STRING_LENGTH) {
+      const pos = this._strings.indexOf(text)
+      if (pos === -1) {
+        this._strings.push(text)
+        this._stringsRefCount.push(1)
+        return size + MemoryTracker.INTEGER_SIZE
+      }
+      ++this._stringsRefCount[pos]
+      return 0
     }
-    ++this._stringsRefCount[pos]
-    return 0
+    return size
   }
 
   private _releaseString (value: Value): number {
     const text = value.data as string
-    const pos = this._strings.indexOf(text)
-    const refCount = --this._stringsRefCount[pos]
-    if (refCount === 0) {
-      return stringSizer(text) + MemoryTracker.INTEGER_SIZE
+    const size = stringSizer(text)
+    if (text.length >= MemoryTracker.CACHABLE_STRING_LENGTH) {
+      const pos = this._strings.indexOf(text)
+      const refCount = --this._stringsRefCount[pos]
+      if (refCount === 0) {
+        return size + MemoryTracker.INTEGER_SIZE
+      }
+      return 0
     }
-    return 0
+    return size
   }
 
   constructor (
@@ -73,7 +82,7 @@ export class MemoryTracker {
 
   addValueRef (value: Value): void {
     let valueSize: number = MemoryTracker.VALUE_SIZE
-    if (isCachableString(value)) {
+    if (isString(value)) {
       valueSize += this._addStringRef(value)
     } else if (isShareableObject(value)) {
       const shareableObject = value.data as unknown as ShareableObject
@@ -84,7 +93,7 @@ export class MemoryTracker {
 
   releaseValue (value: Value): void {
     let valueSize: number = MemoryTracker.VALUE_SIZE
-    if (isCachableString(value)) {
+    if (isString(value)) {
       valueSize += this._releaseString(value)
     } else if (isShareableObject(value)) {
       const shareableObject = value.data as unknown as ShareableObject
