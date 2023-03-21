@@ -10,7 +10,6 @@ describe('operators/open-proc ({)', () => {
         data: null
       }]
     },
-
     'prevents call execution': {
       src: '{ add',
       expect: [{
