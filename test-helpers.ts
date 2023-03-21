@@ -55,7 +55,7 @@ export function executeTests (tests: Record<string, TestDescription | TestDescri
       test.forEach((item, index) => {
         it(`${label} (${index + 1})`, executeTest.bind(null, item))
       })
-    } else if (test.skip) {
+    } else if (test.skip === true) {
       it.skip(label, executeTest.bind(null, test))
     } else {
       it(label, executeTest.bind(null, test))
