@@ -92,7 +92,7 @@ export class State implements IState {
   }
 
   end (): void {
-    if (this._dictionaries.ref.length === 1) {
+    if (this._dictionaries.ref.length === 2) {
       throw new DictStackUnderflow()
     }
     this._dictionaries.pop()
