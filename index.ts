@@ -6,7 +6,8 @@ export enum ValueType {
   operator = 'operatortype',
   mark = 'marktype',
   array = 'arraytype',
-  dict = 'dicttype'
+  dict = 'dicttype',
+  proc = 'proctype'
 }
 
 export interface IOperator {
@@ -29,7 +30,7 @@ export interface Value {
   | number // integer
   | string // string, name, call
   | IOperator // operator
-  | IArray // array
+  | IArray // array, proc
   | IDictionary // dict
 }
 
