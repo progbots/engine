@@ -19,7 +19,7 @@ export interface IArray {
 }
 
 export interface IDictionary {
-  readonly keys: string[]
+  readonly names: string[]
   lookup: (name: string) => Value | null
 }
 

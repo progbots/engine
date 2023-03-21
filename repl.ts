@@ -81,8 +81,8 @@ async function main (): Promise<void> {
         if (dictionary instanceof SystemDictionary) {
           type = '🔩'
         }
-        const { keys } = dictionary
-        console.log('📕', index, ''.padEnd(3 - index.toString().length, ' '), type, '🔑', keys.length)
+        const { names } = dictionary
+        console.log('📕', index, ''.padEnd(3 - index.toString().length, ' '), type, '🔑', names.length)
       })
       forEach(state.stack, (value, index) => {
         console.log('📥', index, ''.padEnd(3 - index.toString().length, ' '), types[value.type], ...fmt(value))
