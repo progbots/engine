@@ -73,6 +73,10 @@ export class State implements IState {
     this._stack.push(value)
   }
 
+  get dictionariesRef (): readonly Value[] {
+    return this._dictionaries.ref
+  }
+
   lookup (name: string): Value {
     for (const dictionaryValue of this._dictionaries.ref) {
       const dictionary = dictionaryValue.data as IDictionary
