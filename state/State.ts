@@ -114,11 +114,15 @@ export class State implements IState {
   private * _eval (value: Value): Generator {
     if (value.type === ValueType.call && (this._noCall === 0 || value.data === '}')) {
       const resolvedValue = this.lookup(value.data as string)
-      if (resolvedValue.type === ValueType.operator) {
-        const operator = resolvedValue.data as OperatorFunction
-        yield * operator(this)
-      } else {
-        this.push(resolvedValue)
+      yield * this._eval(resolvedValue)
+    } else if (value.type === ValueType.operator) {
+      const operator = value.data as OperatorFunction
+      yield * operator(this)
+    } else if (value.type === ValueType.proc && this._noCall === 0) {
+      const proc = value.data as IArray
+      const { length } = proc
+      for (let index = 0; index < length; ++index) {
+        yield * this._eval(proc.at(index))
       }
     } else {
       this.push(value)

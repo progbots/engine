@@ -104,11 +104,11 @@ describe('state/State', () => {
       })
     })
 
-    describe('execution management', () => {
+    describe('execution (and cycles) management', () => {
       it('stacks integer value', () => {
         const state = new State()
         const count = itLength(state.eval('1'))
-        expect(count).toStrictEqual(2)
+        expect(count).toStrictEqual(2) // parse + push
         expect(state.stackRef).toStrictEqual([{
           type: ValueType.integer,
           data: 1
@@ -131,10 +131,19 @@ describe('state/State', () => {
 
       it('resolves and call an operator', () => {
         const state = new State()
-        expect(itLength(state.eval('1 2 add'))).toStrictEqual(6) // 3 + 3x parsing itLength
+        expect(itLength(state.eval('1 2 add'))).toStrictEqual(7) // 4 + parse + resolve + eval
         expect(state.stackRef).toStrictEqual([{
           type: ValueType.integer,
           data: 3
+        }])
+      })
+
+      it('allows proc definition and execution', () => {
+        const state = new State()
+        expect(itLength(state.eval('/test { 2 3 add } def test'))).toStrictEqual(24)
+        expect(state.stackRef).toStrictEqual([{
+          type: ValueType.integer,
+          data: 5
         }])
       })
     })
