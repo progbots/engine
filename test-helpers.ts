@@ -3,6 +3,7 @@ import { State } from './state'
 import { length as itLength } from './iterators'
 
 interface TestDescription {
+  skip?: boolean
   src: string
   cycles?: number // default to 1
   error?: Function // Subclass of BaseError
@@ -54,6 +55,8 @@ export function executeTests (tests: Record<string, TestDescription | TestDescri
       test.forEach((item, index) => {
         it(`${label} (${index + 1})`, executeTest.bind(null, item))
       })
+    } else if (test.skip) {
+      it.skip(label, executeTest.bind(null, test))
     } else {
       it(label, executeTest.bind(null, test))
     }

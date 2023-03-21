@@ -21,6 +21,23 @@ describe('operators/close-proc (})', () => {
         })
       }
     },
+    'handles proc inside proc': {
+      skip: true,
+      src: '{ false { 1 } { 2 } ifelse }',
+      expect: (state: State) => {
+        expect(state.stackRef.length).toStrictEqual(1)
+        const [{ type, data }] = state.stackRef
+        expect(type).toStrictEqual(ValueType.proc)
+        const array = data as IArray
+        expect(array.length).toStrictEqual(3)
+        expect(array.at(0).data).toStrictEqual(3)
+        expect(array.at(1).data).toStrictEqual(4)
+        expect(array.at(2)).toStrictEqual({
+          type: ValueType.call,
+          data: 'add'
+        })
+      }
+    },
     'enables call execution': {
       src: '{ add } 3 4 add',
       expect: (state: State) => {
