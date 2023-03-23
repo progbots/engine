@@ -72,10 +72,13 @@ export function * get (state: State): Generator {
   if (shareable !== undefined) {
     shareable.addRef()
   }
-  state.pop()
-  state.pop()
-  state.push(value)
-  if (shareable !== undefined) {
-    shareable.release()
+  try {
+    state.pop()
+    state.pop()
+    state.push(value)
+  } finally {
+    if (shareable !== undefined) {
+      shareable.release()
+    }
   }
 }
