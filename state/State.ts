@@ -11,7 +11,7 @@ export class State implements IState {
   private readonly _globaldict: Dictionary
   private readonly _dictionaries: Stack
   private readonly _stack: Stack
-  private readonly _callStack: Value[] = []
+  private readonly _callStack: Stack
   private _noCall: number = 0
 
   constructor () {
@@ -21,6 +21,7 @@ export class State implements IState {
     this.begin(this._systemdict)
     this.begin(this._globaldict)
     this._stack = new Stack(this._memoryTracker)
+    this._callStack = new Stack(this._memoryTracker)
   }
 
   // region IState
