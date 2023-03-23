@@ -1,4 +1,5 @@
 export * from './add'
+export * from './bind'
 export * from './clear'
 export * from './cleartomark'
 export * from './close-array'
