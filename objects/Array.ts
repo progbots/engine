@@ -26,4 +26,13 @@ export class ArrayLike extends BaseArray {
     this.addValueRef(value)
     this._values.unshift(value)
   }
+
+  set (index: number, value: Value): void {
+    const oldValue = this._values[index]
+    this.addValueRef(value)
+    if (oldValue !== undefined) {
+      this.releaseValue(oldValue)
+    }
+    this._values[index] = value
+  }
 }

@@ -81,6 +81,39 @@ describe('objects/Array', () => {
     }])
   })
 
+  it('allows setting item', () => {
+    array.set(2, {
+      type: ValueType.integer,
+      data: 3
+    })
+    expect(array.ref).toStrictEqual([{
+      type: ValueType.integer,
+      data: 1
+    }, {
+      type: ValueType.integer,
+      data: 2
+    }, {
+      type: ValueType.integer,
+      data: 3
+    }])
+  })
+
+  it('allows overriding an item', () => {
+    const initialMemory = tracker.used
+    array.set(0, {
+      type: ValueType.integer,
+      data: -1
+    })
+    expect(array.ref).toStrictEqual([{
+      type: ValueType.integer,
+      data: -1
+    }, {
+      type: ValueType.integer,
+      data: 2
+    }])
+    expect(tracker.used).toStrictEqual(initialMemory)
+  })
+
   it('releases memory once disposed', () => {
     array.release()
     expect(tracker.used).toStrictEqual(0)
