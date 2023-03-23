@@ -1,5 +1,5 @@
 import { ValueType, IArray, IDictionary, Value, IState } from '..'
-import { DictStackUnderflow, Undefined } from '../errors'
+import { BusyParsing, DictStackUnderflow, Undefined } from '../errors'
 import { OperatorFunction, parse } from '.'
 import { Stack } from '../objects/Stack'
 import { MemoryTracker } from './MemoryTracker'
@@ -11,6 +11,7 @@ export class State implements IState {
   private readonly _globaldict: Dictionary
   private readonly _dictionaries: Stack
   private readonly _stack: Stack
+  private readonly _callStack: Value[] = []
   private _noCall: number = 0
 
   constructor () {
@@ -40,12 +41,20 @@ export class State implements IState {
     return this._dictionaries
   }
 
-  * eval (value: string): Generator {
-    const parser = parse(value)
+  * parse (source: string): Generator {
+    if (this._callStack.length !== 0) {
+      throw new BusyParsing()
+    }
+    this._callStack.push({
+      type: ValueType.string,
+      data: source
+    })
+    const parser = parse(source)
     for (const parsedValue of parser) {
       yield // parse cycle
-      yield * this._eval(parsedValue)
+      yield * this.eval(parsedValue)
     }
+    this._callStack.pop()
   }
 
   // endregion IState
@@ -111,19 +120,37 @@ export class State implements IState {
     --this._noCall
   }
 
-  private * _eval (value: Value): Generator {
-    if (value.type === ValueType.call && (this._noCall === 0 || value.data === '}')) {
-      const resolvedValue = this.lookup(value.data as string)
-      yield * this._eval(resolvedValue)
+  private * evalCall (value: Value): Generator {
+    this._callStack.push(value)
+    const resolvedValue = this.lookup(value.data as string)
+    yield * this.eval(resolvedValue)
+    this._callStack.pop()
+  }
+
+  private * evalOperator (value: Value): Generator {
+    this._callStack.push(value)
+    const operator = value.data as OperatorFunction
+    yield * operator(this)
+    this._callStack.pop()
+  }
+
+  private * evalProc (value: Value): Generator {
+    this._callStack.push(value)
+    const proc = value.data as IArray
+    const { length } = proc
+    for (let index = 0; index < length; ++index) {
+      yield * this.eval(proc.at(index))
+    }
+    this._callStack.pop()
+  }
+
+  private * eval (value: Value): Generator {
+    if (value.type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data as string))) {
+      yield * this.evalCall(value)
     } else if (value.type === ValueType.operator) {
-      const operator = value.data as OperatorFunction
-      yield * operator(this)
+      yield * this.evalOperator(value)
     } else if (value.type === ValueType.proc && this._noCall === 0) {
-      const proc = value.data as IArray
-      const { length } = proc
-      for (let index = 0; index < length; ++index) {
-        yield * this._eval(proc.at(index))
-      }
+      yield * this.evalProc(value)
     } else {
       this.push(value)
     }

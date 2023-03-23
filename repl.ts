@@ -99,7 +99,7 @@ async function main (): Promise<void> {
       })
     } else {
       try {
-        const count = itLength(state.eval(src))
+        const count = itLength(state.parse(src))
         console.log('↻', count, '📥', state.stack.length, ...memory(state))
       } catch (e) {
         if (e instanceof BaseError) {

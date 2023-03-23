@@ -107,7 +107,7 @@ describe('state/State', () => {
     describe('execution (and cycles) management', () => {
       it('stacks integer value', () => {
         const state = new State()
-        const count = itLength(state.eval('1'))
+        const count = itLength(state.parse('1'))
         expect(count).toStrictEqual(2) // parse + push
         expect(state.stackRef).toStrictEqual([{
           type: ValueType.integer,
@@ -117,7 +117,7 @@ describe('state/State', () => {
 
       it('considers the first item as the last pushed', () => {
         const state = new State()
-        expect(itLength(state.eval('1 2'))).toStrictEqual(4)
+        expect(itLength(state.parse('1 2'))).toStrictEqual(4)
         const [first, second] = state.stackRef
         expect(first).toStrictEqual({
           type: ValueType.integer,
@@ -131,7 +131,7 @@ describe('state/State', () => {
 
       it('resolves and call an operator', () => {
         const state = new State()
-        expect(itLength(state.eval('1 2 add'))).toStrictEqual(7) // 4 + parse + resolve + eval
+        expect(itLength(state.parse('1 2 add'))).toStrictEqual(7) // 4 + parse + resolve + parse
         expect(state.stackRef).toStrictEqual([{
           type: ValueType.integer,
           data: 3
@@ -140,11 +140,18 @@ describe('state/State', () => {
 
       it('allows proc definition and execution', () => {
         const state = new State()
-        expect(itLength(state.eval('/test { 2 3 add } def test'))).toStrictEqual(24)
+        expect(itLength(state.parse('/test { 2 3 add } def test'))).toStrictEqual(24)
         expect(state.stackRef).toStrictEqual([{
           type: ValueType.integer,
           data: 5
         }])
+      })
+
+      it('controls call execution', () => {
+        const state = new State()
+        itLength(state.parse('/test { { 1 } } def test'))
+        expect(state.stackRef.length).toStrictEqual(1)
+        expect(state.stackRef[0].type).toStrictEqual(ValueType.array)
       })
     })
 

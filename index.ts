@@ -41,5 +41,5 @@ export interface IState {
   readonly stack: IArray
   readonly dictionaries: IArray
 
-  eval: (value: string) => Generator
+  parse: (value: string) => Generator
 }

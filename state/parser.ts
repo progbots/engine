@@ -1,8 +1,10 @@
 import { Value, ValueType } from '..'
 
-export function * parse (src: string): Generator<Value> {
+// TODO: the output should contain position in source (for debugging purpose)
+
+export function * parse (source: string): Generator<Value> {
   const matcher = /(?:"([^"]*)")|(-?\d+)|\/(\w+)|(\w+|\[|\]|{|})/g
-  let match = matcher.exec(src)
+  let match = matcher.exec(source)
   while (match !== null) {
     const [, string, integer, name, call] = match
     if (string !== undefined) {
@@ -26,6 +28,6 @@ export function * parse (src: string): Generator<Value> {
         data: call
       }
     }
-    match = matcher.exec(src)
+    match = matcher.exec(source)
   }
 }

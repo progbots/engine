@@ -19,7 +19,7 @@ function executeTest (test: TestDescription): void {
   } = test
   const state = new State()
   try {
-    const cyclesCount = itLength(state.eval(src))
+    const cyclesCount = itLength(state.parse(src))
     if (expectedCycles !== undefined) {
       expect(cyclesCount).toStrictEqual(expectedCycles)
     }
@@ -30,7 +30,7 @@ function executeTest (test: TestDescription): void {
       let expectedStackItems
       if (typeof expectedResult === 'string') {
         const expectedState = new State()
-        itLength(expectedState.eval(expectedResult))
+        itLength(expectedState.parse(expectedResult))
         expectedStackItems = expectedState.stackRef
       } else {
         expectedStackItems = expectedResult
