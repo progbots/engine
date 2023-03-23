@@ -1,4 +1,5 @@
 export enum ValueType {
+  boolean = 'booleantype',
   integer = 'integertype',
   string = 'stringtype',
   name = 'nametype',
@@ -27,6 +28,7 @@ export interface IDictionary {
 export interface Value {
   type: ValueType
   data: null // mark
+  | boolean // boolean
   | number // integer
   | string // string, name, call
   | IOperator // operator

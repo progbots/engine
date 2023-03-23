@@ -7,6 +7,7 @@ import { Value, ValueType, IOperator, IArray, IDictionary, IState } from '.'
 import { createState } from './factory'
 
 const types: Record<ValueType, string> = {
+  [ValueType.boolean]: '',
   [ValueType.integer]: 'Z', // R
   [ValueType.string]: '🖹',
   [ValueType.name]: '🏷️',
@@ -19,6 +20,13 @@ const types: Record<ValueType, string> = {
 }
 
 function * fmt (value: Value): Generator<number | string> {
+  if (value.type === ValueType.boolean) {
+    if (value.data as boolean) {
+      yield '✔️'
+    } else {
+      yield '❌'
+    }
+  }
   if (value.type === ValueType.integer) {
     yield value.data as number
   } else if ([ValueType.string, ValueType.name, ValueType.call].includes(value.type)) {

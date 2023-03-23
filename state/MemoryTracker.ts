@@ -16,13 +16,10 @@ function isString (value: Value): boolean {
 }
 
 function isShareableObject (value: Value): boolean {
-  return ![
-    ValueType.integer,
-    ValueType.string,
-    ValueType.name,
-    ValueType.call,
-    ValueType.operator,
-    ValueType.mark
+  return [
+    ValueType.array,
+    ValueType.proc,
+    ValueType.dict
   ].includes(value.type)
 }
 
