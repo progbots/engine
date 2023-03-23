@@ -50,12 +50,15 @@ export class State implements IState {
       type: ValueType.string,
       data: source
     })
-    const parser = parse(source)
-    for (const parsedValue of parser) {
-      yield // parse cycle
-      yield * this.eval(parsedValue)
+    try {
+      const parser = parse(source)
+      for (const parsedValue of parser) {
+        yield // parse cycle
+        yield * this.eval(parsedValue)
+      }
+    } finally {
+      this._callStack.pop()
     }
-    this._callStack.pop()
   }
 
   // endregion IState
@@ -124,28 +127,37 @@ export class State implements IState {
   private * evalCall (value: Value): Generator {
     yield // execution cycle
     this._callStack.push(value)
-    const resolvedValue = this.lookup(value.data as string)
-    yield * this.eval(resolvedValue)
-    this._callStack.pop()
+    try {
+      const resolvedValue = this.lookup(value.data as string)
+      yield * this.eval(resolvedValue)
+    } finally {
+      this._callStack.pop()
+    }
   }
 
   private * evalOperator (value: Value): Generator {
     yield // execution cycle
     this._callStack.push(value)
-    const operator = value.data as OperatorFunction
-    yield * operator(this)
-    this._callStack.pop()
+    try {
+      const operator = value.data as OperatorFunction
+      yield * operator(this)
+    } finally {
+      this._callStack.pop()
+    }
   }
 
   private * evalProc (value: Value): Generator {
     yield // execution cycle
     this._callStack.push(value)
-    const proc = value.data as IArray
-    const { length } = proc
-    for (let index = 0; index < length; ++index) {
-      yield * this.evalWithoutProc(proc.at(index))
+    try {
+      const proc = value.data as IArray
+      const { length } = proc
+      for (let index = 0; index < length; ++index) {
+        yield * this.evalWithoutProc(proc.at(index))
+      }
+    } finally {
+      this._callStack.pop()
     }
-    this._callStack.pop()
   }
 
   private * evalWithoutProc (value: Value): Generator {
