@@ -1,7 +1,7 @@
 import { StackUnderflow, TypeCheck } from '../errors'
 import { executeTests } from '../test-helpers'
 
-describe('operators/if', () => {
+describe('operators/ifelse', () => {
   executeTests({
     'evaluates if proc if true': {
       src: '0 true { 42 } { -1 } ifelse',
