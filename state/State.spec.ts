@@ -107,8 +107,7 @@ describe('state/State', () => {
     describe('execution (and cycles) management', () => {
       it('stacks integer value', () => {
         const state = new State()
-        const count = itLength(state.parse('1'))
-        expect(count).toStrictEqual(2) // parse + push
+        expect(itLength(state.parse('1'))).toStrictEqual(2) // parse + push
         expect(state.stackRef).toStrictEqual([{
           type: ValueType.integer,
           data: 1
@@ -151,7 +150,7 @@ describe('state/State', () => {
         const state = new State()
         itLength(state.parse('/test { { 1 } } def test'))
         expect(state.stackRef.length).toStrictEqual(1)
-        expect(state.stackRef[0].type).toStrictEqual(ValueType.array)
+        expect(state.stackRef[0].type).toStrictEqual(ValueType.proc)
       })
     })
 

@@ -121,6 +121,7 @@ export class State implements IState {
   }
 
   private * evalCall (value: Value): Generator {
+    yield // execution cycle
     this._callStack.push(value)
     const resolvedValue = this.lookup(value.data as string)
     yield * this.eval(resolvedValue)
@@ -128,6 +129,7 @@ export class State implements IState {
   }
 
   private * evalOperator (value: Value): Generator {
+    yield // execution cycle
     this._callStack.push(value)
     const operator = value.data as OperatorFunction
     yield * operator(this)
@@ -135,25 +137,32 @@ export class State implements IState {
   }
 
   private * evalProc (value: Value): Generator {
+    yield // execution cycle
     this._callStack.push(value)
     const proc = value.data as IArray
     const { length } = proc
     for (let index = 0; index < length; ++index) {
-      yield * this.eval(proc.at(index))
+      yield * this.evalWithoutProc(proc.at(index))
     }
     this._callStack.pop()
   }
 
-  private * eval (value: Value): Generator {
+  private * evalWithoutProc (value: Value): Generator {
     if (value.type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data as string))) {
       yield * this.evalCall(value)
     } else if (value.type === ValueType.operator) {
       yield * this.evalOperator(value)
-    } else if (value.type === ValueType.proc && this._noCall === 0) {
-      yield * this.evalProc(value)
     } else {
+      yield // execution cycle
       this.push(value)
     }
-    yield // execution cycle
+  }
+
+  public * eval (value: Value): Generator {
+    if (value.type === ValueType.proc && this._noCall === 0) {
+      yield * this.evalProc(value)
+    } else {
+      yield * this.evalWithoutProc(value)
+    }
   }
 }
