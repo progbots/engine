@@ -3,11 +3,15 @@ import { ShareableObject } from '../ShareableObject'
 import { InvalidAccess } from '../../errors'
 import { OperatorFunction } from '../../state'
 import * as operatorFunctions from '../../operators'
+import * as errorFunctions from '../../operators/errors'
 import { IWritableDictionary } from './types'
 
 const operators: Record<string, OperatorFunction> = {}
 
 Object.values(operatorFunctions).forEach(operator => {
+  operators[operator.name] = operator
+})
+Object.values(errorFunctions.default).forEach(operator => {
   operators[operator.name] = operator
 })
 
