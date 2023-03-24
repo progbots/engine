@@ -10,6 +10,20 @@ interface GetterResult {
   value: Value
 }
 
+function arrayLikeGetter (state: State): GetterResult {
+  const [index, container] = state.stackRef
+  if (index.type !== ValueType.integer) {
+    throw new TypeCheck()
+  }
+  const pos = index.data as number
+  const array = container.data as ArrayLike
+  const value = array.at(pos)
+  return {
+    shareable: array,
+    value
+  }
+}
+
 const getters: Record<string, (state: State) => GetterResult> = {
   [ValueType.string]: (state: State): GetterResult => {
     const [index, container] = state.stackRef
@@ -29,19 +43,7 @@ const getters: Record<string, (state: State) => GetterResult> = {
     }
   },
 
-  [ValueType.array]: (state: State): GetterResult => {
-    const [index, container] = state.stackRef
-    if (index.type !== ValueType.integer) {
-      throw new TypeCheck()
-    }
-    const pos = index.data as number
-    const array = container.data as ArrayLike
-    const value = array.at(pos)
-    return {
-      shareable: array,
-      value
-    }
-  },
+  [ValueType.array]: arrayLikeGetter,
 
   [ValueType.dict]: (state: State): GetterResult => {
     const [index, container] = state.stackRef
@@ -58,7 +60,9 @@ const getters: Record<string, (state: State) => GetterResult> = {
       shareable: container.data as unknown as ShareableObject,
       value
     }
-  }
+  },
+
+  [ValueType.proc]: arrayLikeGetter
 }
 
 export function * get (state: State): Generator {

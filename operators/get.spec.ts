@@ -20,6 +20,10 @@ describe('operators/get', () => {
         data: add
       }]
     },
+    'gets item of a proc': {
+      src: '{ 1 2 } 0 get',
+      expect: '1'
+    },
     'fails with StackUnderflow on empty stack': {
       src: 'get',
       error: StackUnderflow
@@ -46,6 +50,14 @@ describe('operators/get', () => {
     'fails with Undefined if container is a dictionary and index is an unknown key': {
       src: 'systemdict /wontfind get',
       error: Undefined
+    },
+    'fails with TypeCheck if container is a proc but index is not an integer': {
+      src: '{ } /name get',
+      error: TypeCheck
+    },
+    'fails with RangeCheck if container is a proc and index is out of range': {
+      src: '{ } 1 get',
+      error: RangeCheck
     }
   })
 })
