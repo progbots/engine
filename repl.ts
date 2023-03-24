@@ -6,71 +6,71 @@ import { length as itLength } from './iterators'
 import { Value, ValueType, IOperator, IArray, IDictionary, IState } from '.'
 import { createState } from './factory'
 
-const types: Record<ValueType, string> = {
-  [ValueType.boolean]: '',
-  [ValueType.integer]: 'Z', // R
-  [ValueType.string]: '🖹',
-  [ValueType.name]: '🏷️',
-  [ValueType.call]: '⚡',
-  [ValueType.operator]: '🔩',
-  [ValueType.mark]: '🚩',
-  [ValueType.array]: '📦',
-  [ValueType.dict]: '📕',
-  [ValueType.proc]: '⚡'
-}
-
-function * fmt (value: Value): Generator<number | string> {
-  if (value.type === ValueType.boolean) {
-    if (value.data as boolean) {
-      yield '✔️'
-    } else {
-      yield '❌'
-    }
-  }
-  if (value.type === ValueType.integer) {
-    yield value.data as number
-  } else if ([ValueType.string, ValueType.name, ValueType.call].includes(value.type)) {
-    yield value.data as string
-  } else if (value.type === ValueType.operator) {
-    yield (value.data as IOperator).name
-  } else if (value.type === ValueType.mark) {
-    yield ''
-  } else if (value.type === ValueType.array) {
-    yield '['
+const formatters: Record<ValueType, (value: Value) => string> = {
+  [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',
+  [ValueType.integer]: (value: Value): string => (value.data as number).toString(),
+  [ValueType.string]: (value: Value): string => JSON.stringify(value.data as string),
+  [ValueType.name]: (value: Value): string => `/${value.data as string}`,
+  [ValueType.call]: (value: Value): string => value.data as string,
+  [ValueType.operator]: (value: Value): string => `-${(value.data as IOperator).name}-`,
+  [ValueType.mark]: (value: Value): string => '--mark--',
+  [ValueType.array]: (value: Value): string => {
+    const output = ['[']
     const array: IArray = value.data as IArray
     const { length } = array
     for (let index = 0; index < length; ++index) {
-      yield * fmt(array.at(index))
+      const item = array.at(index)
+      output.push(formatters[item.type](item))
     }
-    yield ']'
-  } else if (value.type === ValueType.dict) {
+    output.push(']')
+    return output.join(' ')
+  },
+  [ValueType.dict]: (value: Value): string => {
     if (value.data instanceof SystemDictionary) {
-      yield '-systemdict-'
-    } else {
-      const dict = value.data as IDictionary
-      yield `<< 🔑${dict.names.length.toString()} >>`
+      return '--systemdict--'
     }
-  } else if (value.type === ValueType.proc) {
-    yield '{'
+    const dict = value.data as IDictionary
+    return `--dictionary(${dict.names.length.toString()})--`
+  },
+  [ValueType.proc]: (value: Value): string => {
+    const output = ['{']
     const array: IArray = value.data as IArray
     const { length } = array
     for (let index = 0; index < length; ++index) {
-      yield * fmt(array.at(index))
+      const item = array.at(index)
+      output.push(formatters[item.type](item))
     }
-    yield '}'
+    output.push('}')
+    return output.join(' ')
   }
 }
 
-function * memory (state: IState): Generator<number | string> {
-  yield '💾'
-  yield state.usedMemory
-  const total = state.totalMemory
-  if (total === Infinity) {
-    yield '/∞'
-  } else {
-    yield '/'
-    yield total
+const bytesScales: Array<{
+  factor: number
+  unit: string
+}> = [{
+  factor: 1024 * 1024,
+  unit: 'MB'
+}, {
+  factor: 1024,
+  unit: 'kB'
+}]
+
+function scaleBytes (bytes: number): string {
+  for (const scale of bytesScales) {
+    if (bytes > scale.factor) {
+      return `${(bytes / scale.factor).toFixed(2)}${scale.unit}`
+    }
   }
+  return `${bytes}B`
+}
+
+function memory (state: IState): string {
+  const { usedMemory: used, totalMemory: total } = state
+  if (total === Infinity) {
+    return scaleBytes(used) + '/∞'
+  }
+  return scaleBytes(used) + '/' + scaleBytes(total)
 }
 
 function forEach (array: IArray, callback: (value: Value, index: number) => void): void {
@@ -87,31 +87,27 @@ async function main (): Promise<void> {
   const state = createState()
 
   while (true) {
-    const src = await rl.question('❔ ')
+    const src = await rl.question('? ')
     if (src === 'exit') {
       break
     }
     if (src === 'state') {
-      console.log(...memory(state))
+      console.log(`memory: ${memory(state)}`)
+      console.log(`dictionaries: ${state.dictionaries.length}`)
       forEach(state.dictionaries, (value, index) => {
-        const dictionary = value.data as IDictionary
-        let type = ''
-        if (dictionary instanceof SystemDictionary) {
-          type = '🔩'
-        }
-        const { names } = dictionary
-        console.log('📕', index, ''.padEnd(3 - index.toString().length, ' '), type, '🔑', names.length)
+        console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
       })
+      console.log(`stack: ${state.stack.length}`)
       forEach(state.stack, (value, index) => {
-        console.log('📥', index, ''.padEnd(3 - index.toString().length, ' '), types[value.type], ...fmt(value))
+        console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
       })
     } else {
       try {
-        const count = itLength(state.parse(src))
-        console.log('↻', count, '📥', state.stack.length, ...memory(state))
+        const cycles = itLength(state.parse(src))
+        console.log(`cycles: ${cycles}, stack: ${state.stack.length}, memory: ${memory(state)}`)
       } catch (e) {
         if (e instanceof BaseError) {
-          console.error(`🛑 ${e.name} ${e.message}`)
+          console.error(`/!\\ ${e.name} ${e.message}`)
         } else {
           console.error(e)
           break
