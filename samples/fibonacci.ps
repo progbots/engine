@@ -1,0 +1,18 @@
+/fib
+
+{
+  % expect an integer
+  dup type "integer" neq { typecheck } if
+
+  0 1
+
+  % n a b
+
+  2 index 0 eq { 1 index } if
+  2 index 1 eq { dup } if
+
+  
+
+}
+
+bind def
