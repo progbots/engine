@@ -6,8 +6,7 @@ import { ShareableObject } from '../objects/ShareableObject'
 export function * ifOp (state: State): Generator {
   checkStack(state, ValueType.proc, ValueType.boolean)
   const [proc, condition] = state.stackRef
-  const shareable: ShareableObject = proc.data as unknown as ShareableObject
-  shareable.addRef()
+  ShareableObject.addRef(proc)
   state.pop()
   state.pop()
   try {
@@ -15,7 +14,7 @@ export function * ifOp (state: State): Generator {
       yield * state.eval(proc)
     }
   } finally {
-    shareable.release()
+    ShareableObject.release(proc)
   }
 }
 
