@@ -1,4 +1,4 @@
-import { RangeCheck, StackUnderflow, TypeCheck, Undefined} from '../errors'
+import { RangeCheck, StackUnderflow, TypeCheck, Undefined } from '../errors'
 import { executeTests } from '../test-helpers'
 
 describe('operators/errors', () => {
