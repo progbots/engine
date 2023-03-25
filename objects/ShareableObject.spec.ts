@@ -1,3 +1,4 @@
+import { IArray, IDictionary, ValueType } from '..'
 import { ShareableObject } from './ShareableObject'
 
 class MyObject extends ShareableObject {
@@ -11,12 +12,44 @@ class MyObject extends ShareableObject {
 describe('objects/ShareableObject', () => {
   it('calls _dispose on last reference count', () => {
     const object = new MyObject()
+    expect(object.refCount).toStrictEqual(1)
     expect(object.disposeCalled).toStrictEqual(0)
     object.addRef()
+    expect(object.refCount).toStrictEqual(2)
     expect(object.disposeCalled).toStrictEqual(0)
     object.release()
+    expect(object.refCount).toStrictEqual(1)
     expect(object.disposeCalled).toStrictEqual(0)
     object.release()
+    expect(object.refCount).toStrictEqual(0)
     expect(object.disposeCalled).toStrictEqual(1)
+  })
+
+  it('offers a mass and generic addRef helper', () => {
+    const obj1 = new MyObject()
+    const obj2 = new MyObject()
+    ShareableObject.addRef({
+      type: ValueType.array,
+      data: obj1 as unknown as IArray
+    }, {
+      type: ValueType.dict,
+      data: obj2 as unknown as IDictionary
+    })
+    expect(obj1.refCount).toStrictEqual(2)
+    expect(obj2.refCount).toStrictEqual(2)
+  })
+
+  it('offers a mass and generic release helper', () => {
+    const obj1 = new MyObject()
+    const obj2 = new MyObject()
+    ShareableObject.release({
+      type: ValueType.array,
+      data: obj1 as unknown as IArray
+    }, {
+      type: ValueType.dict,
+      data: obj2 as unknown as IDictionary
+    })
+    expect(obj1.refCount).toStrictEqual(0)
+    expect(obj2.refCount).toStrictEqual(0)
   })
 })
