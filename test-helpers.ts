@@ -4,6 +4,7 @@ import { length as itLength } from './iterators'
 
 interface TestDescription {
   skip?: boolean
+  only?: boolean
   src: string
   cycles?: number // default to 1
   error?: Function // Subclass of BaseError
@@ -57,6 +58,8 @@ export function executeTests (tests: Record<string, TestDescription | TestDescri
       })
     } else if (test.skip === true) {
       it.skip(label, executeTest.bind(null, test))
+    } else if (test.only === true) {
+      it.only(label, executeTest.bind(null, test))
     } else {
       it(label, executeTest.bind(null, test))
     }
