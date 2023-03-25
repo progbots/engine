@@ -25,16 +25,34 @@ describe('objects/ShareableObject', () => {
     expect(object.disposeCalled).toStrictEqual(1)
   })
 
+  it('offers a generic addRef helper', () => {
+    const object = new MyObject()
+    ShareableObject.addRef({
+      type: ValueType.array,
+      data: object as unknown as IArray
+    })
+    expect(object.refCount).toStrictEqual(2)
+  })
+
+  it('offers a generic release helper', () => {
+    const object = new MyObject()
+    ShareableObject.release({
+      type: ValueType.array,
+      data: object as unknown as IArray
+    })
+    expect(object.refCount).toStrictEqual(0)
+  })
+
   it('offers a mass and generic addRef helper', () => {
     const obj1 = new MyObject()
     const obj2 = new MyObject()
-    ShareableObject.addRef({
+    ShareableObject.addRef([{
       type: ValueType.array,
       data: obj1 as unknown as IArray
     }, {
       type: ValueType.dict,
       data: obj2 as unknown as IDictionary
-    })
+    }])
     expect(obj1.refCount).toStrictEqual(2)
     expect(obj2.refCount).toStrictEqual(2)
   })
@@ -42,13 +60,13 @@ describe('objects/ShareableObject', () => {
   it('offers a mass and generic release helper', () => {
     const obj1 = new MyObject()
     const obj2 = new MyObject()
-    ShareableObject.release({
+    ShareableObject.release([{
       type: ValueType.array,
       data: obj1 as unknown as IArray
     }, {
       type: ValueType.dict,
       data: obj2 as unknown as IDictionary
-    })
+    }])
     expect(obj1.refCount).toStrictEqual(0)
     expect(obj2.refCount).toStrictEqual(0)
   })

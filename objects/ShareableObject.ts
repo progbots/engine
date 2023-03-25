@@ -1,20 +1,28 @@
 import { Value } from '..'
 
 export abstract class ShareableObject {
-  public static addRef (...values: Value[]): void {
-    values.forEach(value => {
-      if (value.data instanceof ShareableObject) {
-        value.data.addRef()
-      }
-    })
+  public static addRef (values: Value | Value[]): void {
+    if (Array.isArray(values)) {
+      values.forEach(value => {
+        if (value.data instanceof ShareableObject) {
+          value.data.addRef()
+        }
+      })
+    } else if (values.data instanceof ShareableObject) {
+      values.data.addRef()
+    }
   }
 
-  public static release (...values: Value[]): void {
-    values.forEach(value => {
-      if (value.data instanceof ShareableObject) {
-        value.data.release()
-      }
-    })
+  public static release (values: Value | Value[]): void {
+    if (Array.isArray(values)) {
+      values.forEach(value => {
+        if (value.data instanceof ShareableObject) {
+          value.data.release()
+        }
+      })
+    } else if (values.data instanceof ShareableObject) {
+      values.data.release()
+    }
   }
 
   private _refCount: number
