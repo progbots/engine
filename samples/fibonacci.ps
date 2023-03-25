@@ -8,11 +8,27 @@
 
   % n a b
 
-  2 index 0 eq { 1 index } if
-  2 index 1 eq { dup } if
+  {
+    2 index 0 eq {
+      % n a b -> a
+      pop exch
+      pop
+      exit
+    } if
 
-  
+    2 index 1 eq { 
+      % n a b -> b
+      % TODO roll
+      exch pop
+      exch pop
+      exit
+    } if
 
+    % n a b -> n - 1, b, a + b
+    % TODO roll
+
+  }
+  loop
 }
 
 bind def
