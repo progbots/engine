@@ -5,27 +5,18 @@ import { checkStack } from './check-state'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 
-interface GetterResult {
-  shareable?: ShareableObject
-  value: Value
-}
-
-function arrayLikeGetter (state: State): GetterResult {
+function arrayLikeGetter (state: State): Value {
   const [index, container] = state.stackRef
   if (index.type !== ValueType.integer) {
     throw new TypeCheck()
   }
   const pos = index.data as number
   const array = container.data as ArrayLike
-  const value = array.at(pos)
-  return {
-    shareable: array,
-    value
-  }
+  return array.at(pos)
 }
 
-const getters: Record<string, (state: State) => GetterResult> = {
-  [ValueType.string]: (state: State): GetterResult => {
+const getters: Record<string, (state: State) => Value> = {
+  [ValueType.string]: (state: State): Value => {
     const [index, container] = state.stackRef
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
@@ -36,16 +27,14 @@ const getters: Record<string, (state: State) => GetterResult> = {
       throw new RangeCheck()
     }
     return {
-      value: {
-        type: ValueType.integer,
-        data: string.charCodeAt(pos)
-      }
+      type: ValueType.integer,
+      data: string.charCodeAt(pos)
     }
   },
 
   [ValueType.array]: arrayLikeGetter,
 
-  [ValueType.dict]: (state: State): GetterResult => {
+  [ValueType.dict]: (state: State): Value => {
     const [index, container] = state.stackRef
     if (index.type !== ValueType.name) {
       throw new TypeCheck()
@@ -56,10 +45,7 @@ const getters: Record<string, (state: State) => GetterResult> = {
     if (value === null) {
       throw new Undefined()
     }
-    return {
-      shareable: container.data as unknown as ShareableObject,
-      value
-    }
+    return value
   },
 
   [ValueType.proc]: arrayLikeGetter
@@ -72,17 +58,13 @@ export function * get (state: State): Generator {
   if (getter === undefined) {
     throw new TypeCheck()
   }
-  const { shareable, value } = getter(state)
-  if (shareable !== undefined) {
-    shareable.addRef()
-  }
+  ShareableObject.addRef(container)
+  const value = getter(state)
   try {
     state.pop()
     state.pop()
     state.push(value)
   } finally {
-    if (shareable !== undefined) {
-      shareable.release()
-    }
+    ShareableObject.release(container)
   }
 }
