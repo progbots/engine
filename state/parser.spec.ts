@@ -7,6 +7,10 @@ describe('state/parser', () => {
       type: ValueType.integer,
       data: 1
     },
+    '+1': {
+      type: ValueType.integer,
+      data: 1
+    },
     '-1': {
       type: ValueType.integer,
       data: -1
@@ -22,6 +26,38 @@ describe('state/parser', () => {
     '/add': {
       type: ValueType.name,
       data: 'add'
+    },
+    '[': {
+      type: ValueType.call,
+      data: '['
+    },
+    ']': {
+      type: ValueType.call,
+      data: ']'
+    },
+    '{': {
+      type: ValueType.call,
+      data: '{'
+    },
+    '}': {
+      type: ValueType.call,
+      data: '}'
+    },
+    '\'123': {
+      type: ValueType.call,
+      data: '\'123'
+    },
+    '/\'123': {
+      type: ValueType.name,
+      data: '\'123'
+    },
+    ',': {
+      type: ValueType.call,
+      data: ','
+    },
+    '/,': {
+      type: ValueType.name,
+      data: ','
     }
   }
 
@@ -35,6 +71,33 @@ describe('state/parser', () => {
 
   it('generates values', () => {
     const block = [...parse('1 2 add')]
+    expect(block).toStrictEqual([{
+      type: ValueType.integer,
+      data: 1
+    }, {
+      type: ValueType.integer,
+      data: 2
+    }, {
+      type: ValueType.call,
+      data: 'add'
+    }])
+  })
+
+  it('splits array and proc calls', () => {
+    const block = [...parse('[][[]]]{{}{}}')].map(value => value.data as string)
+    expect(block).toStrictEqual([
+      '[', ']', '[', '[', ']', ']', ']', '{', '{', '}', '{', '}', '}'
+    ])
+  })
+
+  it('ignores comments and formatting', () => {
+    const block = [...parse(`
+% This is a comment
+1
+\t2
+
+add
+`)]
     expect(block).toStrictEqual([{
       type: ValueType.integer,
       data: 1

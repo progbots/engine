@@ -3,7 +3,7 @@ import { Value, ValueType } from '..'
 // TODO: the output should contain position in source (for debugging purpose)
 
 export function * parse (source: string): Generator<Value> {
-  const matcher = /(?:"([^"]*)")|(-?\d+)|\/(\w+)|(\w+|\[|\]|{|})/g
+  const matcher = /%[^\n]*|(?:"([^"]*)")|\s+|((?:-|\+)?\d+)|\/(\S+)|(\[|\]|{|}|\S+)/g
   let match = matcher.exec(source)
   while (match !== null) {
     const [, string, integer, name, call] = match
