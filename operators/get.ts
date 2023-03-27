@@ -59,8 +59,8 @@ export function * get (state: State): Generator {
     throw new TypeCheck()
   }
   ShareableObject.addRef(container)
-  const value = getter(state)
   try {
+    const value = getter(state)
     state.pop()
     state.pop()
     state.push(value)
