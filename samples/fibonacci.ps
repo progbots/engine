@@ -7,26 +7,27 @@
   0 1
 
   % n a b
-
   {
+    % [/n /a /b] {
+    %   n 0 eq { a break }
+    %   n 1 eq { b break }
+    %   n 1 sub b a b add
+    % } with
+
     2 index 0 eq {
       % n a b -> a
-      pop exch
-      pop
-      exit
+      3 -1 roll pop pop exit
     } if
 
     2 index 1 eq { 
       % n a b -> b
-      % TODO roll
-      exch pop
-      exch pop
-      exit
+      3 -2 roll pop pop exit
     } if
 
     % n a b -> n - 1, b, a + b
-    % TODO roll
-
+    1 index add
+    exch
+    3 -1 roll 1 sub 3 1 roll
   }
   loop
 }
