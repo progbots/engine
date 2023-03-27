@@ -3,7 +3,7 @@ import { executeTests } from '../test-helpers'
 
 describe('operators/dup', () => {
   executeTests({
-    'duplicate top item of the stack': {
+    'duplicates top item of the stack': {
       src: '1 dup',
       expect: '1 1'
     },
