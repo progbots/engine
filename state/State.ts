@@ -1,5 +1,5 @@
 import { ValueType, IArray, IDictionary, Value, IState } from '..'
-import { BusyParsing, DictStackUnderflow, Undefined } from '../errors'
+import { Break, BusyParsing, DictStackUnderflow, InvalidBreak, Undefined } from '../errors'
 import { OperatorFunction, parse } from '.'
 import { Stack } from '../objects/Stack'
 import { MemoryTracker } from './MemoryTracker'
@@ -172,10 +172,20 @@ export class State implements IState {
   }
 
   public * eval (value: Value): Generator {
-    if (value.type === ValueType.proc && this._noCall === 0) {
-      yield * this.evalProc(value)
-    } else {
-      yield * this.evalWithoutProc(value)
+    try {
+      if (value.type === ValueType.proc && this._noCall === 0) {
+        yield * this.evalProc(value)
+      } else {
+        yield * this.evalWithoutProc(value)
+      }
+    } catch (e) {
+      if (e instanceof Break && (
+        this._callStack.length === 0 ||
+        (this._callStack.length === 1 && this._callStack.ref[0].type === ValueType.string)
+      )) {
+        throw new InvalidBreak() // TODO: forward the stack
+      }
+      throw e
     }
   }
 }

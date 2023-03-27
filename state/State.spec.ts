@@ -1,6 +1,6 @@
 import { State } from '.'
 import { ValueType } from '..'
-import { StackUnderflow, Undefined } from '../errors'
+import { InvalidBreak, StackUnderflow, Undefined } from '../errors'
 import { length as itLength } from '../iterators'
 import { add } from '../operators'
 
@@ -186,6 +186,21 @@ describe('state/State', () => {
         state.pop()
         const used = state.usedMemory
         expect(used).toStrictEqual(initialMemoryUsed)
+      })
+    })
+
+    describe.only('break and invalid break', () => {
+      it('signals an invalid use of break (eval)', () => {
+        const state = new State()
+        expect(() => itLength(state.eval({
+          type: ValueType.call,
+          data: 'break'
+        }))).toThrowError(InvalidBreak)
+      })
+
+      it('signals an invalid use of break (parse)', () => {
+        const state = new State()
+        expect(() => itLength(state.parse('break'))).toThrowError(InvalidBreak)
       })
     })
   })
