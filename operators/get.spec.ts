@@ -40,7 +40,14 @@ describe('operators/get', () => {
       src: '[1] 1 get',
       error: RangeCheck
     }, {
-      src: '[-1] 1 get',
+      src: '[-1] -1 get',
+      error: RangeCheck
+    }],
+    'fails with RangeCheck if container is a string and index is out of range': [{
+      src: '"a" 1 get',
+      error: RangeCheck
+    }, {
+      src: '"a" -1 get',
       error: RangeCheck
     }],
     'fails with TypeCheck if container is a dictionary but index is not a name': {
