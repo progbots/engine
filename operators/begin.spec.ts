@@ -11,8 +11,7 @@ describe('operators/begin', () => {
       }
     },
     'updates the evaluation context': {
-      skip: true,
-      src: 'dict dup /test "hello" put begin test',
+      src: 'dict /test "hello" set begin test',
       expect: '"hello"'
     },
     'fails with StackUnderflow on empty stack': {
