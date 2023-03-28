@@ -1,6 +1,7 @@
 import { ArrayLike } from './Array'
 import { MemoryTracker } from '../state/MemoryTracker'
 import { ValueType } from '..'
+import { RangeCheck } from '../errors'
 
 describe('objects/Array', () => {
   let tracker: MemoryTracker
@@ -81,37 +82,46 @@ describe('objects/Array', () => {
     }])
   })
 
-  it('allows setting item', () => {
-    array.set(2, {
-      type: ValueType.integer,
-      data: 3
+  describe('set', () => {
+    it('allows setting a new item', () => {
+      array.set(2, {
+        type: ValueType.integer,
+        data: 3
+      })
+      expect(array.ref).toStrictEqual([{
+        type: ValueType.integer,
+        data: 1
+      }, {
+        type: ValueType.integer,
+        data: 2
+      }, {
+        type: ValueType.integer,
+        data: 3
+      }])
     })
-    expect(array.ref).toStrictEqual([{
-      type: ValueType.integer,
-      data: 1
-    }, {
-      type: ValueType.integer,
-      data: 2
-    }, {
-      type: ValueType.integer,
-      data: 3
-    }])
-  })
-
-  it('allows overriding an item', () => {
-    const initialMemory = tracker.used
-    array.set(0, {
-      type: ValueType.integer,
-      data: -1
+  
+    it('allows overriding an item', () => {
+      const initialMemory = tracker.used
+      array.set(0, {
+        type: ValueType.integer,
+        data: -1
+      })
+      expect(array.ref).toStrictEqual([{
+        type: ValueType.integer,
+        data: -1
+      }, {
+        type: ValueType.integer,
+        data: 2
+      }])
+      expect(tracker.used).toStrictEqual(initialMemory)
     })
-    expect(array.ref).toStrictEqual([{
-      type: ValueType.integer,
-      data: -1
-    }, {
-      type: ValueType.integer,
-      data: 2
-    }])
-    expect(tracker.used).toStrictEqual(initialMemory)
+  
+    it('fails with RangeCheck on invalid index', () => {
+      expect(() => array.set(-1, {
+        type: ValueType.integer,
+        data: 0
+      })).toThrowError(RangeCheck)
+    })
   })
 
   it('releases memory once disposed', () => {

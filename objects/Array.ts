@@ -1,5 +1,5 @@
 import { Value } from '..'
-import { Internal } from '../errors'
+import { Internal, RangeCheck } from '../errors'
 import { BaseArray } from './BaseArray'
 
 export class ArrayLike extends BaseArray {
@@ -28,6 +28,9 @@ export class ArrayLike extends BaseArray {
   }
 
   set (index: number, value: Value): void {
+    if (index < 0) {
+      throw new RangeCheck()
+    }
     const oldValue = this._values[index]
     this.addValueRef(value)
     if (oldValue !== undefined) {
