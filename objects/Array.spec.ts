@@ -99,7 +99,7 @@ describe('objects/Array', () => {
         data: 3
       }])
     })
-  
+
     it('allows overriding an item', () => {
       const initialMemory = tracker.used
       array.set(0, {
@@ -115,7 +115,7 @@ describe('objects/Array', () => {
       }])
       expect(tracker.used).toStrictEqual(initialMemory)
     })
-  
+
     it('fails with RangeCheck on invalid index', () => {
       expect(() => array.set(-1, {
         type: ValueType.integer,
