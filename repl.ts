@@ -1,10 +1,11 @@
 import * as readline from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
 import { BaseError } from './errors/BaseError'
-import { SystemDictionary } from './objects/dictionaries'
+import { HostDictionary, SystemDictionary } from './objects/dictionaries'
 import { length as itLength } from './iterators'
 import { Value, ValueType, IOperator, IArray, IDictionary, IState } from '.'
 import { createState } from './factory'
+import { OperatorFunction, State } from './state'
 
 const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',
@@ -26,10 +27,13 @@ const formatters: Record<ValueType, (value: Value) => string> = {
     return output.join(' ')
   },
   [ValueType.dict]: (value: Value): string => {
-    if (value.data instanceof SystemDictionary) {
-      return '--systemdict--'
-    }
     const dict = value.data as IDictionary
+    if (value.data instanceof HostDictionary) {
+      return `--hostdict(${dict.names.length.toString()})--`
+    }
+    if (value.data instanceof SystemDictionary) {
+      return `--systemdict(${dict.names.length.toString()})--`
+    }
     return `--dictionary(${dict.names.length.toString()})--`
   },
   [ValueType.proc]: (value: Value): string => {
@@ -80,38 +84,64 @@ function forEach (array: IArray, callback: (value: Value, index: number) => void
   }
 }
 
+class ExitError extends Error {}
+
+const hostMethods: Record<string, OperatorFunction> = {
+  exit: function * (state: State): Generator {
+    throw new ExitError()
+  },
+
+  state: function * (state: State): Generator {
+    console.log(`memory: ${memory(state)}`)
+    console.log(`dictionaries: ${state.dictionaries.length}`)
+    forEach(state.dictionaries, (value, index) => {
+      console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
+    })
+    console.log(`stack: ${state.stack.length}`)
+    forEach(state.stack, (value, index) => {
+      console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
+    })
+  }
+}
+
+const hostDictionary = {
+  get names () {
+    return Object.keys(hostMethods)
+  },
+
+  lookup (name: string): Value | null {
+    const operator = hostMethods[name]
+    if (operator === undefined) {
+      return null
+    }
+    return {
+      type: ValueType.operator,
+      data: operator
+    }
+  }
+}
+
 async function main (): Promise<void> {
   const rl = readline.createInterface({ input, output })
   console.log('Use \'exit\' to quit')
   console.log('Use \'state\' to print a state summary')
-  const state = createState()
+  const state = createState({
+    hostDictionary
+  })
 
   while (true) {
     const src = await rl.question('? ')
-    if (src === 'exit') {
-      break
-    }
-    if (src === 'state') {
-      console.log(`memory: ${memory(state)}`)
-      console.log(`dictionaries: ${state.dictionaries.length}`)
-      forEach(state.dictionaries, (value, index) => {
-        console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
-      })
-      console.log(`stack: ${state.stack.length}`)
-      forEach(state.stack, (value, index) => {
-        console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
-      })
-    } else {
-      try {
-        const cycles = itLength(state.parse(src))
-        console.log(`cycles: ${cycles}, stack: ${state.stack.length}, memory: ${memory(state)}`)
-      } catch (e) {
-        if (e instanceof BaseError) {
-          console.error(`/!\\ ${e.name} ${e.message}`)
-        } else {
-          console.error(e)
-          break
-        }
+    try {
+      const cycles = itLength(state.parse(src))
+      console.log(`cycles: ${cycles}, stack: ${state.stack.length}, memory: ${memory(state)}`)
+    } catch (e) {
+      if (e instanceof ExitError) {
+        break
+      } else if (e instanceof BaseError) {
+        console.error(`/!\\ ${e.name} ${e.message}`)
+      } else {
+        console.error(e)
+        break
       }
     }
   }
