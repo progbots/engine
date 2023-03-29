@@ -45,3 +45,8 @@ export interface IState {
 
   parse: (value: string) => Generator
 }
+
+export interface StateFactorySettings {
+  hostDictionary?: IDictionary
+  maxMemoryBytes?: number
+}
