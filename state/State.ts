@@ -1,25 +1,31 @@
-import { ValueType, IArray, IDictionary, Value, IState } from '..'
+import { ValueType, IArray, IDictionary, Value, IState, StateFactorySettings } from '..'
 import { Break, BusyParsing, DictStackUnderflow, InvalidBreak, Undefined } from '../errors'
 import { OperatorFunction, parse } from '.'
 import { Stack } from '../objects/Stack'
 import { MemoryTracker } from './MemoryTracker'
 import { Dictionary, SystemDictionary } from '../objects/dictionaries'
+import { HostDictionary } from '../objects/dictionaries/Host'
 
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
   private readonly _systemdict: SystemDictionary = new SystemDictionary()
   private readonly _globaldict: Dictionary
+  private readonly _minDictCount: number
   private readonly _dictionaries: Stack
   private readonly _stack: Stack
   private readonly _callStack: Stack
   private _noCall: number = 0
 
-  constructor () {
-    this._memoryTracker = new MemoryTracker()
+  constructor (settings: StateFactorySettings = {}) {
+    this._memoryTracker = new MemoryTracker(settings.maxMemoryBytes)
     this._dictionaries = new Stack(this._memoryTracker)
     this._globaldict = new Dictionary(this._memoryTracker)
+    if (settings.hostDictionary != null) {
+      this.begin(new HostDictionary(settings.hostDictionary))
+    }
     this.begin(this._systemdict)
     this.begin(this._globaldict)
+    this._minDictCount = this._dictionaries.length
     this._stack = new Stack(this._memoryTracker)
     this._callStack = new Stack(this._memoryTracker)
   }
@@ -110,7 +116,7 @@ export class State implements IState {
   }
 
   end (): void {
-    if (this._dictionaries.ref.length === 2) {
+    if (this._dictionaries.ref.length === this._minDictCount) {
       throw new DictStackUnderflow()
     }
     this._dictionaries.pop()

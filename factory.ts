@@ -1,6 +1,6 @@
-import { IState } from '.'
+import { IState, StateFactorySettings } from '.'
 import { State } from './state'
 
-export function createState (): IState {
-  return new State()
+export function createState (settings?: StateFactorySettings): IState {
+  return new State(settings)
 }
