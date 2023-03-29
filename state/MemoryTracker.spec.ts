@@ -1,4 +1,5 @@
 import { ValueType } from '..'
+import { VMError } from '../errors'
 import { MemoryTracker } from './MemoryTracker'
 
 describe('state/MemoryTracker', () => {
@@ -104,6 +105,13 @@ describe('state/MemoryTracker', () => {
         })
         expect(tracker.used).toStrictEqual(initial)
       })
+    })
+  })
+
+  describe('VMerror', () => {
+    it('raises an error if limit is exceeded', () => {
+      const tracker = new MemoryTracker(10)
+      expect(() => tracker.increment(11)).toThrowError(VMError)
     })
   })
 })

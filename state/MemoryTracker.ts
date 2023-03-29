@@ -1,4 +1,5 @@
 import { Value, ValueType } from '..'
+import { VMError } from '../errors'
 import { ShareableObject } from '../objects/ShareableObject'
 
 const stringSizer = (data: string): number => {
@@ -101,6 +102,9 @@ export class MemoryTracker {
 
   increment (bytes: number): void {
     this._used += bytes
+    if (this._used > this._total) {
+      throw new VMError()
+    }
   }
 
   decrement (bytes: number): void {
