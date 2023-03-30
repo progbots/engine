@@ -52,19 +52,7 @@ export class State implements IState {
     if (this._callStack.length !== 0) {
       throw new BusyParsing()
     }
-    this._callStack.push({
-      type: ValueType.string,
-      data: source
-    })
-    try {
-      const parser = parse(source)
-      for (const parsedValue of parser) {
-        yield // parse cycle
-        yield * this.eval(parsedValue)
-      }
-    } finally {
-      this._callStack.pop()
-    }
+    yield * this.innerParse(source)
   }
 
   // endregion IState
@@ -177,7 +165,7 @@ export class State implements IState {
     }
   }
 
-  public * eval (value: Value): Generator {
+  * eval (value: Value): Generator {
     try {
       if (value.type === ValueType.proc && this._noCall === 0) {
         yield * this.evalProc(value)
@@ -192,6 +180,22 @@ export class State implements IState {
         throw new InvalidBreak() // TODO: forward the stack
       }
       throw e
+    }
+  }
+
+  * innerParse (source: string): Generator {
+    this._callStack.push({
+      type: ValueType.string,
+      data: source
+    })
+    try {
+      const parser = parse(source)
+      for (const parsedValue of parser) {
+        yield // parse cycle
+        yield * this.eval(parsedValue)
+      }
+    } finally {
+      this._callStack.pop()
     }
   }
 }
