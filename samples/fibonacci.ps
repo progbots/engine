@@ -2,7 +2,7 @@
 
 {
   % expect an integer
-  dup type "integer" neq { typecheck } if
+  dup type "integertype" neq { typecheck } if
 
   0 1
 
@@ -16,12 +16,12 @@
 
     2 index 0 eq {
       % n a b -> a
-      3 -1 roll pop pop exit
+      3 -1 roll pop pop break
     } if
 
     2 index 1 eq { 
       % n a b -> b
-      3 -2 roll pop pop exit
+      3 -2 roll pop pop break
     } if
 
     % n a b -> n - 1, b, a + b
