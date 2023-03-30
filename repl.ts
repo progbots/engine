@@ -6,6 +6,8 @@ import { length as itLength } from './iterators'
 import { Value, ValueType, IOperator, IArray, IDictionary, IState } from '.'
 import { createState } from './factory'
 import { OperatorFunction, State } from './state'
+import { checkStack } from './operators/check-state'
+import { readFileSync } from 'fs'
 
 const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',
@@ -101,6 +103,13 @@ const hostMethods: Record<string, OperatorFunction> = {
     forEach(state.stack, (value, index) => {
       console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
     })
+  },
+
+  load: function * (state: State): Generator {
+    const [path] = checkStack(state, ValueType.string).map(value => value.data as string)
+    state.pop()
+    const source = readFileSync(path).toString()
+    yield * state.innerParse(source)
   }
 }
 
