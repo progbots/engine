@@ -4,8 +4,8 @@ import { executeTests } from '../test-helpers'
 describe('operators/type', () => {
   executeTests({
     'gives type of a boolean': {
-      src: 'true type',
-      expect: '"booleantype"'
+      src: '42 true type',
+      expect: '42 "booleantype"'
     },
     'gives type of an integer': {
       src: '1 type',
