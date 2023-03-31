@@ -183,13 +183,15 @@ export class State implements IState {
     }
   }
 
-  * innerParse (source: string): Generator {
+  * innerParse (source: string, sourceFile?: string): Generator {
     this._callStack.push({
       type: ValueType.string,
-      data: source
+      data: source,
+      untracked: true, // because external
+      sourceFile
     })
     try {
-      const parser = parse(source)
+      const parser = parse(source, sourceFile)
       for (const parsedValue of parser) {
         yield // parse cycle
         yield * this.eval(parsedValue)
