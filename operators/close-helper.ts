@@ -1,11 +1,11 @@
-import { Value, ValueType } from '..'
+import { ValueType } from '..'
 import { UnmatchedMark } from '../errors'
 import { ArrayLike } from '../objects/Array'
-import { State } from '../state'
+import { InternalValue, State } from '../state'
 
 export function closeToMark (state: State, type: ValueType.array | ValueType.proc): void {
   const stack = state.stackRef
-  const markPos = stack.findIndex((value: Value) => value.type === ValueType.mark)
+  const markPos = stack.findIndex((value: InternalValue) => value.type === ValueType.mark)
   if (markPos === -1) {
     throw new UnmatchedMark()
   }
