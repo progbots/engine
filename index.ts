@@ -26,8 +26,8 @@ export interface IDictionary {
 }
 
 export interface Value {
-  type: ValueType
-  data: null // mark
+  readonly type: ValueType
+  readonly data: null // mark
   | boolean // boolean
   | number // integer
   | string // string, name, call
@@ -49,4 +49,5 @@ export interface IState {
 export interface StateFactorySettings {
   hostDictionary?: IDictionary
   maxMemoryBytes?: number
+  keepDebugInfo?: boolean
 }
