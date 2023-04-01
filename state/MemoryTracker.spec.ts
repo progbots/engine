@@ -1,6 +1,15 @@
-import { ValueType } from '..'
+import { IArray, ValueType } from '..'
 import { VMError } from '../errors'
+import { ShareableObject } from '../objects/ShareableObject'
 import { MemoryTracker } from './MemoryTracker'
+
+class MyObject extends ShareableObject {
+  public disposeCalled: number = 0
+
+  protected _dispose (): void {
+    ++this.disposeCalled
+  }
+}
 
 describe('state/MemoryTracker', () => {
   describe('initial state', () => {
@@ -104,6 +113,63 @@ describe('state/MemoryTracker', () => {
           data: bigString
         })
         expect(tracker.used).toStrictEqual(initial)
+      })
+    })
+
+    describe('untracked', () => {
+      it('does not track memory allocated to the string', () => {
+        const tracker = new MemoryTracker()
+        const initial = tracker.used
+        tracker.addValueRef({
+          type: ValueType.string,
+          data: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef'),
+          untracked: true
+        })
+        expect(tracker.used - initial).toStrictEqual(MemoryTracker.VALUE_SIZE)
+      })
+    })
+  })
+
+  describe('shareable object management', () => {
+    const types = [ValueType.array, ValueType.dict, ValueType.proc]
+
+    types.forEach(type => {
+      it(`increments reference count on addValueRef (${type})`, () => {
+        const object = new MyObject()
+        const tracker = new MemoryTracker()
+        tracker.addValueRef({
+          type,
+          data: object as unknown as IArray
+        })
+        expect(object.refCount).toStrictEqual(2)
+      })
+
+      it(`decrements reference count on releaseValue (${type})`, () => {
+        const object = new MyObject()
+        const tracker = new MemoryTracker()
+        tracker.releaseValue({
+          type,
+          data: object as unknown as IArray
+        })
+        expect(object.refCount).toStrictEqual(0)
+        expect(object.disposeCalled).toStrictEqual(1)
+      })
+
+      it(`ignores if untracked (${type})`, () => {
+        const object = new MyObject()
+        const tracker = new MemoryTracker()
+        tracker.addValueRef({
+          type,
+          data: object as unknown as IArray,
+          untracked: true
+        })
+        expect(object.refCount).toStrictEqual(1)
+        tracker.releaseValue({
+          type,
+          data: object as unknown as IArray,
+          untracked: true
+        })
+        expect(object.refCount).toStrictEqual(1)
       })
     })
   })
