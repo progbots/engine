@@ -1,7 +1,7 @@
-import { Value } from '..'
+import { InternalValue } from '../state'
 
 export abstract class ShareableObject {
-  public static addRef (values: Value | Value[]): void {
+  public static addRef (values: InternalValue | InternalValue[]): void {
     if (Array.isArray(values)) {
       values.forEach(value => {
         if (value.data instanceof ShareableObject) {
@@ -13,7 +13,7 @@ export abstract class ShareableObject {
     }
   }
 
-  public static release (values: Value | Value[]): void {
+  public static release (values: InternalValue | InternalValue[]): void {
     if (Array.isArray(values)) {
       values.forEach(value => {
         if (value.data instanceof ShareableObject) {
