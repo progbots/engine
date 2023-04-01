@@ -1,13 +1,13 @@
-import { Value, ValueType } from '..'
+import { ValueType } from '..'
 import { RangeCheck, TypeCheck } from '../errors'
-import { State } from '../state'
+import { InternalValue, State } from '../state'
 import { checkStack } from './check-state'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 import { IWritableDictionary } from '../objects/dictionaries'
 
-const setters: Record<string, (state: State) => Value> = {
-  [ValueType.string]: (state: State): Value => {
+const setters: Record<string, (state: State) => InternalValue> = {
+  [ValueType.string]: (state: State): InternalValue => {
     const [value, index, container] = state.stackRef
     if (index.type !== ValueType.integer || value.type !== ValueType.integer) {
       throw new TypeCheck()
@@ -31,7 +31,7 @@ const setters: Record<string, (state: State) => Value> = {
     }
   },
 
-  [ValueType.array]: (state: State): Value => {
+  [ValueType.array]: (state: State): InternalValue => {
     const [value, index, container] = state.stackRef
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
@@ -45,7 +45,7 @@ const setters: Record<string, (state: State) => Value> = {
     return container
   },
 
-  [ValueType.dict]: (state: State): Value => {
+  [ValueType.dict]: (state: State): InternalValue => {
     const [value, index, container] = state.stackRef
     if (index.type !== ValueType.name) {
       throw new TypeCheck()
