@@ -1,9 +1,9 @@
-import { State } from '../state'
+import { InternalValue, State } from '../state'
 import { UnmatchedMark } from '../errors'
-import { Value, ValueType } from '..'
+import { ValueType } from '..'
 
 export function * counttomark (state: State): Generator {
-  const pos = state.stackRef.findIndex((value: Value) => value.type === ValueType.mark)
+  const pos = state.stackRef.findIndex((value: InternalValue) => value.type === ValueType.mark)
   if (pos === -1) {
     throw new UnmatchedMark()
   }
