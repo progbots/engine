@@ -1,39 +1,43 @@
 import { ValueType } from '..'
-import { ValueEx } from '.'
+import { InternalValue } from '.'
 
-export function * parse (source: string, sourceFile?: string): Generator<ValueEx> {
+export function * parse (source: string, sourceFile?: string): Generator<InternalValue> {
   const matcher = /%[^\n]*|(?:"([^"]*)")|\s+|((?:-|\+)?\d+)|\/(\S+)|(\[|\]|{|}|\S+)/g
   let match = matcher.exec(source)
   while (match !== null) {
     const [, string, integer, name, call] = match
-    const debugInfos = {
+    const debugValue: InternalValue = {
+      type: ValueType.integer,
+      data: 0,
       source,
-      sourceFile,
       sourcePos: match.index
+    }
+    if (sourceFile !== undefined) {
+      debugValue.sourceFile = sourceFile
     }
     if (string !== undefined) {
       yield {
+        ...debugValue,
         type: ValueType.string,
-        data: string,
-        ...debugInfos
+        data: string
       }
     } else if (integer !== undefined) {
       yield {
+        ...debugValue,
         type: ValueType.integer,
-        data: parseInt(integer, 10),
-        ...debugInfos
+        data: parseInt(integer, 10)
       }
     } else if (name !== undefined) {
       yield {
+        ...debugValue,
         type: ValueType.name,
-        data: name,
-        ...debugInfos
+        data: name
       }
     } else if (call !== undefined) {
       yield {
+        ...debugValue,
         type: ValueType.call,
-        data: call,
-        ...debugInfos
+        data: call
       }
     }
     match = matcher.exec(source)
