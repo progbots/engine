@@ -1,19 +1,19 @@
-import { ValueEx } from '../state'
+import { InternalValue } from '../state'
 import { Internal, RangeCheck } from '../errors'
 import { BaseArray } from './BaseArray'
 
 export class ArrayLike extends BaseArray {
-  protected pushImpl (value: ValueEx): void {
+  protected pushImpl (value: InternalValue): void {
     this._values.push(value)
   }
 
-  protected popImpl (): ValueEx {
-    const value = this._values.at(-1) as ValueEx
+  protected popImpl (): InternalValue {
+    const value = this._values.at(-1) as InternalValue
     this._values.pop()
     return value
   }
 
-  shift (): ValueEx {
+  shift (): InternalValue {
     const value = this._values.shift()
     if (value === undefined) {
       throw new Internal('array is empty')
@@ -22,12 +22,12 @@ export class ArrayLike extends BaseArray {
     return value
   }
 
-  unshift (value: ValueEx): void {
+  unshift (value: InternalValue): void {
     this.addValueRef(value)
     this._values.unshift(value)
   }
 
-  set (index: number, value: ValueEx): void {
+  set (index: number, value: InternalValue): void {
     if (index < 0) {
       throw new RangeCheck()
     }
