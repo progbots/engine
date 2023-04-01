@@ -1,5 +1,5 @@
 import { Value, ValueType } from '..'
-import { ValueEx } from '.'
+import { InternalValue } from '.'
 import { VMError } from '../errors'
 import { ShareableObject } from '../objects/ShareableObject'
 
@@ -79,7 +79,7 @@ export class MemoryTracker {
     return this._total
   }
 
-  addValueRef (value: ValueEx): void {
+  addValueRef (value: InternalValue): void {
     let valueSize: number = MemoryTracker.VALUE_SIZE
     if (value.untracked !== true) {
       if (isString(value)) {
@@ -92,7 +92,7 @@ export class MemoryTracker {
     this.increment(valueSize)
   }
 
-  releaseValue (value: ValueEx): void {
+  releaseValue (value: InternalValue): void {
     let valueSize: number = MemoryTracker.VALUE_SIZE
     if (value.untracked !== true) {
       if (isString(value)) {
