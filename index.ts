@@ -26,8 +26,8 @@ export interface IDictionary {
 }
 
 export interface Value {
-  type: ValueType
-  data: null // mark
+  readonly type: ValueType
+  readonly data: null // mark
   | boolean // boolean
   | number // integer
   | string // string, name, call
@@ -40,7 +40,7 @@ export interface IState {
   readonly usedMemory: number
   readonly totalMemory: number
 
-  readonly stack: IArray
+  readonly operands: IArray
   readonly dictionaries: IArray
 
   parse: (value: string) => Generator
@@ -49,4 +49,5 @@ export interface IState {
 export interface StateFactorySettings {
   hostDictionary?: IDictionary
   maxMemoryBytes?: number
+  keepDebugInfo?: boolean
 }

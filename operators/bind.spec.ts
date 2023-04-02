@@ -11,9 +11,9 @@ describe('operators/bind', () => {
     'replaces proc calls with their callees': {
       src: '{ true [ 42 ] /unchanged } bind',
       expect: (state: State) => {
-        expect(state.stackRef.length).toStrictEqual(1)
-        expect(state.stackRef[0].type).toStrictEqual(ValueType.proc)
-        const array = state.stackRef[0].data as unknown as ArrayLike
+        expect(state.operandsRef.length).toStrictEqual(1)
+        expect(state.operandsRef[0].type).toStrictEqual(ValueType.proc)
+        const array = state.operandsRef[0].data as unknown as ArrayLike
         expect(array.ref[0]).toStrictEqual({
           type: ValueType.operator,
           data: trueOp

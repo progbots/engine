@@ -1,11 +1,10 @@
 import { ValueType } from '..'
 import { IWritableDictionary } from '../objects/dictionaries'
 import { State } from '../state'
-import { checkStack } from './check-state'
+import { checkOperands } from './operands'
 
 export function * def (state: State): Generator {
-  checkStack(state, null, ValueType.name)
-  const [value, name] = state.stackRef
+  const [value, name] = checkOperands(state, null, ValueType.name)
   const [{ data: top }] = state.dictionariesRef
   const topDict = top as IWritableDictionary
   topDict.def(name.data as string, value)

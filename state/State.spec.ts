@@ -9,7 +9,7 @@ describe('state/State', () => {
     describe('happy path', () => {
       it('starts with an empty stack', () => {
         const state = new State()
-        expect(state.stackRef.length).toStrictEqual(0)
+        expect(state.operandsRef.length).toStrictEqual(0)
       })
 
       it('enables pushing stack items', () => {
@@ -18,7 +18,7 @@ describe('state/State', () => {
           type: ValueType.integer,
           data: 1
         })
-        expect(state.stackRef.length).toStrictEqual(1)
+        expect(state.operandsRef.length).toStrictEqual(1)
       })
 
       it('enables getting stack items', () => {
@@ -27,7 +27,7 @@ describe('state/State', () => {
           type: ValueType.integer,
           data: 1
         })
-        const value = state.stackRef[0]
+        const value = state.operandsRef[0]
         expect(value).toStrictEqual({
           type: ValueType.integer,
           data: 1
@@ -41,7 +41,7 @@ describe('state/State', () => {
           data: 1
         })
         state.pop()
-        expect(state.stackRef.length).toStrictEqual(0)
+        expect(state.operandsRef.length).toStrictEqual(0)
       })
 
       describe('stack order', () => {
@@ -55,7 +55,7 @@ describe('state/State', () => {
             type: ValueType.integer,
             data: 2
           })
-          const [first, second] = state.stackRef
+          const [first, second] = state.operandsRef
           expect(first).toStrictEqual({
             type: ValueType.integer,
             data: 2
@@ -120,7 +120,7 @@ describe('state/State', () => {
           hostDictionary
         })
         itLength(state.parse('test'))
-        expect(state.stackRef).toStrictEqual([{
+        expect(state.operandsRef).toStrictEqual([{
           type: ValueType.integer,
           data: 42
         }])
@@ -132,7 +132,7 @@ describe('state/State', () => {
     it('stacks integer value', () => {
       const state = new State()
       expect(itLength(state.parse('1'))).toStrictEqual(2) // parse + push
-      expect(state.stackRef).toStrictEqual([{
+      expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 1
       }])
@@ -141,7 +141,7 @@ describe('state/State', () => {
     it('considers the first item as the last pushed', () => {
       const state = new State()
       expect(itLength(state.parse('1 2'))).toStrictEqual(4)
-      const [first, second] = state.stackRef
+      const [first, second] = state.operandsRef
       expect(first).toStrictEqual({
         type: ValueType.integer,
         data: 2
@@ -155,7 +155,7 @@ describe('state/State', () => {
     it('resolves and call an operator', () => {
       const state = new State()
       expect(itLength(state.parse('1 2 add'))).toStrictEqual(7) // 4 + parse + resolve + parse
-      expect(state.stackRef).toStrictEqual([{
+      expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 3
       }])
@@ -164,7 +164,7 @@ describe('state/State', () => {
     it('allows proc definition and execution', () => {
       const state = new State()
       expect(itLength(state.parse('/test { 2 3 add } def test'))).toStrictEqual(24)
-      expect(state.stackRef).toStrictEqual([{
+      expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 5
       }])
@@ -173,8 +173,8 @@ describe('state/State', () => {
     it('controls call execution', () => {
       const state = new State()
       itLength(state.parse('/test { { 1 } } def test'))
-      expect(state.stackRef.length).toStrictEqual(1)
-      expect(state.stackRef[0].type).toStrictEqual(ValueType.proc)
+      expect(state.operandsRef.length).toStrictEqual(1)
+      expect(state.operandsRef[0].type).toStrictEqual(ValueType.proc)
     })
   })
 

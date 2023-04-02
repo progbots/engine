@@ -1,4 +1,5 @@
 import { Value, ValueType } from '../..'
+import { InternalValue } from '../../state'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { ShareableObject } from '../ShareableObject'
 import { IWritableDictionary } from './types'
@@ -7,7 +8,7 @@ export class Dictionary extends ShareableObject implements IWritableDictionary {
   public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
   public static readonly VALUE_ADDITIONAL_SIZE = 3 * MemoryTracker.POINTER_SIZE
 
-  private readonly _values: Record<string, Value> = {}
+  private readonly _values: Record<string, InternalValue> = {}
 
   constructor (
     private readonly _memoryTracker: MemoryTracker
@@ -16,7 +17,7 @@ export class Dictionary extends ShareableObject implements IWritableDictionary {
     this._memoryTracker.increment(Dictionary.INITIAL_SIZE)
   }
 
-  // region IWritableDictionary
+  // region IDictionary
 
   get names (): string [] {
     return Object.keys(this._values)
@@ -30,7 +31,11 @@ export class Dictionary extends ShareableObject implements IWritableDictionary {
     return value
   }
 
-  def (name: string, value: Value): void {
+  // endregion IDictionary
+
+  // region IWritableDictionary
+
+  def (name: string, value: InternalValue): void {
     // TODO: how do we delete a value (can we ?)
     const old = this._values[name]
     if (old !== undefined) {

@@ -1,7 +1,7 @@
 import { State } from '../state'
-import { checkStack } from './check-state'
+import { checkOperands } from './operands'
 
 export function * pop (state: State): Generator {
-  checkStack(state, null)
+  checkOperands(state, null)
   state.pop()
 }

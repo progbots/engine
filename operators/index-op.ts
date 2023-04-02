@@ -1,14 +1,14 @@
 import { State } from '../state'
-import { checkStack } from './check-state'
+import { checkOperands } from './operands'
 import { ValueType } from '..'
 import { RangeCheck, StackUnderflow } from '../errors'
 
 export function * index (state: State): Generator {
-  const [pos] = checkStack(state, ValueType.integer).map(value => value.data as number)
+  const [pos] = checkOperands(state, ValueType.integer).map(value => value.data as number)
   if (pos < 0) {
     throw new RangeCheck()
   }
-  const stack = state.stackRef
+  const stack = state.operandsRef
   if (pos + 1 >= stack.length) {
     throw new StackUnderflow()
   }

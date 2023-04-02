@@ -7,7 +7,7 @@ describe('operators/systemdict', () => {
     'puts the systemdict on top of the stack': {
       src: 'systemdict',
       expect: (state: State) => {
-        const [top] = state.stackRef
+        const [top] = state.operandsRef
         expect(top.type).toStrictEqual(ValueType.dict)
         expect(top.data).toStrictEqual(state.systemdict)
       }

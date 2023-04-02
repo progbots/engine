@@ -1,4 +1,5 @@
 import { Value, ValueType } from '..'
+import { InternalValue } from '.'
 import { VMError } from '../errors'
 import { ShareableObject } from '../objects/ShareableObject'
 
@@ -78,24 +79,28 @@ export class MemoryTracker {
     return this._total
   }
 
-  addValueRef (value: Value): void {
+  addValueRef (value: InternalValue): void {
     let valueSize: number = MemoryTracker.VALUE_SIZE
-    if (isString(value)) {
-      valueSize += this._addStringRef(value)
-    } else if (isShareableObject(value)) {
-      const shareableObject = value.data as unknown as ShareableObject
-      shareableObject.addRef()
+    if (value.untracked !== true) {
+      if (isString(value)) {
+        valueSize += this._addStringRef(value)
+      } else if (isShareableObject(value)) {
+        const shareableObject = value.data as unknown as ShareableObject
+        shareableObject.addRef()
+      }
     }
     this.increment(valueSize)
   }
 
-  releaseValue (value: Value): void {
+  releaseValue (value: InternalValue): void {
     let valueSize: number = MemoryTracker.VALUE_SIZE
-    if (isString(value)) {
-      valueSize += this._releaseString(value)
-    } else if (isShareableObject(value)) {
-      const shareableObject = value.data as unknown as ShareableObject
-      shareableObject.release()
+    if (value.untracked !== true) {
+      if (isString(value)) {
+        valueSize += this._releaseString(value)
+      } else if (isShareableObject(value)) {
+        const shareableObject = value.data as unknown as ShareableObject
+        shareableObject.release()
+      }
     }
     this.decrement(valueSize)
   }

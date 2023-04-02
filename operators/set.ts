@@ -1,14 +1,14 @@
-import { Value, ValueType } from '..'
+import { ValueType } from '..'
 import { RangeCheck, TypeCheck } from '../errors'
-import { State } from '../state'
-import { checkStack } from './check-state'
+import { InternalValue, State } from '../state'
+import { checkOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 import { IWritableDictionary } from '../objects/dictionaries'
 
-const setters: Record<string, (state: State) => Value> = {
-  [ValueType.string]: (state: State): Value => {
-    const [value, index, container] = state.stackRef
+const setters: Record<string, (state: State) => InternalValue> = {
+  [ValueType.string]: (state: State): InternalValue => {
+    const [value, index, container] = state.operandsRef
     if (index.type !== ValueType.integer || value.type !== ValueType.integer) {
       throw new TypeCheck()
     }
@@ -31,8 +31,8 @@ const setters: Record<string, (state: State) => Value> = {
     }
   },
 
-  [ValueType.array]: (state: State): Value => {
-    const [value, index, container] = state.stackRef
+  [ValueType.array]: (state: State): InternalValue => {
+    const [value, index, container] = state.operandsRef
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
     }
@@ -45,8 +45,8 @@ const setters: Record<string, (state: State) => Value> = {
     return container
   },
 
-  [ValueType.dict]: (state: State): Value => {
-    const [value, index, container] = state.stackRef
+  [ValueType.dict]: (state: State): InternalValue => {
+    const [value, index, container] = state.operandsRef
     if (index.type !== ValueType.name) {
       throw new TypeCheck()
     }
@@ -58,8 +58,7 @@ const setters: Record<string, (state: State) => Value> = {
 }
 
 export function * set (state: State): Generator {
-  checkStack(state, null, null, null)
-  const container = state.stackRef[2]
+  const [,, container] = checkOperands(state, null, null, null)
   const setter = setters[container.type]
   if (setter === undefined) {
     throw new TypeCheck()

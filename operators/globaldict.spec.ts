@@ -7,7 +7,7 @@ describe('operators/globaldict', () => {
     'puts the globaldict on top of the stack': {
       src: 'globaldict',
       expect: (state: State) => {
-        const [top] = state.stackRef
+        const [top] = state.operandsRef
         expect(top.type).toStrictEqual(ValueType.dict)
         expect(top.data).toStrictEqual(state.globaldict)
       }

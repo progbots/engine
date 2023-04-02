@@ -1,15 +1,14 @@
 import { State } from '../state'
 import { ValueType } from '..'
-import { checkStack } from './check-state'
+import { checkOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
 
 export function * ifOp (state: State): Generator {
-  checkStack(state, ValueType.proc, ValueType.boolean)
-  const [proc, condition] = state.stackRef
+  const [proc, condition] = checkOperands(state, ValueType.proc, ValueType.boolean)
   ShareableObject.addRef(proc)
-  state.pop()
-  state.pop()
   try {
+    state.pop()
+    state.pop()
     if (condition.data as boolean) {
       yield * state.eval(proc)
     }

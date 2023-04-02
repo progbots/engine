@@ -64,22 +64,34 @@ describe('state/parser', () => {
   Object.keys(values).forEach(src => {
     const expected = values[src]
     it(`generates ${expected.type} ${JSON.stringify(expected.data)}`, () => {
-      const value = [...parse(src)]
-      expect(value).toStrictEqual([expected])
+      const values = [...parse(src)]
+      expect(values.length).toStrictEqual(1)
+      const [value] = values
+      expect(value.source).toStrictEqual(src)
+      expect(value.sourcePos).toStrictEqual(0)
+      const { type, data } = value
+      expect({ type, data }).toStrictEqual(expected)
     })
   })
 
   it('generates values', () => {
-    const block = [...parse('1 2 add')]
+    const source = '1 2 add'
+    const block = [...parse(source)]
     expect(block).toStrictEqual([{
       type: ValueType.integer,
-      data: 1
+      data: 1,
+      source,
+      sourcePos: 0
     }, {
       type: ValueType.integer,
-      data: 2
+      data: 2,
+      source,
+      sourcePos: 2
     }, {
       type: ValueType.call,
-      data: 'add'
+      data: 'add',
+      source,
+      sourcePos: 4
     }])
   })
 
@@ -90,23 +102,33 @@ describe('state/parser', () => {
     ])
   })
 
-  it('ignores comments and formatting', () => {
-    const block = [...parse(`
+  it('ignores comments and formatting, includes filename', () => {
+    const source = `
 % This is a comment
 1
 \t2
 
-add
-`)]
+add`
+    const sourceFile = 'test.ps'
+    const block = [...parse(source, sourceFile)]
     expect(block).toStrictEqual([{
       type: ValueType.integer,
-      data: 1
+      data: 1,
+      source,
+      sourcePos: 21,
+      sourceFile
     }, {
       type: ValueType.integer,
-      data: 2
+      data: 2,
+      source,
+      sourcePos: 24,
+      sourceFile
     }, {
       type: ValueType.call,
-      data: 'add'
+      data: 'add',
+      source,
+      sourcePos: 27,
+      sourceFile
     }])
   })
 })

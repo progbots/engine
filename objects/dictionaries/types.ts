@@ -1,5 +1,6 @@
-import { IDictionary, Value } from '../..'
+import { IDictionary } from '../..'
+import { InternalValue } from '../../state'
 
 export interface IWritableDictionary extends IDictionary {
-  def: (name: string, value: Value) => void
+  def: (name: string, value: InternalValue) => void
 }

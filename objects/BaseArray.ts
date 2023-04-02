@@ -2,12 +2,13 @@ import { ShareableObject } from './ShareableObject'
 import { IArray, Value } from '..'
 import { MemoryTracker } from '../state/MemoryTracker'
 import { RangeCheck, StackUnderflow } from '../errors'
+import { InternalValue } from '../state'
 
 export abstract class BaseArray extends ShareableObject implements IArray {
   public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
   public static readonly VALUE_ADDITIONAL_SIZE = MemoryTracker.POINTER_SIZE
 
-  protected readonly _values: Value[] = []
+  protected readonly _values: InternalValue[] = []
 
   constructor (
     private readonly _memoryTracker: MemoryTracker
@@ -28,33 +29,29 @@ export abstract class BaseArray extends ShareableObject implements IArray {
       throw new RangeCheck()
     }
     // copy to avoid alterations
-    const { type, data } = value
-    return {
-      type,
-      data
-    }
+    return Object.assign({}, value)
   }
 
   // endregion IArray
 
-  protected addValueRef (value: Value): void {
+  protected addValueRef (value: InternalValue): void {
     this._memoryTracker.addValueRef(value)
     this._memoryTracker.increment(BaseArray.VALUE_ADDITIONAL_SIZE)
   }
 
-  protected abstract pushImpl (value: Value): void
+  protected abstract pushImpl (value: InternalValue): void
 
-  push (value: Value): void {
+  push (value: InternalValue): void {
     this.addValueRef(value)
     this.pushImpl(value)
   }
 
-  protected releaseValue (value: Value): void {
+  protected releaseValue (value: InternalValue): void {
     this._memoryTracker.releaseValue(value)
     this._memoryTracker.decrement(BaseArray.VALUE_ADDITIONAL_SIZE)
   }
 
-  protected abstract popImpl (): Value
+  protected abstract popImpl (): InternalValue
 
   pop (): void {
     if (this._values.length === 0) {
@@ -64,7 +61,7 @@ export abstract class BaseArray extends ShareableObject implements IArray {
     this.releaseValue(value)
   }
 
-  get ref (): readonly Value[] {
+  get ref (): readonly InternalValue[] {
     return this._values
   }
 

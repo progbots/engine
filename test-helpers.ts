@@ -28,17 +28,17 @@ function executeTest (test: TestDescription): void {
     if (typeof expectedResult === 'function') {
       expectedResult(state)
     } else if (expectedResult !== undefined) {
-      let expectedStackItems
+      let expectedOperands
       if (typeof expectedResult === 'string') {
         const expectedState = new State()
         itLength(expectedState.parse(expectedResult))
-        expectedStackItems = expectedState.stackRef
+        expectedOperands = expectedState.operandsRef
       } else {
-        expectedStackItems = expectedResult
+        expectedOperands = expectedResult
       }
-      const stack = state.stackRef
-      expect(stack.length).toBeGreaterThanOrEqual(expectedStackItems.length)
-      expect(stack.slice(0, expectedStackItems.length)).toStrictEqual(expectedStackItems)
+      const operands = state.operandsRef
+      expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
+      expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
     }
   } catch (e) {
     if (expectedError !== undefined) {
