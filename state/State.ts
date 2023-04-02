@@ -1,6 +1,6 @@
 import { ValueType, IArray, IDictionary, Value, IState, StateFactorySettings } from '..'
 import { Break, BusyParsing, DictStackUnderflow, InvalidBreak, Undefined } from '../errors'
-import { OperatorFunction, parse } from '.'
+import { InternalValue, OperatorFunction, parse } from '.'
 import { Stack } from '../objects/Stack'
 import { MemoryTracker } from './MemoryTracker'
 import { Dictionary, SystemDictionary } from '../objects/dictionaries'
@@ -12,8 +12,9 @@ export class State implements IState {
   private readonly _globaldict: Dictionary
   private readonly _minDictCount: number
   private readonly _dictionaries: Stack
-  private readonly _stack: Stack
-  private readonly _callStack: Stack
+  private readonly _operands: Stack
+  private readonly _calls: Stack
+  private readonly _keepDebugInfo: boolean = false
   private _noCall: number = 0
 
   constructor (settings: StateFactorySettings = {}) {
@@ -23,11 +24,14 @@ export class State implements IState {
     if (settings.hostDictionary != null) {
       this.begin(new HostDictionary(settings.hostDictionary))
     }
+    if (settings.keepDebugInfo === true) {
+      this._keepDebugInfo = true
+    }
     this.begin(this._systemdict)
     this.begin(this._globaldict)
     this._minDictCount = this._dictionaries.length
-    this._stack = new Stack(this._memoryTracker)
-    this._callStack = new Stack(this._memoryTracker)
+    this._operands = new Stack(this._memoryTracker)
+    this._calls = new Stack(this._memoryTracker)
   }
 
   // region IState
@@ -40,8 +44,8 @@ export class State implements IState {
     return this._memoryTracker.total
   }
 
-  get stack (): IArray {
-    return this._stack
+  get operands (): IArray {
+    return this._operands
   }
 
   get dictionaries (): IArray {
@@ -49,7 +53,7 @@ export class State implements IState {
   }
 
   * parse (source: string): Generator {
-    if (this._callStack.length !== 0) {
+    if (this._calls.length !== 0) {
       throw new BusyParsing()
     }
     yield * this.innerParse(source)
@@ -69,16 +73,16 @@ export class State implements IState {
     return this._globaldict
   }
 
-  get stackRef (): readonly Value[] {
-    return this._stack.ref
+  get operandsRef (): readonly InternalValue[] {
+    return this._operands.ref
   }
 
   pop (): void {
-    this._stack.pop()
+    this._operands.pop()
   }
 
   push (value: Value): void {
-    this._stack.push(value)
+    this._operands.push(value)
   }
 
   get dictionariesRef (): readonly Value[] {
@@ -120,29 +124,29 @@ export class State implements IState {
 
   private * evalCall (value: Value): Generator {
     yield // execution cycle
-    this._callStack.push(value)
+    this._calls.push(value)
     try {
       const resolvedValue = this.lookup(value.data as string)
       yield * this.eval(resolvedValue)
     } finally {
-      this._callStack.pop()
+      this._calls.pop()
     }
   }
 
   private * evalOperator (value: Value): Generator {
     yield // execution cycle
-    this._callStack.push(value)
+    this._calls.push(value)
     try {
       const operator = value.data as OperatorFunction
       yield * operator(this)
     } finally {
-      this._callStack.pop()
+      this._calls.pop()
     }
   }
 
   private * evalProc (value: Value): Generator {
     yield // execution cycle
-    this._callStack.push(value)
+    this._calls.push(value)
     try {
       const proc = value.data as IArray
       const { length } = proc
@@ -150,7 +154,7 @@ export class State implements IState {
         yield * this.evalWithoutProc(proc.at(index))
       }
     } finally {
-      this._callStack.pop()
+      this._calls.pop()
     }
   }
 
@@ -174,8 +178,8 @@ export class State implements IState {
       }
     } catch (e) {
       if (e instanceof Break && (
-        this._callStack.length === 0 ||
-        (this._callStack.length === 1 && this._callStack.ref[0].type === ValueType.string)
+        this._calls.length === 0 ||
+        (this._calls.length === 1 && this._calls.ref[0].type === ValueType.string)
       )) {
         throw new InvalidBreak() // TODO: forward the stack
       }
@@ -184,7 +188,7 @@ export class State implements IState {
   }
 
   * innerParse (source: string, sourceFile?: string): Generator {
-    this._callStack.push({
+    this._calls.push({
       type: ValueType.string,
       data: source,
       untracked: true, // because external
@@ -194,10 +198,17 @@ export class State implements IState {
       const parser = parse(source, sourceFile)
       for (const parsedValue of parser) {
         yield // parse cycle
-        yield * this.eval(parsedValue)
+        let value
+        if (this._keepDebugInfo) {
+          value = parsedValue
+        } else {
+          const { type, data } = parsedValue
+          value = { type, data }
+        }
+        yield * this.eval(value)
       }
     } finally {
-      this._callStack.pop()
+      this._calls.pop()
     }
   }
 }

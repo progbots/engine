@@ -2,10 +2,10 @@ import { ValueType } from '..'
 import { Break } from '../errors'
 import { ShareableObject } from '../objects/ShareableObject'
 import { State } from '../state'
-import { checkStack } from './check-state'
+import { checkOperands } from './operands'
 
 export function * loop (state: State): Generator {
-  const [proc] = checkStack(state, ValueType.proc)
+  const [proc] = checkOperands(state, ValueType.proc)
   ShareableObject.addRef(proc)
   try {
     state.pop()

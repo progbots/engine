@@ -1,12 +1,12 @@
 import { IDictionary, ValueType } from '..'
 import { RangeCheck, TypeCheck, Undefined } from '../errors'
 import { InternalValue, State } from '../state'
-import { checkStack } from './check-state'
+import { checkOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 
 function arrayLikeGetter (state: State): InternalValue {
-  const [index, container] = state.stackRef
+  const [index, container] = state.operandsRef
   if (index.type !== ValueType.integer) {
     throw new TypeCheck()
   }
@@ -17,7 +17,7 @@ function arrayLikeGetter (state: State): InternalValue {
 
 const getters: Record<string, (state: State) => InternalValue> = {
   [ValueType.string]: (state: State): InternalValue => {
-    const [index, container] = state.stackRef
+    const [index, container] = state.operandsRef
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
     }
@@ -35,7 +35,7 @@ const getters: Record<string, (state: State) => InternalValue> = {
   [ValueType.array]: arrayLikeGetter,
 
   [ValueType.dict]: (state: State): InternalValue => {
-    const [index, container] = state.stackRef
+    const [index, container] = state.operandsRef
     if (index.type !== ValueType.name) {
       throw new TypeCheck()
     }
@@ -52,8 +52,7 @@ const getters: Record<string, (state: State) => InternalValue> = {
 }
 
 export function * get (state: State): Generator {
-  checkStack(state, null, null)
-  const [, container] = state.stackRef
+  const [, container] = checkOperands(state, null, null)
   const getter = getters[container.type]
   if (getter === undefined) {
     throw new TypeCheck()

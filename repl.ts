@@ -6,7 +6,7 @@ import { length as itLength } from './iterators'
 import { Value, ValueType, IOperator, IArray, IDictionary, IState } from '.'
 import { createState } from './factory'
 import { OperatorFunction, State } from './state'
-import { checkStack } from './operators/check-state'
+import { checkOperands } from './operators/operands'
 import { readFileSync } from 'fs'
 
 const formatters: Record<ValueType, (value: Value) => string> = {
@@ -99,14 +99,14 @@ const hostMethods: Record<string, OperatorFunction> = {
     forEach(state.dictionaries, (value, index) => {
       console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
     })
-    console.log(`stack: ${state.stack.length}`)
-    forEach(state.stack, (value, index) => {
+    console.log(`operands: ${state.operands.length}`)
+    forEach(state.operands, (value, index) => {
       console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
     })
   },
 
   load: function * (state: State): Generator {
-    const [path] = checkStack(state, ValueType.string).map(value => value.data as string)
+    const [path] = checkOperands(state, ValueType.string).map(value => value.data as string)
     state.pop()
     const source = readFileSync(path).toString()
     yield * state.innerParse(source)
@@ -142,7 +142,7 @@ async function main (): Promise<void> {
     const src = await rl.question('? ')
     try {
       const cycles = itLength(state.parse(src))
-      console.log(`cycles: ${cycles}, stack: ${state.stack.length}, memory: ${memory(state)}`)
+      console.log(`cycles: ${cycles}, operands: ${state.operands.length}, memory: ${memory(state)}`)
     } catch (e) {
       if (e instanceof ExitError) {
         break

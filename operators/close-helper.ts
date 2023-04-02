@@ -1,25 +1,25 @@
 import { ValueType } from '..'
-import { UnmatchedMark } from '../errors'
 import { ArrayLike } from '../objects/Array'
-import { InternalValue, State } from '../state'
+import { State } from '../state'
+import { findMarkPos } from './operands'
 
 export function closeToMark (state: State, type: ValueType.array | ValueType.proc): void {
-  const stack = state.stackRef
-  const markPos = stack.findIndex((value: InternalValue) => value.type === ValueType.mark)
-  if (markPos === -1) {
-    throw new UnmatchedMark()
-  }
+  const markPos = findMarkPos(state)
+  const operands = state.operandsRef
   const array = new ArrayLike(state.memoryTracker)
-  let index: number
-  for (index = 0; index < markPos; ++index) {
-    array.unshift(stack[index])
+  try {
+    let index: number
+    for (index = 0; index < markPos; ++index) {
+      array.unshift(operands[index])
+    }
+    for (index = 0; index <= markPos; ++index) {
+      state.pop()
+    }
+    state.push({
+      type,
+      data: array
+    })
+  } finally {
+    array.release()
   }
-  for (index = 0; index <= markPos; ++index) {
-    state.pop()
-  }
-  state.push({
-    type,
-    data: array
-  })
-  array.release()
 }

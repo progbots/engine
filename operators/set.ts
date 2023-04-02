@@ -1,14 +1,14 @@
 import { ValueType } from '..'
 import { RangeCheck, TypeCheck } from '../errors'
 import { InternalValue, State } from '../state'
-import { checkStack } from './check-state'
+import { checkOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 import { IWritableDictionary } from '../objects/dictionaries'
 
 const setters: Record<string, (state: State) => InternalValue> = {
   [ValueType.string]: (state: State): InternalValue => {
-    const [value, index, container] = state.stackRef
+    const [value, index, container] = state.operandsRef
     if (index.type !== ValueType.integer || value.type !== ValueType.integer) {
       throw new TypeCheck()
     }
@@ -32,7 +32,7 @@ const setters: Record<string, (state: State) => InternalValue> = {
   },
 
   [ValueType.array]: (state: State): InternalValue => {
-    const [value, index, container] = state.stackRef
+    const [value, index, container] = state.operandsRef
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
     }
@@ -46,7 +46,7 @@ const setters: Record<string, (state: State) => InternalValue> = {
   },
 
   [ValueType.dict]: (state: State): InternalValue => {
-    const [value, index, container] = state.stackRef
+    const [value, index, container] = state.operandsRef
     if (index.type !== ValueType.name) {
       throw new TypeCheck()
     }
@@ -58,8 +58,7 @@ const setters: Record<string, (state: State) => InternalValue> = {
 }
 
 export function * set (state: State): Generator {
-  checkStack(state, null, null, null)
-  const container = state.stackRef[2]
+  const [,, container] = checkOperands(state, null, null, null)
   const setter = setters[container.type]
   if (setter === undefined) {
     throw new TypeCheck()

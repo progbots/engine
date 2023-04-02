@@ -8,8 +8,8 @@ describe('operators/close-array (])', () => {
     'creates an array': {
       src: '1 2 [ 3 4 ]',
       expect: (state: State) => {
-        expect(state.stackRef.length).toStrictEqual(3)
-        const [{ type, data }] = state.stackRef
+        expect(state.operandsRef.length).toStrictEqual(3)
+        const [{ type, data }] = state.operandsRef
         expect(type).toStrictEqual(ValueType.array)
         const array = data as IArray
         expect(array.length).toStrictEqual(2)
@@ -20,8 +20,8 @@ describe('operators/close-array (])', () => {
     'evaluates calls during the array creation': {
       src: '1 2 [ 3 4 add ]',
       expect: (state: State) => {
-        expect(state.stackRef.length).toStrictEqual(3)
-        const [{ type, data }] = state.stackRef
+        expect(state.operandsRef.length).toStrictEqual(3)
+        const [{ type, data }] = state.operandsRef
         expect(type).toStrictEqual(ValueType.array)
         const array = data as IArray
         expect(array.length).toStrictEqual(1)

@@ -8,8 +8,8 @@ describe('operators/close-proc (})', () => {
     'creates a proc': {
       src: '{ 3 4 add }',
       expect: (state: State) => {
-        expect(state.stackRef.length).toStrictEqual(1)
-        const [{ type, data }] = state.stackRef
+        expect(state.operandsRef.length).toStrictEqual(1)
+        const [{ type, data }] = state.operandsRef
         expect(type).toStrictEqual(ValueType.proc)
         const array = data as IArray
         expect(array.length).toStrictEqual(3)
@@ -24,8 +24,8 @@ describe('operators/close-proc (})', () => {
     'handles proc inside proc': {
       src: '{ false { 1 } { 2 } ifelse }',
       expect: (state: State) => {
-        expect(state.stackRef.length).toStrictEqual(1)
-        const [{ type, data }] = state.stackRef
+        expect(state.operandsRef.length).toStrictEqual(1)
+        const [{ type, data }] = state.operandsRef
         expect(type).toStrictEqual(ValueType.proc)
         const array = data as IArray
         expect(array.length).toStrictEqual(4)
@@ -44,8 +44,8 @@ describe('operators/close-proc (})', () => {
     'enables back call execution': {
       src: '{ add } 3 4 add',
       expect: (state: State) => {
-        expect(state.stackRef.length).toStrictEqual(2)
-        expect(state.stackRef[0].data).toStrictEqual(7)
+        expect(state.operandsRef.length).toStrictEqual(2)
+        expect(state.operandsRef[0].data).toStrictEqual(7)
       }
     },
     'fails with UnmatchedMark if the stack does not contain a mark': {

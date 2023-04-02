@@ -40,7 +40,7 @@ export interface IState {
   readonly usedMemory: number
   readonly totalMemory: number
 
-  readonly stack: IArray
+  readonly operands: IArray
   readonly dictionaries: IArray
 
   parse: (value: string) => Generator

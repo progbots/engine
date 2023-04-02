@@ -8,7 +8,7 @@ describe('operators/def', () => {
     'sets a value on the top dictionary': {
       src: '/test 1 def',
       expect: (state: State) => {
-        expect(state.stackRef.length).toStrictEqual(0)
+        expect(state.operandsRef.length).toStrictEqual(0)
         expect(state.lookup('test')).toStrictEqual({
           type: ValueType.integer,
           data: 1

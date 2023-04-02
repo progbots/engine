@@ -1,12 +1,8 @@
 import { State } from '../state'
-import { UnmatchedMark } from '../errors'
-import { Value, ValueType } from '..'
+import { findMarkPos } from './operands'
 
 export function * cleartomark (state: State): Generator {
-  let pos = state.stackRef.findIndex((value: Value) => value.type === ValueType.mark)
-  if (pos === -1) {
-    throw new UnmatchedMark()
-  }
+  let pos = findMarkPos(state)
   while (pos >= 0) {
     state.pop()
     --pos
