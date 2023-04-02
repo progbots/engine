@@ -5,7 +5,7 @@ import { HostDictionary, SystemDictionary } from './objects/dictionaries'
 import { length as itLength } from './iterators'
 import { Value, ValueType, IOperator, IArray, IDictionary, IState } from '.'
 import { createState } from './factory'
-import { OperatorFunction, State } from './state'
+import { InternalValue, OperatorFunction, State } from './state'
 import { checkOperands } from './operators/operands'
 import { readFileSync } from 'fs'
 
@@ -101,7 +101,14 @@ const hostMethods: Record<string, OperatorFunction> = {
     })
     console.log(`operands: ${state.operands.length}`)
     forEach(state.operands, (value, index) => {
-      console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
+      let debugInfo
+      const { sourceFile, sourcePos } = value as InternalValue
+      if (sourceFile === undefined || sourcePos === undefined) {
+        debugInfo = ''
+      } else {
+        debugInfo = `@${sourceFile}(${sourcePos.toString()})`
+      }
+      console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value), debugInfo)
     })
   },
 
@@ -131,17 +138,19 @@ const hostDictionary = {
 }
 
 async function main (): Promise<void> {
+  const debug = process.argv.includes('--debug')
   const rl = readline.createInterface({ input, output })
   console.log('Use \'exit\' to quit')
   console.log('Use \'state\' to print a state summary')
   const state = createState({
-    hostDictionary
+    hostDictionary,
+    keepDebugInfo: debug
   })
-
+  let index = 0
   while (true) {
     const src = await rl.question('? ')
     try {
-      const cycles = itLength(state.parse(src))
+      const cycles = itLength(state.parse(src, `repl${index++}`))
       console.log(`cycles: ${cycles}, operands: ${state.operands.length}, memory: ${memory(state)}`)
     } catch (e) {
       if (e instanceof ExitError) {

@@ -52,11 +52,11 @@ export class State implements IState {
     return this._dictionaries
   }
 
-  * parse (source: string): Generator {
+  * parse (source: string, sourceFile?: string): Generator {
     if (this._calls.length !== 0) {
       throw new BusyParsing()
     }
-    yield * this.innerParse(source)
+    yield * this.innerParse(source, sourceFile)
   }
 
   // endregion IState

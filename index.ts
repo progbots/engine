@@ -43,7 +43,7 @@ export interface IState {
   readonly operands: IArray
   readonly dictionaries: IArray
 
-  parse: (value: string) => Generator
+  parse: (value: string, sourceFile?: string) => Generator
 }
 
 export interface StateFactorySettings {
