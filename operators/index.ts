@@ -1,4 +1,5 @@
 export * from './add'
+export * from './aload'
 export * from './begin'
 export * from './bind'
 export * from './clear'
