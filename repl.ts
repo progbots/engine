@@ -9,6 +9,15 @@ import { InternalValue, OperatorFunction, State } from './state'
 import { checkOperands } from './operators/operands'
 import { readFileSync } from 'fs'
 
+const black = '\x1b[30m'
+const red = '\x1b[31m'
+const green = '\x1b[32m'
+const yellow = '\x1b[33m'
+const blue = '\x1b[34m'
+// const magenta = '\x1b[35m'
+// const cyan = '\x1b[36m'
+const white = '\x1b[37m'
+
 const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',
   [ValueType.integer]: (value: Value): string => (value.data as number).toString(),
@@ -74,15 +83,23 @@ function scaleBytes (bytes: number): string {
 function memory (state: IState): string {
   const { usedMemory: used, totalMemory: total } = state
   if (total === Infinity) {
-    return scaleBytes(used) + '/∞'
+    return scaleBytes(used) + black + '/∞' + white
   }
-  return scaleBytes(used) + '/' + scaleBytes(total)
+  return scaleBytes(used) + black + '/' + scaleBytes(total) + white
 }
 
-function forEach (array: IArray, callback: (value: Value, index: number) => void): void {
+function forEach (array: IArray, callback: (value: Value, formattedIndex: string) => void): void {
   const { length } = array
+  let width = 1
+  if (length > 10) {
+    ++width
+  }
+  if (length > 100) {
+    ++width
+  }
   for (let index = 0; index < length; ++index) {
-    callback(array.at(index), index)
+    const formattedIndex = `${black}${index.toString().padStart(width, ' ')}${white}`
+    callback(array.at(index), formattedIndex)
   }
 }
 
@@ -94,21 +111,22 @@ const hostMethods: Record<string, OperatorFunction> = {
   },
 
   state: function * (state: State): Generator {
-    console.log(`memory: ${memory(state)}`)
-    console.log(`dictionaries: ${state.dictionaries.length}`)
-    forEach(state.dictionaries, (value, index) => {
-      console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value))
+    const dictLength = state.dictionaries.length
+    console.log(`${blue}memory: ${yellow}${memory(state)}
+${blue}dictionaries: ${yellow}${dictLength}${white}`)
+    forEach(state.dictionaries, (value, formattedIndex) => {
+      console.log(formattedIndex, formatters[value.type](value))
     })
-    console.log(`operands: ${state.operands.length}`)
-    forEach(state.operands, (value, index) => {
+    console.log(`${blue}operands: ${yellow}${state.operands.length}${white}`)
+    forEach(state.operands, (value, formattedIndex) => {
       let debugInfo
       const { sourceFile, sourcePos } = value as InternalValue
       if (sourceFile === undefined || sourcePos === undefined) {
         debugInfo = ''
       } else {
-        debugInfo = `@${sourceFile}(${sourcePos.toString()})`
+        debugInfo = `${black}@${sourceFile}(${sourcePos.toString()})${white}`
       }
-      console.log(index, ''.padEnd(3 - index.toString().length, ' '), formatters[value.type](value), debugInfo)
+      console.log(formattedIndex, formatters[value.type](value), debugInfo)
     })
   },
 
@@ -116,7 +134,7 @@ const hostMethods: Record<string, OperatorFunction> = {
     const [path] = checkOperands(state, ValueType.string).map(value => value.data as string)
     state.pop()
     const source = readFileSync(path).toString()
-    yield * state.innerParse(source)
+    yield * state.innerParse(source, path)
   }
 }
 
@@ -139,9 +157,12 @@ const hostDictionary = {
 
 async function main (): Promise<void> {
   const debug = process.argv.includes('--debug')
+  if (debug) {
+    console.log(`${green}DEBUG mode enabled${white}`)
+  }
   const rl = readline.createInterface({ input, output })
-  console.log('Use \'exit\' to quit')
-  console.log('Use \'state\' to print a state summary')
+  console.log(`${black}Use '${yellow}exit${black}' to quit
+Use '${yellow}state${black}' to print a state summary${white}`)
   const state = createState({
     hostDictionary,
     keepDebugInfo: debug
@@ -151,12 +172,12 @@ async function main (): Promise<void> {
     const src = await rl.question('? ')
     try {
       const cycles = itLength(state.parse(src, `repl${index++}`))
-      console.log(`cycles: ${cycles}, operands: ${state.operands.length}, memory: ${memory(state)}`)
+      console.log(`${blue}cycles: ${yellow}${cycles}${blue}, operands: ${yellow}${state.operands.length}${blue}, memory: ${yellow}${memory(state)}${white}`)
     } catch (e) {
       if (e instanceof ExitError) {
         break
       } else if (e instanceof BaseError) {
-        console.error(`/!\\ ${e.name} ${e.message}`)
+        console.error(`${red}/!\\ ${e.name} ${e.message}${white}`)
       } else {
         console.error(e)
         break
