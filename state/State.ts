@@ -65,6 +65,10 @@ export class State implements IState {
     return this._memoryTracker
   }
 
+  get keepDebugInfo (): boolean {
+    return this._keepDebugInfo
+  }
+
   get systemdict (): SystemDictionary {
     return this._systemdict
   }
