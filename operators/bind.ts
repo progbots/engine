@@ -11,9 +11,11 @@ export function * bind (state: State): Generator {
     if (value.type === ValueType.call) {
       yield // bind cycle
       const resolvedValue = state.lookup(value.data as string)
-      // TODO: how to deal with debug info ?
       // TODO: some operators can be replaced with values (true, false, mark...)
-      procArray.set(index, resolvedValue)
+      procArray.set(index, {
+        ...value, // propagate debug infos
+        ...resolvedValue
+      })
     }
   }
 }
