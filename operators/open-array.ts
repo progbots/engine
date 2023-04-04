@@ -1,11 +1,8 @@
 import { State } from '../state'
-import { ValueType } from '..'
+import { openWithMark } from './open-close-helper'
 
 export function * openArray (state: State): Generator {
-  state.push({
-    type: ValueType.mark,
-    data: null
-  })
+  openWithMark(state)
 }
 
 Object.defineProperty(openArray, 'name', {

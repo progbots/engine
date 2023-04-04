@@ -81,6 +81,10 @@ export class State implements IState {
     return this._operands.ref
   }
 
+  get callsRef (): readonly InternalValue[] {
+    return this._calls.ref
+  }
+
   pop (): void {
     this._operands.pop()
   }

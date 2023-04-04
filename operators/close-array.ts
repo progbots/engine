@@ -1,6 +1,6 @@
 import { State } from '../state'
 import { ValueType } from '..'
-import { closeToMark } from './close-helper'
+import { closeToMark } from './open-close-helper'
 
 export function * closeArray (state: State): Generator {
   closeToMark(state, ValueType.array)
