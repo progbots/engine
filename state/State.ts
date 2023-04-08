@@ -52,6 +52,10 @@ export class State implements IState {
     return this._dictionaries
   }
 
+  get calls (): IArray {
+    return this._calls
+  }
+
   * parse (source: string, sourceFile?: string): Generator {
     if (this._calls.length !== 0) {
       throw new BusyParsing()
@@ -93,11 +97,11 @@ export class State implements IState {
     this._operands.push(value)
   }
 
-  get dictionariesRef (): readonly Value[] {
+  get dictionariesRef (): readonly InternalValue[] {
     return this._dictionaries.ref
   }
 
-  lookup (name: string): Value {
+  lookup (name: string): InternalValue {
     for (const dictionaryValue of this._dictionaries.ref) {
       const dictionary = dictionaryValue.data as IDictionary
       const value = dictionary.lookup(name)
@@ -130,18 +134,24 @@ export class State implements IState {
     --this._noCall
   }
 
-  private * evalCall (value: Value): Generator {
+  private * evalCall (value: InternalValue): Generator {
     yield // execution cycle
     this._calls.push(value)
     try {
-      const resolvedValue = this.lookup(value.data as string)
+      let resolvedValue = this.lookup(value.data as string)
+      if (resolvedValue.type === ValueType.operator && this._keepDebugInfo) {
+        resolvedValue = {
+          ...value, // propagate debug infos
+          ...resolvedValue
+        }
+      }
       yield * this.eval(resolvedValue)
     } finally {
       this._calls.pop()
     }
   }
 
-  private * evalOperator (value: Value): Generator {
+  private * evalOperator (value: InternalValue): Generator {
     yield // execution cycle
     this._calls.push(value)
     try {
@@ -152,21 +162,29 @@ export class State implements IState {
     }
   }
 
-  private * evalProc (value: Value): Generator {
+  private * evalProc (value: InternalValue): Generator {
     yield // execution cycle
     this._calls.push(value)
     try {
       const proc = value.data as IArray
       const { length } = proc
       for (let index = 0; index < length; ++index) {
-        yield * this.evalWithoutProc(proc.at(index))
+        this._calls.push({
+          type: ValueType.integer,
+          data: index
+        })
+        try {
+          yield * this.evalWithoutProc(proc.at(index))
+        } finally {
+          this._calls.pop()
+        }
       }
     } finally {
       this._calls.pop()
     }
   }
 
-  private * evalWithoutProc (value: Value): Generator {
+  private * evalWithoutProc (value: InternalValue): Generator {
     if (value.type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data as string))) {
       yield * this.evalCall(value)
     } else if (value.type === ValueType.operator) {
@@ -177,7 +195,7 @@ export class State implements IState {
     }
   }
 
-  * eval (value: Value): Generator {
+  * eval (value: InternalValue): Generator {
     try {
       if (value.type === ValueType.proc && this._noCall === 0) {
         yield * this.evalProc(value)
