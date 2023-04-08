@@ -8,6 +8,7 @@ import { createState } from './factory'
 import { InternalValue, OperatorFunction, State } from './state'
 import { checkOperands } from './operators/operands'
 import { readFileSync, readSync } from 'fs'
+import { ShareableObject } from './objects/ShareableObject'
 
 const black = '\x1b[30m'
 const red = '\x1b[31m'
@@ -17,6 +18,12 @@ const blue = '\x1b[34m'
 const magenta = '\x1b[35m'
 const cyan = '\x1b[36m'
 const white = '\x1b[37m'
+
+const readChar = (): string => {
+  const buffer = Buffer.alloc(1)
+  readSync(0, buffer, 0, 1, null)
+  return buffer.toString('utf8')
+}
 
 const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',
@@ -103,6 +110,19 @@ function forEach (array: IArray, callback: (value: Value, formattedIndex: string
   }
 }
 
+function dumpArray (array: IArray): void {
+  forEach(array, (value, formattedIndex) => {
+    let debugInfo
+    const { sourceFile, sourcePos } = value as InternalValue
+    if (sourceFile === undefined || sourcePos === undefined) {
+      debugInfo = ''
+    } else {
+      debugInfo = `${blue}@${sourceFile}(${sourcePos.toString()})${white}`
+    }
+    console.log(formattedIndex, formatters[value.type](value), debugInfo)
+  })
+}
+
 class ExitError extends Error {}
 
 const hostMethods: Record<string, OperatorFunction> = {
@@ -118,16 +138,7 @@ ${cyan}dictionaries: ${yellow}${dictLength}${white}`)
       console.log(formattedIndex, formatters[value.type](value))
     })
     console.log(`${cyan}operands: ${yellow}${state.operands.length}${white}`)
-    forEach(state.operands, (value, formattedIndex) => {
-      let debugInfo
-      const { sourceFile, sourcePos } = value as InternalValue
-      if (sourceFile === undefined || sourcePos === undefined) {
-        debugInfo = ''
-      } else {
-        debugInfo = `${blue}@${sourceFile}(${sourcePos.toString()})${white}`
-      }
-      console.log(formattedIndex, formatters[value.type](value), debugInfo)
-    })
+    dumpArray(state.operands)
   },
 
   load: function * (state: State): Generator {
@@ -139,6 +150,27 @@ ${cyan}dictionaries: ${yellow}${dictLength}${white}`)
 
   colors: function * (state: State): Generator {
     console.log(`${black}black${red}red${green}green${yellow}yellow${blue}blue${magenta}magenta${cyan}cyan${white}white`)
+  },
+
+  debug: function * (state: State): Generator {
+    const [proc] = checkOperands(state, ValueType.proc)
+    ShareableObject.addRef(proc)
+    try {
+      state.pop()
+      const iterator = state.eval(proc)
+      let { done } = iterator.next()
+      while (done === false) {
+        dumpArray(state.calls)
+        console.log(`${cyan}operands: ${yellow}${state.operands.length}${cyan}, memory: ${yellow}${memory(state)} ${yellow}c${cyan} continue, ${yellow}q${cyan} quit${white}`)
+        const step = readChar()
+        if (step === 'q') {
+          break
+        }
+        done = iterator.next().done
+      }
+    } finally {
+      ShareableObject.release(proc)
+    }
   }
 }
 
