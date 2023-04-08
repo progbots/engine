@@ -124,6 +124,7 @@ function dumpArray (array: IArray): void {
 }
 
 class ExitError extends Error {}
+let cycle = 0
 
 const hostMethods: Record<string, OperatorFunction> = {
   exit: function * (state: State): Generator {
@@ -158,13 +159,17 @@ ${cyan}dictionaries: ${yellow}${dictLength}${white}`)
     try {
       state.pop()
       const iterator = state.eval(proc)
+      let stop = true
       let { done } = iterator.next()
       while (done === false) {
-        dumpArray(state.calls)
-        console.log(`${cyan}operands: ${yellow}${state.operands.length}${cyan}, memory: ${yellow}${memory(state)} ${yellow}c${cyan} continue, ${yellow}q${cyan} quit${white}`)
-        const step = readChar()
-        if (step === 'q') {
-          break
+        yield // count cycle
+        if (stop) {
+          dumpArray(state.calls)
+          console.log(`${cyan}cycle: #${yellow}${cycle}${cyan}, operands: ${yellow}${state.operands.length}${cyan}, memory: ${yellow}${memory(state)}, ${yellow}c${cyan}ontinue, ${yellow}q${cyan}uit${white}`)
+          const step = readChar()
+          if (step === 'q') {
+            stop = false
+          }
         }
         done = iterator.next().done
       }
@@ -207,8 +212,14 @@ Use '${yellow}state${cyan}' to print a state summary${white}`)
   while (true) {
     const src = await rl.question('? ')
     try {
-      const cycles = itLength(state.parse(src, `repl${index++}`))
-      console.log(`${cyan}cycles: ${yellow}${cycles}${cyan}, operands: ${yellow}${state.operands.length}${cyan}, memory: ${yellow}${memory(state)}${white}`)
+      cycle = 0
+      const iterator = state.parse(src, `repl${index++}`)
+      let { done } = iterator.next()
+      while (done === false) {
+        ++cycle
+        done = iterator.next().done
+      }
+      console.log(`${cyan}cycles: ${yellow}${cycle}${cyan}, operands: ${yellow}${state.operands.length}${cyan}, memory: ${yellow}${memory(state)}${white}`)
     } catch (e) {
       if (e instanceof ExitError) {
         break
