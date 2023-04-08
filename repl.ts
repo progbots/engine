@@ -7,15 +7,15 @@ import { Value, ValueType, IOperator, IArray, IDictionary, IState } from '.'
 import { createState } from './factory'
 import { InternalValue, OperatorFunction, State } from './state'
 import { checkOperands } from './operators/operands'
-import { readFileSync } from 'fs'
+import { readFileSync, readSync } from 'fs'
 
 const black = '\x1b[30m'
 const red = '\x1b[31m'
 const green = '\x1b[32m'
 const yellow = '\x1b[33m'
 const blue = '\x1b[34m'
-// const magenta = '\x1b[35m'
-// const cyan = '\x1b[36m'
+const magenta = '\x1b[35m'
+const cyan = '\x1b[36m'
 const white = '\x1b[37m'
 
 const formatters: Record<ValueType, (value: Value) => string> = {
@@ -83,9 +83,9 @@ function scaleBytes (bytes: number): string {
 function memory (state: IState): string {
   const { usedMemory: used, totalMemory: total } = state
   if (total === Infinity) {
-    return scaleBytes(used) + black + '/∞' + white
+    return scaleBytes(used) + blue + '/∞' + white
   }
-  return scaleBytes(used) + black + '/' + scaleBytes(total) + white
+  return scaleBytes(used) + blue + '/' + scaleBytes(total) + white
 }
 
 function forEach (array: IArray, callback: (value: Value, formattedIndex: string) => void): void {
@@ -98,7 +98,7 @@ function forEach (array: IArray, callback: (value: Value, formattedIndex: string
     ++width
   }
   for (let index = 0; index < length; ++index) {
-    const formattedIndex = `${black}${index.toString().padStart(width, ' ')}${white}`
+    const formattedIndex = `${blue}${index.toString().padStart(width, ' ')}${white}`
     callback(array.at(index), formattedIndex)
   }
 }
@@ -112,19 +112,19 @@ const hostMethods: Record<string, OperatorFunction> = {
 
   state: function * (state: State): Generator {
     const dictLength = state.dictionaries.length
-    console.log(`${blue}memory: ${yellow}${memory(state)}
-${blue}dictionaries: ${yellow}${dictLength}${white}`)
+    console.log(`${cyan}memory: ${yellow}${memory(state)}
+${cyan}dictionaries: ${yellow}${dictLength}${white}`)
     forEach(state.dictionaries, (value, formattedIndex) => {
       console.log(formattedIndex, formatters[value.type](value))
     })
-    console.log(`${blue}operands: ${yellow}${state.operands.length}${white}`)
+    console.log(`${cyan}operands: ${yellow}${state.operands.length}${white}`)
     forEach(state.operands, (value, formattedIndex) => {
       let debugInfo
       const { sourceFile, sourcePos } = value as InternalValue
       if (sourceFile === undefined || sourcePos === undefined) {
         debugInfo = ''
       } else {
-        debugInfo = `${black}@${sourceFile}(${sourcePos.toString()})${white}`
+        debugInfo = `${blue}@${sourceFile}(${sourcePos.toString()})${white}`
       }
       console.log(formattedIndex, formatters[value.type](value), debugInfo)
     })
@@ -135,6 +135,10 @@ ${blue}dictionaries: ${yellow}${dictLength}${white}`)
     state.pop()
     const source = readFileSync(path).toString()
     yield * state.innerParse(source, path)
+  },
+
+  colors: function * (state: State): Generator {
+    console.log(`${black}black${red}red${green}green${yellow}yellow${blue}blue${magenta}magenta${cyan}cyan${white}white`)
   }
 }
 
@@ -161,8 +165,8 @@ async function main (): Promise<void> {
     console.log(`${green}DEBUG mode enabled${white}`)
   }
   const rl = readline.createInterface({ input, output })
-  console.log(`${black}Use '${yellow}exit${black}' to quit
-Use '${yellow}state${black}' to print a state summary${white}`)
+  console.log(`${cyan}Use '${yellow}exit${cyan}' to quit
+Use '${yellow}state${cyan}' to print a state summary${white}`)
   const state = createState({
     hostDictionary,
     keepDebugInfo: debug
@@ -172,7 +176,7 @@ Use '${yellow}state${black}' to print a state summary${white}`)
     const src = await rl.question('? ')
     try {
       const cycles = itLength(state.parse(src, `repl${index++}`))
-      console.log(`${blue}cycles: ${yellow}${cycles}${blue}, operands: ${yellow}${state.operands.length}${blue}, memory: ${yellow}${memory(state)}${white}`)
+      console.log(`${cyan}cycles: ${yellow}${cycles}${cyan}, operands: ${yellow}${state.operands.length}${cyan}, memory: ${yellow}${memory(state)}${white}`)
     } catch (e) {
       if (e instanceof ExitError) {
         break
