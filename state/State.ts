@@ -223,15 +223,23 @@ export class State implements IState {
     try {
       const parser = parse(source, sourceFile)
       for (const parsedValue of parser) {
-        yield // parse cycle
-        let value
-        if (this._keepDebugInfo) {
-          value = parsedValue
-        } else {
-          const { type, data } = parsedValue
-          value = { type, data }
+        this._calls.push({
+          type: ValueType.integer,
+          data: parsedValue.sourcePos as number
+        })
+        try {
+          yield // parse cycle
+          let value
+          if (this._keepDebugInfo) {
+            value = parsedValue
+          } else {
+            const { type, data } = parsedValue
+            value = { type, data }
+          }
+          yield * this.eval(value)
+        } finally {
+          this._calls.pop()    
         }
-        yield * this.eval(value)
       }
     } finally {
       this._calls.pop()
