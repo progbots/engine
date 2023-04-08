@@ -42,6 +42,7 @@ export interface IState {
 
   readonly operands: IArray
   readonly dictionaries: IArray
+  readonly calls: IArray
 
   parse: (value: string, sourceFile?: string) => Generator
 }
