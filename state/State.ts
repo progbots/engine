@@ -238,7 +238,7 @@ export class State implements IState {
           }
           yield * this.eval(value)
         } finally {
-          this._calls.pop()    
+          this._calls.pop()
         }
       }
     } finally {
