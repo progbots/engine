@@ -95,11 +95,27 @@ describe('state/parser', () => {
     }])
   })
 
-  it('splits array and proc calls', () => {
-    const block = [...parse('[][[]]]{{}{}}')].map(value => value.data as string)
-    expect(block).toStrictEqual([
-      '[', ']', '[', '[', ']', ']', ']', '{', '{', '}', '{', '}', '}'
-    ])
+  describe('array and proc', () => {
+    it('separates array and proc symbols', () => {
+      const block = [...parse('[][[]]]{{}{}}')].map(value => value.data as string)
+      expect(block).toStrictEqual([
+        '[', ']', '[', '[', ']', ']', ']', '{', '{', '}', '{', '}', '}'
+      ])
+    })
+
+    it('separates array symbols from the names', () => {
+      const block = [...parse('[abc] abc[')].map(value => value.data as string)
+      expect(block).toStrictEqual([
+        '[', 'abc', ']', 'abc', '['
+      ])
+    })
+
+    it('separates proc symbols from the names', () => {
+      const block = [...parse('{abc} abc{')].map(value => value.data as string)
+      expect(block).toStrictEqual([
+        '{', 'abc', '}', 'abc', '{'
+      ])
+    })
   })
 
   it('ignores comments and formatting, includes filename', () => {

@@ -2,7 +2,7 @@ import { ValueType } from '..'
 import { InternalValue } from '.'
 
 export function * parse (source: string, sourceFile?: string): Generator<InternalValue> {
-  const matcher = /%[^\n]*|(?:"([^"]*)")|\s+|((?:-|\+)?\d+)|\/(\S+)|(\[|\]|{|}|\S+)/g
+  const matcher = /%[^\n]*|(?:"([^"]*)")|\s+|((?:-|\+)?\d+)|\/(\S+)|(\[|\]|{|}|[^[\]{}}\s]+)/g
   let match = matcher.exec(source)
   while (match !== null) {
     const [, string, integer, name, call] = match
