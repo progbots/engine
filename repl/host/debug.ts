@@ -5,6 +5,7 @@ import { State } from '../../state'
 import { cyan, yellow } from '../colors'
 import { readChar } from '../readChar'
 import { status } from '../status'
+import { renderCallStack } from '../callstack'
 
 export function * debug (state: State): Generator {
   const [proc] = checkOperands(state, ValueType.proc)
@@ -19,7 +20,7 @@ export function * debug (state: State): Generator {
     while (done === false) {
       yield // count cycle
       if (stop) {
-        // dumpArray(state.calls)
+        renderCallStack(state)
 
         status(state, {
           absolute: true,
