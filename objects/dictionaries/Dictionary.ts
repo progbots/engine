@@ -39,7 +39,7 @@ export class Dictionary extends ShareableObject implements IWritableDictionary {
     // TODO: how do we delete a value (can we ?)
     const old = this._values[name]
     if (old !== undefined) {
-      this._memoryTracker.releaseValue(value)
+      this._memoryTracker.releaseValue(old)
     } else {
       this._memoryTracker.addValueRef({
         type: ValueType.string,
