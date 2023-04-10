@@ -135,8 +135,8 @@ export class State implements IState {
   }
 
   private * evalCall (value: InternalValue): Generator {
-    yield // execution cycle
     this._calls.push(value)
+    yield // execution cycle
     try {
       let resolvedValue = this.lookup(value.data as string)
       if (resolvedValue.type === ValueType.operator && this._keepDebugInfo) {
@@ -152,8 +152,8 @@ export class State implements IState {
   }
 
   private * evalOperator (value: InternalValue): Generator {
-    yield // execution cycle
     this._calls.push(value)
+    yield // execution cycle
     try {
       const operator = value.data as OperatorFunction
       yield * operator(this)
@@ -163,8 +163,8 @@ export class State implements IState {
   }
 
   private * evalProc (value: InternalValue): Generator {
-    yield // execution cycle
     this._calls.push(value)
+    yield // execution cycle
     try {
       const proc = value.data as IArray
       const { length } = proc
@@ -218,7 +218,8 @@ export class State implements IState {
       type: ValueType.string,
       data: source,
       untracked: true, // because external
-      sourceFile
+      sourceFile,
+      sourcePos: 0
     })
     try {
       const parser = parse(source, sourceFile)
