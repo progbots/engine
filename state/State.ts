@@ -203,10 +203,10 @@ export class State implements IState {
         yield * this.evalWithoutProc(value)
       }
     } catch (e) {
-      if (e instanceof Break && (
-        this._calls.length === 0 ||
-        (this._calls.length === 1 && this._calls.ref[0].type === ValueType.string)
-      )) {
+      if (e instanceof Break &&
+        // Allowed only in a breakable operator
+        !this._calls.ref.some(({ type, data }) => type === ValueType.operator && (data as OperatorFunction).breakable === true)
+      ) {
         throw new InvalidBreak() // TODO: forward the stack
       }
       throw e
