@@ -5,17 +5,24 @@ import { checkOperands } from './operands'
 
 export function * bind (state: State): Generator {
   const [proc] = checkOperands(state, ValueType.proc)
-  const procArray = proc.data as unknown as ArrayLike
-  for (let index = 0; index < procArray.ref.length; ++index) {
-    const value = procArray.at(index)
-    if (value.type === ValueType.call) {
-      yield // bind cycle
-      const resolvedValue = state.lookup(value.data as string)
-      // TODO: some operators can be replaced with values (true, false, mark...)
-      procArray.set(index, {
-        ...value, // propagate debug infos
-        ...resolvedValue
-      })
+  const procs: ArrayLike[] = [proc.data as unknown as ArrayLike]
+  let procIndex = 0
+  while (procIndex < procs.length) {
+    const procArray = procs[procIndex]
+    for (let index = 0; index < procArray.ref.length; ++index) {
+      const value = procArray.at(index)
+      if (value.type === ValueType.call) {
+        yield // bind cycle
+        const resolvedValue = state.lookup(value.data as string)
+        // TODO: some operators can be replaced with values (true, false, mark...)
+        procArray.set(index, {
+          ...value, // propagate debug infos
+          ...resolvedValue
+        })
+      } else if (value.type === ValueType.proc) {
+        procs.push(value.data as unknown as ArrayLike)
+      }
     }
+    ++procIndex
   }
 }

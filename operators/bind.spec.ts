@@ -1,40 +1,27 @@
-import { ValueType } from '..'
 import { StackUnderflow, TypeCheck } from '../errors'
-import { State } from '../state'
-import { ArrayLike } from '../objects/Array'
 import { executeTests } from '../test-helpers'
-
-import { trueOp, openArray, closeArray } from '.'
 
 describe('operators/bind', () => {
   executeTests({
     'replaces proc calls with their callees': {
-      src: '{ true [ 42 ] /unchanged } bind',
-      expect: (state: State) => {
-        expect(state.operandsRef.length).toStrictEqual(1)
-        expect(state.operandsRef[0].type).toStrictEqual(ValueType.proc)
-        const array = state.operandsRef[0].data as unknown as ArrayLike
-        expect(array.ref[0]).toStrictEqual({
-          type: ValueType.operator,
-          data: trueOp
-        })
-        expect(array.ref[1]).toStrictEqual({
-          type: ValueType.operator,
-          data: openArray
-        })
-        expect(array.ref[2]).toStrictEqual({
-          type: ValueType.integer,
-          data: 42
-        })
-        expect(array.ref[3]).toStrictEqual({
-          type: ValueType.operator,
-          data: closeArray
-        })
-        expect(array.ref[4]).toStrictEqual({
-          type: ValueType.name,
-          data: 'unchanged'
-        })
-      }
+      src: '{ true [ 42 ] /unchanged } bind aload',
+      expect: `systemdict /true get
+               systemdict /[ get
+               42
+               systemdict /] get
+               /unchanged
+              `
+    },
+    'replaces proc recursively': {
+      src: `{ { true } { false } ifelse } bind aload
+            3 1 roll aload
+            3 1 roll aload
+            3 1 roll
+           `,
+      expect: `systemdict /true get
+               systemdict /false get
+               systemdict /ifelse get
+              `
     },
     'fails with StackUnderflow on empty stack': {
       src: 'bind',
