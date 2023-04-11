@@ -20,3 +20,8 @@ export function * loop (state: State): Generator {
     ShareableObject.release(proc)
   }
 }
+
+Object.defineProperty(loop, 'breakable', {
+  value: true,
+  writable: false
+})
