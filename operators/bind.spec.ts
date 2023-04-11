@@ -23,6 +23,10 @@ describe('operators/bind', () => {
                systemdict /ifelse get
               `
     },
+    'should not fail if a call cannot be bound yet': {
+      src: '{ test } bind aload',
+      expect: '{ test } aload'
+    },
     'fails with StackUnderflow on empty stack': {
       src: 'bind',
       error: StackUnderflow
