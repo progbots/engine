@@ -1,7 +1,11 @@
 import { Value } from '..'
 import { State } from './State'
 
-export type OperatorFunction = (state: State) => Generator
+export interface OperatorFunction {
+  (state: State): Generator
+  name: string
+  breakable?: boolean
+}
 
 export interface InternalValue extends Value {
   untracked?: boolean // Disable memory tracking for the value
