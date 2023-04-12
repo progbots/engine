@@ -1,7 +1,7 @@
 import { ValueType } from '..'
 import { InternalValue } from '.'
 
-export function * parse (source: string, sourceFile?: string): Generator<InternalValue> {
+export function * parse (source: string, sourceFile?: string): Generator<InternalValue, void> {
   const matcher = /%[^\n]*|(?:"([^"]*)")|\s+|((?:-|\+)?\d+)|\/(\S+)|(\[|\]|{|}|[^[\]{}}\s]+)/g
   let match = matcher.exec(source)
   while (match !== null) {
