@@ -3,6 +3,7 @@ import { renderCallStack } from './callstack'
 import { InternalValue } from '.'
 
 interface TestCase {
+  only?: boolean
   calls: InternalValue[]
   expected: string
 }
@@ -30,6 +31,16 @@ const testCases: Record<string, TestCase> = {
     }],
     expected: '"1 »2« add"'
   },
+  'shows parser with current token being a name': {
+    calls: [{
+      type: ValueType.integer,
+      data: 4 // offset
+    }, {
+      type: ValueType.string,
+      data: '1 2 /add'
+    }],
+    expected: '"1 2 »/add«"'
+  },
   'shows parser with current token and debug info': {
     calls: [{
       type: ValueType.integer,
@@ -41,6 +52,13 @@ const testCases: Record<string, TestCase> = {
       sourcePos: 0
     }],
     expected: '"1 »2« add" @test.ps:0'
+  },
+  'formats parsed content': {
+    calls: [{
+      type: ValueType.string,
+      data: '\t1\n\t2\n\tadd'
+    }],
+    expected: '"⭲1↵⭲2↵⭲add"'
   },
   'shows operator and call': {
     calls: [{
@@ -93,7 +111,12 @@ const testCases: Record<string, TestCase> = {
 
 describe('callstack', () => {
   Object.keys(testCases).forEach(label => {
-    const { calls, expected } = testCases[label]
-    it(label, () => expect(renderCallStack(iArray(calls))).toStrictEqual(expected))
+    const { only = false, calls, expected } = testCases[label]
+    const test = () => expect(renderCallStack(iArray(calls))).toStrictEqual(expected)
+    if (only) {
+      it.only(label, test)
+    } else {
+      it(label, test)
+    }
   })
 })

@@ -2,31 +2,37 @@ import { IArray, Value, ValueType } from '..'
 import { InternalValue } from '.'
 import { formatters } from '../formatters'
 import { parse } from './parser'
+import { Internal } from '../errors'
 
-const MAX_LENGTH = 80
 const BEFORE_CURRENT = '»'
 const AFTER_CURRENT = '«'
 
 const unexpected = (value: Value): string => `/!\\ unexpected stack item type ${value.type}`
 
+function stringify (text: string): string {
+  return JSON.stringify(text
+    .replace(/\r?\n/g, '↵')
+    .replace(/\t/g, '⭲')
+  )
+}
+
 const renderers: Record<ValueType, (value: Value, step: number | undefined) => string> = {
   [ValueType.boolean]: unexpected,
   [ValueType.integer]: unexpected,
   [ValueType.string]: (value: Value, step: number | undefined): string => {
-    const base = value.data as string
-    if (base.length > MAX_LENGTH || base.includes('\n')) {
-      // TODO
-      return '/!\\ --unprocessable string--'
-    }
+    const text = value.data as string
     if (step !== undefined) {
-      const before = base.substring(0, step)
-      const parser = parse(base.substring(step))
+      const before = text.substring(0, step)
+      const parser = parse(text.substring(step))
       const { value } = parser.next()
-      const keyword = value.data.toString() as string
-      const after = base.substring(step + keyword.length)
-      return JSON.stringify(`${before}${BEFORE_CURRENT}${keyword}${AFTER_CURRENT}${after}`)
+      if (value === undefined) {
+        throw new Internal('Unexpected parser failure')
+      }
+      const keyword = formatters[value.type](value)
+      const after = text.substring(step + keyword.length)
+      return stringify(`${before}${BEFORE_CURRENT}${keyword}${AFTER_CURRENT}${after}`)
     }
-    return JSON.stringify(base)
+    return stringify(text)
   },
   [ValueType.name]: unexpected,
   [ValueType.call]: (value: Value): string => formatters[value.type](value),
