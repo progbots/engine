@@ -1,30 +1,32 @@
-import { IArray, IState, Value, ValueType } from '..'
-import { InternalValue } from '../state'
-import { blue, red, white, yellow } from './colors'
-import { formatters } from './formatters'
-import { parse } from '../state/parser'
+import { IArray, Value, ValueType } from '..'
+import { InternalValue } from '.'
+import { formatters } from '../formatters'
+import { parse } from './parser'
 
 const MAX_LENGTH = 80
-const unexpected = (value: Value): string => `${red}unexpected stack item type ${value.type}${white}`
+const BEFORE_CURRENT = '»'
+const AFTER_CURRENT = '«'
 
-export const renderers: Record<ValueType, (value: Value, step: number | undefined) => string> = {
+const unexpected = (value: Value): string => `/!\\ unexpected stack item type ${value.type}`
+
+const renderers: Record<ValueType, (value: Value, step: number | undefined) => string> = {
   [ValueType.boolean]: unexpected,
   [ValueType.integer]: unexpected,
   [ValueType.string]: (value: Value, step: number | undefined): string => {
     const base = value.data as string
     if (base.length > MAX_LENGTH || base.includes('\n')) {
       // TODO
-      return `${red}--unprocessable string--${white}`
+      return '/!\\ --unprocessable string--'
     }
     if (step !== undefined) {
       const before = base.substring(0, step)
       const parser = parse(base.substring(step))
       const { value } = parser.next()
-      const keyword = value.data as string
+      const keyword = value.data.toString() as string
       const after = base.substring(step + keyword.length)
-      return `${before}${yellow}${keyword}${white}${after}`
+      return JSON.stringify(`${before}${BEFORE_CURRENT}${keyword}${AFTER_CURRENT}${after}`)
     }
-    return base
+    return JSON.stringify(base)
   },
   [ValueType.name]: unexpected,
   [ValueType.call]: (value: Value): string => formatters[value.type](value),
@@ -45,7 +47,7 @@ export const renderers: Record<ValueType, (value: Value, step: number | undefine
     for (let index = 0; index < length; ++index) {
       const item = array.at(index)
       if (step === index) {
-        output.push(yellow + formatters[item.type](item) + white)
+        output.push(BEFORE_CURRENT + formatters[item.type](item) + AFTER_CURRENT)
       } else {
         output.push(formatters[item.type](item))
       }
@@ -55,27 +57,24 @@ export const renderers: Record<ValueType, (value: Value, step: number | undefine
   }
 }
 
-export function renderCallStack (state: IState): void {
-  const calls = state.calls
+export function renderCallStack (calls: IArray): string {
   const { length } = calls
+  const callstack: string[] = []
   let step: number | undefined
   for (let index = 0; index < length; ++index) {
-    const value = calls.at(index)
+    const value = calls.at(index) as InternalValue
     if (value.type === ValueType.integer) {
       step = value.data as number
       continue
     }
     let debugInfo = ''
-    const { sourceFile, sourcePos } = value as InternalValue
+    const { sourceFile, sourcePos } = value
     if (sourceFile !== undefined && sourcePos !== undefined) {
-      debugInfo = `${blue}@${sourceFile}(${sourcePos.toString()})${white}`
+      debugInfo = ` @${sourceFile}:${sourcePos.toString()}`
     }
-    const renderer = renderers[value.type]
-    if (renderer === undefined) {
-      console.log(`${red}unexpected stack item type ${value.type}${white}`)
-    }
-    const rendered = renderer(value, step)
-    console.log(rendered, debugInfo)
+    const rendered = renderers[value.type](value, step)
+    callstack.push(rendered + debugInfo)
     step = undefined
   }
+  return callstack.join('\n')
 }
