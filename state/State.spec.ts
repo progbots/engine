@@ -1,6 +1,7 @@
 import { State } from '.'
 import { Value, ValueType } from '..'
 import { InvalidBreak, StackUnderflow, Undefined } from '../errors'
+import { BaseError } from '../errors/BaseError'
 import { length as itLength } from '../iterators'
 import { add } from '../operators'
 
@@ -131,7 +132,7 @@ describe('state/State', () => {
   describe('execution (and cycles) management', () => {
     it('stacks integer value', () => {
       const state = new State()
-      expect(itLength(state.parse('1'))).toStrictEqual(2) // parse + push
+      expect(itLength(state.parse('1'))).toStrictEqual(3)
       expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 1
@@ -140,7 +141,7 @@ describe('state/State', () => {
 
     it('considers the first item as the last pushed', () => {
       const state = new State()
-      expect(itLength(state.parse('1 2'))).toStrictEqual(4)
+      expect(itLength(state.parse('1 2'))).toStrictEqual(5)
       const [first, second] = state.operandsRef
       expect(first).toStrictEqual({
         type: ValueType.integer,
@@ -154,7 +155,7 @@ describe('state/State', () => {
 
     it('resolves and call an operator', () => {
       const state = new State()
-      expect(itLength(state.parse('1 2 add'))).toStrictEqual(7) // 4 + parse + resolve + parse
+      expect(itLength(state.parse('1 2 add'))).toStrictEqual(8)
       expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 3
@@ -163,7 +164,7 @@ describe('state/State', () => {
 
     it('allows proc definition and execution', () => {
       const state = new State()
-      expect(itLength(state.parse('/test { 2 3 add } def test'))).toStrictEqual(24)
+      expect(itLength(state.parse('/test { 2 3 add } def test'))).toStrictEqual(25)
       expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 5
@@ -225,6 +226,23 @@ describe('state/State', () => {
     it('signals an invalid use of break (parse)', () => {
       const state = new State()
       expect(() => itLength(state.parse('break'))).toThrowError(InvalidBreak)
+    })
+  })
+
+  describe('exception handling', () => {
+    it('adds the call stack to the exception', () => {
+      const state = new State()
+      let exceptionCaught: BaseError | undefined
+      try {
+        itLength(state.parse('typecheck'))
+      } catch (e) {
+        expect(e).toBeInstanceOf(BaseError)
+        exceptionCaught = e as BaseError
+      }
+      if (exceptionCaught === undefined) {
+        throw new Error('No exception thrown')
+      }
+      expect(exceptionCaught.callstack).toStrictEqual('-typecheck-\ntypecheck\n"»typecheck«"')
     })
   })
 })

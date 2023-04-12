@@ -5,6 +5,8 @@ import { Stack } from '../objects/Stack'
 import { MemoryTracker } from './MemoryTracker'
 import { Dictionary, SystemDictionary } from '../objects/dictionaries'
 import { HostDictionary } from '../objects/dictionaries/Host'
+import { BaseError } from '../errors/BaseError'
+import { renderCallStack } from './callstack'
 
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
@@ -134,10 +136,23 @@ export class State implements IState {
     --this._noCall
   }
 
-  private * evalCall (value: InternalValue): Generator {
+  private * wrapCall (value: InternalValue, call: () => Generator): Generator {
     this._calls.push(value)
     yield // execution cycle
     try {
+      yield * call.apply(this)
+    } catch (e) {
+      if (e instanceof BaseError) {
+        e.callstack = renderCallStack(this.calls)
+      }
+      throw e
+    } finally {
+      this._calls.pop()
+    }
+  }
+
+  private * evalCall (value: InternalValue): Generator {
+    yield * this.wrapCall(value, function * (this: State): Generator {
       let resolvedValue = this.lookup(value.data as string)
       if (resolvedValue.type === ValueType.operator && this._keepDebugInfo) {
         resolvedValue = {
@@ -146,26 +161,18 @@ export class State implements IState {
         }
       }
       yield * this.eval(resolvedValue)
-    } finally {
-      this._calls.pop()
-    }
+    })
   }
 
   private * evalOperator (value: InternalValue): Generator {
-    this._calls.push(value)
-    yield // execution cycle
-    try {
+    yield * this.wrapCall(value, function * (this: State): Generator {
       const operator = value.data as OperatorFunction
       yield * operator(this)
-    } finally {
-      this._calls.pop()
-    }
+    })
   }
 
   private * evalProc (value: InternalValue): Generator {
-    this._calls.push(value)
-    yield // execution cycle
-    try {
+    yield * this.wrapCall(value, function * (this: State): Generator {
       const proc = value.data as IArray
       const { length } = proc
       for (let index = 0; index < length; ++index) {
@@ -179,9 +186,7 @@ export class State implements IState {
           this._calls.pop()
         }
       }
-    } finally {
-      this._calls.pop()
-    }
+    })
   }
 
   private * evalWithoutProc (value: InternalValue): Generator {
@@ -207,21 +212,22 @@ export class State implements IState {
         // Allowed only in a breakable operator
         !this._calls.ref.some(({ type, data }) => type === ValueType.operator && (data as OperatorFunction).breakable === true)
       ) {
-        throw new InvalidBreak() // TODO: forward the stack
+        const invalidBreak = new InvalidBreak()
+        invalidBreak.callstack = e.callstack
+        throw invalidBreak
       }
       throw e
     }
   }
 
   * innerParse (source: string, sourceFile?: string): Generator {
-    this._calls.push({
+    yield * this.wrapCall({
       type: ValueType.string,
       data: source,
       untracked: true, // because external
       sourceFile,
       sourcePos: 0
-    })
-    try {
+    }, function * (this: State): Generator {
       const parser = parse(source, sourceFile)
       for (const parsedValue of parser) {
         this._calls.push({
@@ -242,8 +248,6 @@ export class State implements IState {
           this._calls.pop()
         }
       }
-    } finally {
-      this._calls.pop()
-    }
+    })
   }
 }
