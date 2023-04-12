@@ -2,7 +2,7 @@ import { InternalValue, State } from '../../state'
 import { forEach } from '../forEach'
 import { cyan, yellow, white, blue } from '../colors'
 import { memory } from '../status'
-import { formatters } from '../formatters'
+import { formatters } from '../../formatters'
 
 export function * state (state: State): Generator {
   const dictLength = state.dictionaries.length
