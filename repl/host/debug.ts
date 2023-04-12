@@ -20,10 +20,12 @@ export function * debug (state: State): Generator {
     while (done === false) {
       yield // count cycle
       if (stop) {
+        // TODO limit text width on small outputs
         console.log(renderCallStack(state.calls)
           .replace(/».*«/g, (match: string): string => `${yellow}${match}${white}`)
           .replace(/@.*\n/g, (match: string): string => `${blue}${match}${white}`)
           .replace(/\/!\\.*\n/g, (match: string): string => `${red}${match}${white}`)
+          .replace(/…|↵|⭲/g, (match: string): string => `${blue}${match}${white}`)
         )
 
         status(state, {
