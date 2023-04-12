@@ -4,12 +4,12 @@ export class BaseError extends Error {
     this.name = this.constructor.name
   }
 
-  private _callstack: string = ''
+  private readonly _callstack: string = ''
 
   get callstack (): string {
-    if (this._callstack) {
+    if (this._callstack !== '') {
       return this._callstack
     }
-    return this.stack?.split('\n').slice(1).join('\n') || ''
+    return this.stack?.split('\n').slice(1).join('\n') ?? ''
   }
 }
