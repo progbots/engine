@@ -112,7 +112,7 @@ const testCases: Record<string, TestCase> = {
 describe('callstack', () => {
   Object.keys(testCases).forEach(label => {
     const { only = false, calls, expected } = testCases[label]
-    const test = () => expect(renderCallStack(iArray(calls))).toStrictEqual(expected)
+    const test = (): void => expect(renderCallStack(iArray(calls))).toStrictEqual(expected)
     if (only) {
       it.only(label, test)
     } else {
