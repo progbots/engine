@@ -41,7 +41,7 @@ Use '${yellow}state${cyan}' to print a state summary${white}`)
       if (e instanceof ExitError) {
         break
       } else if (e instanceof BaseError) {
-        console.error(`${red}/!\\ ${e.name} ${e.message}${white}`)
+        console.error(`${red}/!\\ ${e.name}: ${e.message}\n${e.callstack}${white}`)
       } else {
         console.error(e)
         break
