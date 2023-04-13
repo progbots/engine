@@ -1,0 +1,12 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "module": "AMD",
+        "outFile": "./dist/engine.js"
+    },
+    "exclude": [
+      "./test-helpers.ts",
+      "./**/*.spec.ts",
+      "./repl/**"
+    ]
+  }
