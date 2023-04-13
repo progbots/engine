@@ -1,7 +1,7 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-        "module": "AMD",
+        "module": "System",
         "outFile": "./dist/engine.js"
     },
     "exclude": [
