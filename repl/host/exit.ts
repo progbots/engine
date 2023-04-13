@@ -1,4 +1,4 @@
-import { State } from '../../state'
+import { State } from '../../state/index'
 
 export class ExitError extends Error {}
 

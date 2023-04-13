@@ -1,5 +1,5 @@
-import { State } from '../state'
-import { ValueType } from '..'
+import { State } from '../state/index'
+import { ValueType } from '../index'
 import { checkOperands } from './operands'
 
 export function * add (state: State): Generator {

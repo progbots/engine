@@ -1,4 +1,4 @@
-import { State } from '../state'
+import { State } from '../state/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/clear', () => {

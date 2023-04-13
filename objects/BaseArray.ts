@@ -1,8 +1,8 @@
 import { ShareableObject } from './ShareableObject'
-import { IArray, Value } from '..'
+import { IArray, Value } from '../index'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { RangeCheck, StackUnderflow } from '../errors'
-import { InternalValue } from '../state'
+import { RangeCheck, StackUnderflow } from '../errors/index'
+import { InternalValue } from '../state/index'
 
 export abstract class BaseArray extends ShareableObject implements IArray {
   public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE

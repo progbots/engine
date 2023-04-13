@@ -1,5 +1,5 @@
-import { IDictionary, ValueType } from '..'
-import { State } from '../state'
+import { IDictionary, ValueType } from '../index'
+import { State } from '../state/index'
 import { checkOperands } from './operands'
 
 export function * begin (state: State): Generator {

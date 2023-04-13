@@ -1,4 +1,4 @@
-import { IArray, Value } from '..'
+import { IArray, Value } from '../index'
 import { blue, white } from './colors'
 
 export function forEach (array: IArray, callback: (value: Value, formattedIndex: string) => void): void {

@@ -1,4 +1,4 @@
-import { State } from '../../state'
+import { State } from '../../state/index'
 import { black, blue, cyan, green, magenta, red, white, yellow } from '../colors'
 
 export function * colors (state: State): Generator {

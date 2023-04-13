@@ -1,5 +1,5 @@
-import { ValueType } from '..'
-import { RangeCheck, StackUnderflow, TypeCheck, Undefined } from '../errors'
+import { ValueType } from '../index'
+import { RangeCheck, StackUnderflow, TypeCheck, Undefined } from '../errors/index'
 import { executeTests } from '../test-helpers'
 import { add } from './add'
 

@@ -1,6 +1,6 @@
 import { BaseError } from '../errors/BaseError'
-import * as errorClasses from '../errors'
-import { OperatorFunction, State } from '../state'
+import * as errorClasses from '../errors/index'
+import { OperatorFunction, State } from '../state/index'
 
 const errorOperators: Record<string, OperatorFunction> = {}
 

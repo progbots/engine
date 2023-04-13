@@ -1,7 +1,7 @@
-import { ValueType } from '..'
-import { Undefined } from '../errors'
+import { ValueType } from '../index'
+import { Undefined } from '../errors/index'
 import { ArrayLike } from '../objects/Array'
-import { State } from '../state'
+import { State } from '../state/index'
 import { checkOperands } from './operands'
 
 export function * bind (state: State): Generator {

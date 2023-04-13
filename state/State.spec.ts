@@ -1,11 +1,11 @@
-import { State } from '.'
-import { Value, ValueType } from '..'
-import { InvalidBreak, StackUnderflow, Undefined } from '../errors'
+import { State } from './index'
+import { Value, ValueType } from '../index'
+import { InvalidBreak, StackUnderflow, Undefined } from '../errors/index'
 import { BaseError } from '../errors/BaseError'
 import { length as itLength } from '../iterators'
 import { add } from '../operators'
 
-describe('state/State', () => {
+describe('state/state/index', () => {
   describe('stack management', () => {
     describe('happy path', () => {
       it('starts with an empty stack', () => {

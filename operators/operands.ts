@@ -1,6 +1,6 @@
-import { InternalValue, State } from '../state'
-import { ValueType } from '..'
-import { StackUnderflow, TypeCheck, UnmatchedMark } from '../errors'
+import { InternalValue, State } from '../state/index'
+import { ValueType } from '../index'
+import { StackUnderflow, TypeCheck, UnmatchedMark } from '../errors/index'
 
 export function checkOperands (state: State, ...types: Array<ValueType | null>): InternalValue[] {
   const operands = state.operandsRef

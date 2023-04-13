@@ -1,6 +1,6 @@
-import { State } from '../state'
+import { State } from '../state/index'
 import { ArrayLike } from '../objects/Array'
-import { ValueType } from '..'
+import { ValueType } from '../index'
 
 export function * dictstack (state: State): Generator {
   const array = new ArrayLike(state.memoryTracker)

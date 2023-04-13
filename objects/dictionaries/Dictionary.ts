@@ -1,5 +1,5 @@
-import { Value, ValueType } from '../..'
-import { InternalValue } from '../../state'
+import { Value, ValueType } from '../../index'
+import { InternalValue } from '../../state/index'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { ShareableObject } from '../ShareableObject'
 import { IWritableDictionary } from './types'

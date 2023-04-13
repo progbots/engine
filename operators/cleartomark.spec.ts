@@ -1,4 +1,4 @@
-import { UnmatchedMark } from '../errors'
+import { UnmatchedMark } from '../errors/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/cleartomark', () => {

@@ -1,5 +1,5 @@
-import { IArray, IDictionary, IOperator, Value, ValueType } from '.'
-import { HostDictionary, SystemDictionary } from './objects/dictionaries'
+import { IArray, IDictionary, IOperator, Value, ValueType } from './index'
+import { HostDictionary, SystemDictionary } from './objects/dictionaries/index'
 
 export const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',

@@ -1,6 +1,6 @@
 import { SystemDictionary } from './System'
-import { ValueType } from '../..'
-import { InvalidAccess } from '../../errors'
+import { ValueType } from '../../index'
+import { InvalidAccess } from '../../errors/index'
 import { add, index, sub } from '../../operators'
 
 describe('objects/dictionaries/System', () => {

@@ -1,5 +1,5 @@
-import { DictStackUnderflow, Undefined } from '../errors'
-import { State } from '../state'
+import { DictStackUnderflow, Undefined } from '../errors/index'
+import { State } from '../state/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/end', () => {

@@ -1,5 +1,5 @@
-import { Value } from '.'
-import { State } from './state'
+import { Value } from './index'
+import { State } from './state/index'
 import { length as itLength } from './iterators'
 
 interface TestDescription {

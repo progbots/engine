@@ -1,7 +1,7 @@
-import { ValueType } from '..'
-import { Break } from '../errors'
+import { ValueType } from '../index'
+import { Break } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
-import { State } from '../state'
+import { State } from '../state/index'
 import { checkOperands } from './operands'
 
 export function * loop (state: State): Generator {

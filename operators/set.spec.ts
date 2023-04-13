@@ -1,4 +1,4 @@
-import { RangeCheck, StackUnderflow, TypeCheck } from '../errors'
+import { RangeCheck, StackUnderflow, TypeCheck } from '../errors/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/set', () => {

@@ -1,6 +1,6 @@
-import { ValueType } from '..'
+import { ValueType } from '../index'
 import { Dictionary } from '../objects/dictionaries'
-import { State } from '../state'
+import { State } from '../state/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/dict', () => {

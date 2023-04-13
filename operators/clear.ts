@@ -1,4 +1,4 @@
-import { State } from '../state'
+import { State } from '../state/index'
 
 export function * clear (state: State): Generator {
   const stack = state.operandsRef

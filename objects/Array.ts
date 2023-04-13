@@ -1,5 +1,5 @@
-import { InternalValue } from '../state'
-import { Internal, RangeCheck } from '../errors'
+import { InternalValue } from '../state/index'
+import { Internal, RangeCheck } from '../errors/index'
 import { BaseArray } from './BaseArray'
 
 export class ArrayLike extends BaseArray {

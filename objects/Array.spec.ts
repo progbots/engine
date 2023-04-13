@@ -1,7 +1,7 @@
 import { ArrayLike } from './Array'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { ValueType } from '..'
-import { RangeCheck } from '../errors'
+import { ValueType } from '../index'
+import { RangeCheck } from '../errors/index'
 
 describe('objects/Array', () => {
   let tracker: MemoryTracker

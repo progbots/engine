@@ -1,4 +1,4 @@
-import { Value } from '..'
+import { Value } from '../index'
 import { State } from './State'
 
 export interface OperatorFunction {

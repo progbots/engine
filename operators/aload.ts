@@ -1,7 +1,7 @@
-import { State } from '../state'
-import { ValueType } from '..'
+import { State } from '../state/index'
+import { ValueType } from '../index'
 import { checkOperands } from './operands'
-import { TypeCheck } from '../errors'
+import { TypeCheck } from '../errors/index'
 import { ArrayLike } from '../objects/Array'
 
 export function * aload (state: State): Generator {

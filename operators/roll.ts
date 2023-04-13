@@ -1,8 +1,8 @@
-import { ValueType } from '..'
-import { State } from '../state'
+import { ValueType } from '../index'
+import { State } from '../state/index'
 import { checkOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
-import { StackUnderflow } from '../errors'
+import { StackUnderflow } from '../errors/index'
 
 export function * roll (state: State): Generator {
   const [steps, size] = checkOperands(state, ValueType.integer, ValueType.integer).map(value => value.data as number)

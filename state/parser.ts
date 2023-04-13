@@ -1,5 +1,5 @@
-import { ValueType } from '..'
-import { InternalValue } from '.'
+import { ValueType } from '../index'
+import { InternalValue } from './index'
 
 export function * parse (source: string, sourceFile?: string): Generator<InternalValue, void> {
   const matcher = /%[^\n]*|(?:"([^"]*)")|\s+|((?:-|\+)?\d+)|\/(\S+)|(\[|\]|{|}|[^[\]{}}\s]+)/g

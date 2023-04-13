@@ -1,5 +1,5 @@
-import { State } from '../state'
-import { ValueType } from '..'
+import { State } from '../state/index'
+import { ValueType } from '../index'
 import { closeToMark } from './open-close-helper'
 
 export function * closeProc (state: State): Generator {

@@ -1,7 +1,7 @@
-import { State } from '../state'
+import { State } from '../state/index'
 import { checkOperands } from './operands'
-import { ValueType } from '..'
-import { RangeCheck, StackUnderflow } from '../errors'
+import { ValueType } from '../index'
+import { RangeCheck, StackUnderflow } from '../errors/index'
 
 export function * index (state: State): Generator {
   const [pos] = checkOperands(state, ValueType.integer).map(value => value.data as number)

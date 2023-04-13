@@ -1,5 +1,5 @@
-import { ValueType } from '..'
-import { State } from '../state'
+import { ValueType } from '../index'
+import { State } from '../state/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/systemdict', () => {

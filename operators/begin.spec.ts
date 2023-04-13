@@ -1,5 +1,5 @@
-import { StackUnderflow, TypeCheck } from '../errors'
-import { State } from '../state'
+import { StackUnderflow, TypeCheck } from '../errors/index'
+import { State } from '../state/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/begin', () => {

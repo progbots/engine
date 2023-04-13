@@ -1,6 +1,6 @@
-import { ValueType } from '..'
-import { IWritableDictionary } from '../objects/dictionaries'
-import { State } from '../state'
+import { ValueType } from '../index'
+import { IWritableDictionary } from '../objects/dictionaries/index'
+import { State } from '../state/index'
 import { checkOperands } from './operands'
 
 export function * def (state: State): Generator {

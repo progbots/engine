@@ -1,6 +1,6 @@
-import { ValueType } from '..'
+import { ValueType } from '../index'
 import { ArrayLike } from '../objects/Array'
-import { State } from '../state'
+import { State } from '../state/index'
 import { findMarkPos } from './operands'
 
 export function openWithMark (state: State): void {

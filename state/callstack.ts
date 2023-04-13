@@ -1,8 +1,8 @@
-import { IArray, Value, ValueType } from '..'
-import { InternalValue } from '.'
+import { IArray, Value, ValueType } from '../index'
+import { InternalValue } from './index'
 import { formatters } from '../formatters'
 import { parse } from './parser'
-import { Internal } from '../errors'
+import { Internal } from '../errors/index'
 
 const BEFORE_CURRENT = '»'
 const AFTER_CURRENT = '«'

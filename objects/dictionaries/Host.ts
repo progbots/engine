@@ -1,7 +1,7 @@
 import { ShareableObject } from '../ShareableObject'
 import { IWritableDictionary } from './types'
-import { IDictionary, Value } from '../..'
-import { InvalidAccess } from '../../errors'
+import { IDictionary, Value } from '../../index'
+import { InvalidAccess } from '../../errors/index'
 
 export class HostDictionary extends ShareableObject implements IWritableDictionary {
   // region IWritableDictionary

@@ -1,5 +1,5 @@
 import { parse } from './parser'
-import { Value, ValueType } from '..'
+import { Value, ValueType } from '../index'
 
 describe('state/parser', () => {
   const values: Record<string, Value> = {

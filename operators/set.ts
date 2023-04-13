@@ -1,10 +1,10 @@
-import { ValueType } from '..'
-import { RangeCheck, TypeCheck } from '../errors'
-import { InternalValue, State } from '../state'
+import { ValueType } from '../index'
+import { RangeCheck, TypeCheck } from '../errors/index'
+import { InternalValue, State } from '../state/index'
 import { checkOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
-import { IWritableDictionary } from '../objects/dictionaries'
+import { IWritableDictionary } from '../objects/dictionaries/index'
 
 const setters: Record<string, (state: State) => InternalValue> = {
   [ValueType.string]: (state: State): InternalValue => {

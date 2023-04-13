@@ -1,6 +1,6 @@
 import { Dictionary } from './Dictionary'
 import { MemoryTracker } from '../../state/MemoryTracker'
-import { IArray, ValueType } from '../..'
+import { IArray, ValueType } from '../../index'
 import { ShareableObject } from '../ShareableObject'
 
 class MyObject extends ShareableObject {

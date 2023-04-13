@@ -1,4 +1,4 @@
-import { InternalValue, State } from '../../state'
+import { InternalValue, State } from '../../state/index'
 import { forEach } from '../forEach'
 import { cyan, yellow, white, blue } from '../colors'
 import { memory } from '../status'

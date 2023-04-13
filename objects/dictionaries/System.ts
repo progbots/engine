@@ -1,8 +1,8 @@
-import { Value, ValueType } from '../..'
+import { Value, ValueType } from '../../index'
 import { ShareableObject } from '../ShareableObject'
-import { InvalidAccess } from '../../errors'
-import { OperatorFunction } from '../../state'
-import * as operatorFunctions from '../../operators'
+import { InvalidAccess } from '../../errors/index'
+import { OperatorFunction } from '../../state/index'
+import * as operatorFunctions from '../../operators/index'
 import * as errorFunctions from '../../operators/errors'
 import { IWritableDictionary } from './types'
 

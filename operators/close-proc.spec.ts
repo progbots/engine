@@ -1,7 +1,7 @@
-import { UnmatchedMark } from '../errors'
+import { UnmatchedMark } from '../errors/index'
 import { executeTests } from '../test-helpers'
-import { IArray, ValueType } from '..'
-import { State } from '../state'
+import { IArray, ValueType } from '../index'
+import { State } from '../state/index'
 
 describe('operators/close-proc (})', () => {
   executeTests({

@@ -1,4 +1,4 @@
-import { IState } from '..'
+import { IState } from '../index'
 import { current } from './cycle'
 import { blue, cyan, green, red, white, yellow } from './colors'
 

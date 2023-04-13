@@ -1,4 +1,4 @@
-import { IArray, IDictionary, ValueType } from '..'
+import { IArray, IDictionary, ValueType } from '../index'
 import { ShareableObject } from './ShareableObject'
 
 class MyObject extends ShareableObject {

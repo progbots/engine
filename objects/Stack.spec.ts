@@ -1,6 +1,6 @@
 import { Stack } from './Stack'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { ValueType } from '..'
+import { ValueType } from '../index'
 
 describe('objects/Stack', () => {
   let tracker: MemoryTracker

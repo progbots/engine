@@ -1,4 +1,4 @@
-import { InternalValue } from '../state'
+import { InternalValue } from '../state/index'
 
 export abstract class ShareableObject {
   public static addRef (values: InternalValue | InternalValue[]): void {

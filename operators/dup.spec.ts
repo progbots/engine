@@ -1,4 +1,4 @@
-import { StackUnderflow } from '../errors'
+import { StackUnderflow } from '../errors/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/dup', () => {

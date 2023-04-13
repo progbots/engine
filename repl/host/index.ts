@@ -1,5 +1,5 @@
-import { Value, ValueType } from '../..'
-import { OperatorFunction } from '../../state'
+import { Value, ValueType } from '../../index'
+import { OperatorFunction } from '../../state/index'
 
 import { colors } from './colors'
 import { debug } from './debug'

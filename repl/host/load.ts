@@ -1,6 +1,6 @@
-import { ValueType } from '../..'
+import { ValueType } from '../../index'
 import { checkOperands } from '../../operators/operands'
-import { State } from '../../state'
+import { State } from '../../state/index'
 import { readFileSync } from 'node:fs'
 
 export function * load (state: State): Generator {

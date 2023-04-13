@@ -1,4 +1,4 @@
-import { InternalValue } from '../state'
+import { InternalValue } from '../state/index'
 import { BaseArray } from './BaseArray'
 
 export class Stack extends BaseArray {

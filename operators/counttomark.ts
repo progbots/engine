@@ -1,5 +1,5 @@
-import { ValueType } from '..'
-import { State } from '../state'
+import { ValueType } from '../index'
+import { State } from '../state/index'
 import { findMarkPos } from './operands'
 
 export function * counttomark (state: State): Generator {

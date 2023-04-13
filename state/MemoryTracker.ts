@@ -1,6 +1,6 @@
-import { Value, ValueType } from '..'
-import { InternalValue } from '.'
-import { VMError } from '../errors'
+import { Value, ValueType } from '../index'
+import { InternalValue } from './index'
+import { VMError } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
 
 const stringSizer = (data: string): number => {

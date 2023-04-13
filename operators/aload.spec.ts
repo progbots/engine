@@ -1,4 +1,4 @@
-import { StackUnderflow, TypeCheck } from '../errors'
+import { StackUnderflow, TypeCheck } from '../errors/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/aload', () => {

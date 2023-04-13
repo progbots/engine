@@ -1,4 +1,4 @@
-import { State } from '../state'
+import { State } from '../state/index'
 import { findMarkPos } from './operands'
 
 export function * cleartomark (state: State): Generator {

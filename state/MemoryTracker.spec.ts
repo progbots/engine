@@ -1,5 +1,5 @@
-import { IArray, ValueType } from '..'
-import { VMError } from '../errors'
+import { IArray, ValueType } from '../index'
+import { VMError } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
 import { MemoryTracker } from './MemoryTracker'
 
