@@ -3,11 +3,12 @@ import { ShareableObject } from '../../objects/ShareableObject'
 import { checkOperands } from '../../operators/operands'
 import { State } from '../../state/index'
 import { blue, cyan, red, white, yellow } from '../colors'
-import { readChar } from '../readChar'
 import { status } from '../status'
 import { renderCallStack } from '../../state/callstack'
+import { getReplHost } from '../replHost'
 
 export function * debug (state: State): Generator {
+  const replHost = getReplHost()
   const [proc] = checkOperands(state, ValueType.proc)
   ShareableObject.addRef(proc)
   try {
@@ -21,7 +22,7 @@ export function * debug (state: State): Generator {
       yield // count cycle
       if (stop) {
         // TODO limit text width on small outputs
-        console.log(renderCallStack(state.calls)
+        replHost.output(renderCallStack(state.calls)
           .replace(/».*«/g, (match: string): string => `${yellow}${match}${white}`)
           .replace(/@.*\n/g, (match: string): string => `${blue}${match}${white}`)
           .replace(/\/!\\.*\n/g, (match: string): string => `${red}${match}${white}`)
@@ -38,7 +39,7 @@ export function * debug (state: State): Generator {
         lastOperandsCount = state.operands.length
         lastUsedMemory = state.usedMemory
 
-        const step = readChar()
+        const step = await replHost.getChar()
         if (step === 'q') {
           stop = false
         }

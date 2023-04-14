@@ -1,6 +1,7 @@
 import { State } from '../../state/index'
-import { black, blue, cyan, green, magenta, red, white, yellow } from '../colors'
+import { blue, cyan, green, magenta, red, white, yellow } from '../colors'
+import { getReplHost } from '../replHost'
 
 export function * colors (state: State): Generator {
-  console.log(`${black}black${red}red${green}green${yellow}yellow${blue}blue${magenta}magenta${cyan}cyan${white}white`)
+  getReplHost().output(`${red}red${green}green${yellow}yellow${blue}blue${magenta}magenta${cyan}cyan${white}white`)
 }

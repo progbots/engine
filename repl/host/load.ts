@@ -1,11 +1,11 @@
 import { ValueType } from '../../index'
 import { checkOperands } from '../../operators/operands'
 import { State } from '../../state/index'
-import { readFileSync } from 'node:fs'
+import { getReplHost } from '../replHost'
 
 export function * load (state: State): Generator {
-  const [path] = checkOperands(state, ValueType.string).map(value => value.data as string)
+  const [name] = checkOperands(state, ValueType.string).map(value => value.data as string)
   state.pop()
-  const source = readFileSync(path).toString()
-  yield * state.innerParse(source, path)
+  const source = getReplHost().getSample(name)
+  yield * state.innerParse(source, name)
 }

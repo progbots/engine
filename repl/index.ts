@@ -1,56 +1,40 @@
 import * as readline from 'node:readline/promises'
 import { stdin as input, stdout as output } from 'node:process'
-import { cyan, green, red, white, yellow } from './colors'
-import { hostDictionary } from './host'
-import { createState } from '../factory'
-import { ExitError } from './host/exit'
-import { BaseError } from '../errors/BaseError'
-import { reset, increment } from './cycle'
-import { status } from './status'
+import { readSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { blue, cyan, green, magenta, red, white, yellow } from './colors'
+import { main } from './impl'
+import { setReplHost } from './replHost'
 
-async function main (): Promise<void> {
-  const debug = process.argv.includes('--debug')
-  if (debug) {
-    console.log(`${green}DEBUG mode enabled${white}`)
+const rl = readline.createInterface({ input, output })
+
+setReplHost({
+  output (text) {
+    console.log(text
+      .replaceAll(red, '\x1b[31m')
+      .replaceAll(green, '\x1b[32m')
+      .replaceAll(yellow, '\x1b[33m')
+      .replaceAll(blue, '\x1b[34m')
+      .replaceAll(magenta, '\x1b[35m')
+      .replaceAll(cyan, '\x1b[36m')
+      .replaceAll(white, '\x1b[37m')
+    )
+  },
+
+  async getInput () {
+    return await rl.question('? ')
+  },
+
+  async getChar () {
+    const buffer = Buffer.alloc(1)
+    readSync(0, buffer, 0, 1, null)
+    return buffer.toString('utf8')
+  },
+
+  getSample (name: string) {
+    return readFileSync(join('samples', name)).toString()
   }
-  const rl = readline.createInterface({ input, output })
-  console.log(`${cyan}Use '${yellow}exit${cyan}' to quit
-Use '${yellow}state${cyan}' to print a state summary${white}`)
+})
 
-  const state = createState({
-    hostDictionary,
-    keepDebugInfo: debug
-  })
-  let replIndex = 0
-
-  while (true) {
-    const src = await rl.question('? ')
-    try {
-      const lastUsedMemory = state.usedMemory
-      reset()
-      const iterator = state.parse(src, `repl${replIndex++}`)
-      let { done } = iterator.next()
-      while (done === false) {
-        increment()
-        done = iterator.next().done
-      }
-      status(state, {
-        lastUsedMemory
-      })
-    } catch (e) {
-      if (e instanceof ExitError) {
-        break
-      } else if (e instanceof BaseError) {
-        console.error(`${red}/!\\ ${e.name}: ${e.message}\n${e.callstack}${white}`)
-      } else {
-        console.error(e)
-        break
-      }
-    }
-  }
-
-  rl.close()
-}
-
-main()
+main(process.argv.includes('--debug'))
   .catch(reason => console.error(reason))
