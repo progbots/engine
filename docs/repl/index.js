@@ -1,4 +1,4 @@
 (async function () {
-  const factory = await System.import('factory')
-  console.log(factory)
+  const { createState } = await System.import('factory')
+  console.log(createState)
 }())
