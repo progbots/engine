@@ -17,8 +17,8 @@ const replHost: IReplHost = {
       .replaceAll(blue, '\x1b[34m')
       .replaceAll(magenta, '\x1b[35m')
       .replaceAll(cyan, '\x1b[36m')
-      .replaceAll(white, '\x1b[37m')
-      + '\x1b[37m'
+      .replaceAll(white, '\x1b[37m') +
+      '\x1b[37m'
     )
   },
 
