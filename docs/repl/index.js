@@ -5,19 +5,21 @@
   const replHost = {
     output (text) {
       const line = document.createElement('div')
-      line.innerHtml = text
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&agt;')
-      // console.log(text
-      //   .replaceAll(red, '\x1b[31m')
-      //   .replaceAll(green, '\x1b[32m')
-      //   .replaceAll(yellow, '\x1b[33m')
-      //   .replaceAll(blue, '\x1b[34m')
-      //   .replaceAll(magenta, '\x1b[35m')
-      //   .replaceAll(cyan, '\x1b[36m')
-      //   .replaceAll(white, '\x1b[37m')
-      // )
+      text.split('\u270e').forEach((part, index) => {
+        if (index === 0) {
+          if (part) {
+            line.appendChild(document.createTextNode(part))
+          }
+          return
+        }
+        const [, color, colored] = part.match(/^(red|green|yellow|blue|magenta|cyan|white)(.*)/)
+        if (colored) {
+          const span = document.createElement('span')
+          span.className = color
+          span.appendChild(document.createTextNode(colored))
+          line.appendChild(span)
+        }
+      })
       document.body.appendChild(line)
     },
   

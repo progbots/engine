@@ -13,10 +13,10 @@ import { InternalValue } from '../state/types'
 
 export async function main (replHost: IReplHost, debug: boolean): Promise<void> {
   if (debug) {
-    replHost.output(`${green}DEBUG mode enabled${white}`)
+    replHost.output(`${green}DEBUG mode enabled`)
   }
-  replHost.output(`${cyan}Use '${yellow}exit${cyan}' to quit
-Use '${yellow}state${cyan}' to print a state summary${white}`)
+  replHost.output(`${cyan}Use '${yellow}exit${cyan}' to quit`)
+  replHost.output(`${cyan}Use '${yellow}state${cyan}' to print a state summary`)
 
   const state = createState({
     hostDictionary,
@@ -38,19 +38,19 @@ Use '${yellow}state${cyan}' to print a state summary${white}`)
         let nextValue: unknown
         if (value === $state) {
           const dictLength = state.dictionaries.length
-          replHost.output(`${cyan}memory: ${yellow}${memory(state)}
-${cyan}dictionaries: ${yellow}${dictLength}${white}`)
+          replHost.output(`${cyan}memory: ${yellow}${memory(state)}`)
+          replHost.output(`${cyan}dictionaries: ${yellow}${dictLength}`)
           forEach(state.dictionaries, (value, formattedIndex) => {
             replHost.output(`${formattedIndex} ${formatters[value.type](value)}`)
           })
-          replHost.output(`${cyan}operands: ${yellow}${state.operands.length}${white}`)
+          replHost.output(`${cyan}operands: ${yellow}${state.operands.length}`)
           forEach(state.operands, (value, formattedIndex) => {
             let debugInfo
             const { sourceFile, sourcePos } = value as InternalValue
             if (sourceFile === undefined || sourcePos === undefined) {
               debugInfo = ''
             } else {
-              debugInfo = ` ${blue}@${sourceFile}(${sourcePos.toString()})${white}`
+              debugInfo = ` ${blue}@${sourceFile}(${sourcePos.toString()})`
             }
             replHost.output(`${formattedIndex} ${formatters[value.type](value)}${debugInfo}`)
           })
@@ -101,9 +101,9 @@ ${cyan}dictionaries: ${yellow}${dictLength}${white}`)
       if (e instanceof ExitError) {
         break
       } else if (e instanceof BaseError) {
-        replHost.output(`${red}/!\\ ${e.name}: ${e.message}\n${e.callstack}${white}`)
+        replHost.output(`${red}/!\\ ${e.name}: ${e.message}\n${e.callstack}`)
       } else {
-        replHost.output(`${red}${(e as Error).toString()}${white}`)
+        replHost.output(`${red}${(e as Error).toString()}`)
         break
       }
     }
