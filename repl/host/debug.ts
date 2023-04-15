@@ -1,52 +1,6 @@
-import { ValueType } from '../../index'
-import { ShareableObject } from '../../objects/ShareableObject'
-import { checkOperands } from '../../operators/operands'
 import { State } from '../../state/index'
-import { blue, cyan, red, white, yellow } from '../colors'
-import { status } from '../status'
-import { renderCallStack } from '../../state/callstack'
-import { getReplHost } from '../replHost'
+import { $debug } from '../signals'
 
 export function * debug (state: State): Generator {
-  const replHost = getReplHost()
-  const [proc] = checkOperands(state, ValueType.proc)
-  ShareableObject.addRef(proc)
-  try {
-    state.pop()
-    let lastOperandsCount = state.operands.length
-    let lastUsedMemory = state.usedMemory
-    const iterator = state.eval(proc)
-    let stop = true
-    let { done } = iterator.next()
-    while (done === false) {
-      yield // count cycle
-      if (stop) {
-        // TODO limit text width on small outputs
-        replHost.output(renderCallStack(state.calls)
-          .replace(/».*«/g, (match: string): string => `${yellow}${match}${white}`)
-          .replace(/@.*\n/g, (match: string): string => `${blue}${match}${white}`)
-          .replace(/\/!\\.*\n/g, (match: string): string => `${red}${match}${white}`)
-          .replace(/…|↵|⭲/g, (match: string): string => `${blue}${match}${white}`)
-        )
-
-        status(state, {
-          absolute: true,
-          lastOperandsCount,
-          lastUsedMemory,
-          concat: `${cyan}, ${yellow}c${cyan}ontinue, ${yellow}q${cyan}uit`
-        })
-
-        lastOperandsCount = state.operands.length
-        lastUsedMemory = state.usedMemory
-
-        const step = await replHost.getChar()
-        if (step === 'q') {
-          stop = false
-        }
-      }
-      done = iterator.next().done
-    }
-  } finally {
-    ShareableObject.release(proc)
-  }
+  yield $debug
 }

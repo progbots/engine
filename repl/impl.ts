@@ -1,14 +1,17 @@
-import { getReplHost } from './replHost'
-import { cyan, green, red, white, yellow } from './colors'
+import { IReplHost } from './replHost'
+import { blue, cyan, green, red, white, yellow } from './colors'
 import { hostDictionary } from './host'
 import { createState } from '../factory'
 import { ExitError } from './host/exit'
 import { BaseError } from '../errors/BaseError'
-import { reset, increment } from './cycle'
-import { status } from './status'
+import { memory, status } from './status'
+import { $debug, $load, $state } from './signals'
+import { renderCallStack } from '../state/callstack'
+import { forEach } from './forEach'
+import { formatters } from '../formatters'
+import { InternalValue } from '../state/types'
 
-export async function main (debug: boolean): Promise<void> {
-  const replHost = getReplHost()
+export async function main (replHost: IReplHost, debug: boolean): Promise<void> {
   if (debug) {
     replHost.output(`${green}DEBUG mode enabled${white}`)
   }
@@ -24,17 +27,76 @@ Use '${yellow}state${cyan}' to print a state summary${white}`)
   while (true) {
     const src = await replHost.getInput()
     try {
-      const lastUsedMemory = state.usedMemory
-      reset()
+      let lastOperandsCount = state.operands.length
+      let lastUsedMemory = state.usedMemory
+      let cycle = 0
+      let debugging = false
+
       const iterator = state.parse(src, `repl${replIndex++}`)
-      let { done } = iterator.next()
+      let { done, value } = iterator.next()
       while (done === false) {
-        increment()
-        done = iterator.next().done
+        let nextValue: unknown
+        if (value === $state) {
+          const dictLength = state.dictionaries.length
+          replHost.output(`${cyan}memory: ${yellow}${memory(state)}
+${cyan}dictionaries: ${yellow}${dictLength}${white}`)
+          forEach(state.dictionaries, (value, formattedIndex) => {
+            replHost.output(`${formattedIndex} ${formatters[value.type](value)}`)
+          })
+          replHost.output(`${cyan}operands: ${yellow}${state.operands.length}${white}`)
+          forEach(state.operands, (value, formattedIndex) => {
+            let debugInfo
+            const { sourceFile, sourcePos } = value as InternalValue
+            if (sourceFile === undefined || sourcePos === undefined) {
+              debugInfo = ''
+            } else {
+              debugInfo = ` ${blue}@${sourceFile}(${sourcePos.toString()})${white}`
+            }
+            replHost.output(`${formattedIndex} ${formatters[value.type](value)}${debugInfo}`)
+          })
+        } else if (value === $debug) {
+          debugging = true
+        } else if (value === $load) {
+          const { data } = state.operands.at(0)
+          nextValue = await replHost.getSample(data as string)
+        }
+
+        if (debugging) {
+          replHost.output(renderCallStack(state.calls)
+            .replace(/».*«/g, (match: string): string => `${yellow}${match}${white}`)
+            .replace(/@.*\n/g, (match: string): string => `${blue}${match}${white}`)
+            .replace(/\/!\\.*\n/g, (match: string): string => `${red}${match}${white}`)
+            .replace(/…|↵|⭲/g, (match: string): string => `${blue}${match}${white}`)
+          )
+          replHost.output(status(state, {
+            cycle,
+            absolute: true,
+            lastOperandsCount,
+            lastUsedMemory,
+            concat: `${cyan}, ${yellow}c${cyan}ontinue, ${yellow}q${cyan}uit`
+          }))
+          lastOperandsCount = state.operands.length
+          lastUsedMemory = state.usedMemory
+          const step = await replHost.getChar({
+            c: 'continue',
+            q: 'quit'
+          })
+          if (step === 'q') {
+            debugging = false
+          }
+        }
+
+        ++cycle
+        const next = iterator.next(nextValue)
+        done = next.done
+        value = next.value
       }
-      status(state, {
+      replHost.output(status(state, {
+        cycle,
+        absolute: false,
+        lastOperandsCount,
         lastUsedMemory
-      })
+      }))
     } catch (e) {
       if (e instanceof ExitError) {
         break

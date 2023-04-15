@@ -1,14 +1,12 @@
 import { Value, ValueType } from '../../index'
 import { OperatorFunction } from '../../state/index'
 
-import { colors } from './colors'
 import { debug } from './debug'
 import { exit } from './exit'
 import { load } from './load'
 import { state } from './state'
 
 const hostMethods: Record<string, OperatorFunction> = {
-  colors,
   debug,
   exit,
   load,

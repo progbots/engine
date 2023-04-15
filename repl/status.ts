@@ -1,5 +1,4 @@
 import { IState } from '../index'
-import { current } from './cycle'
 import { blue, cyan, green, red, white, yellow } from './colors'
 
 const bytesScales: Array<{
@@ -28,15 +27,16 @@ export function memory (state: IState): string {
 }
 
 interface StatusOptions {
-  absolute?: boolean
-  lastOperandsCount?: number
-  lastUsedMemory?: number
+  cycle: number
+  absolute: boolean
+  lastOperandsCount: number
+  lastUsedMemory: number
   concat?: string
 }
 
-export function status (state: IState, options: StatusOptions = {}): void {
+export function status (state: IState, options: StatusOptions): string {
   let cycleLabel: string
-  if (options.absolute === true) {
+  if (options.absolute) {
     cycleLabel = 'cycle: #'
   } else {
     cycleLabel = 'cycles: '
@@ -61,12 +61,12 @@ export function status (state: IState, options: StatusOptions = {}): void {
       memoryVariation = ` ${green}-${scaleBytes(lastUsedMemory - currentUsedMemory)}`
     }
   }
-  console.log([
-    `${cyan}${cycleLabel}${yellow}${current()}`,
+  return [
+    `${cyan}${cycleLabel}${yellow}${options.cycle}`,
     `${cyan}, operands: ${yellow}${state.operands.length}${operandsVariation}`,
     `${cyan}, memory: ${yellow}${memory(state)}${memoryVariation}`,
     white,
     options.concat,
     white
-  ].join(''))
+  ].join('')
 }

@@ -4,11 +4,11 @@ import { readSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { blue, cyan, green, magenta, red, white, yellow } from './colors'
 import { main } from './impl'
-import { setReplHost } from './replHost'
+import { IReplHost } from './replHost'
 
 const rl = readline.createInterface({ input, output })
 
-setReplHost({
+const replHost: IReplHost = {
   output (text) {
     console.log(text
       .replaceAll(red, '\x1b[31m')
@@ -34,7 +34,8 @@ setReplHost({
   getSample (name: string) {
     return readFileSync(join('samples', name)).toString()
   }
-})
+}
 
-main(process.argv.includes('--debug'))
+main(replHost, process.argv.includes('--debug'))
+  .then(() => process.exit())
   .catch(reason => console.error(reason))
