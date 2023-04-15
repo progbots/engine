@@ -24,7 +24,18 @@
     },
   
     async getInput () {
-      return prompt('?')
+      return new Promise (resolve => {
+        const input = document.createElement('input')
+        input.setAttribute('type', 'text')
+        document.body.appendChild(input)
+        input.focus()
+        input.addEventListener('keypress', event => {
+          if (event.key === 'Enter') {
+            resolve(input.value)
+            input.setAttribute('readonly', '')
+          }
+        })
+      })
     },
   
     async getChar (options) {
