@@ -7,6 +7,6 @@
     "exclude": [
       "./test-helpers.ts",
       "./**/*.spec.ts",
-      "./repl/**"
+      "./repl/index.ts"
     ]
   }

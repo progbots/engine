@@ -1,6 +1,6 @@
 import { IReplHost } from './replHost'
 import { blue, cyan, green, red, white, yellow } from './colors'
-import { hostDictionary } from './host'
+import { hostDictionary } from './host/index'
 import { createState } from '../factory'
 import { ExitError } from './host/exit'
 import { BaseError } from '../errors/BaseError'
