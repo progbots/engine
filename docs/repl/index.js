@@ -20,10 +20,10 @@
           line.appendChild(span)
         }
       })
-      document.body.appendChild(line)
+      document.body.appendChild(line).scrollIntoView()
     },
   
-    async getInput () {
+    getInput () {
       return new Promise (resolve => {
         const input = document.createElement('input')
         input.setAttribute('type', 'text')
@@ -38,11 +38,20 @@
       })
     },
   
-    async getChar (options) {
+    getChar () {
+      return new Promise(resolve => {
+        window.addEventListener('keypress', event => {
+          resolve(event.key)
+        }, { once: true })
+      })
     },
   
-    getSample (name) {
-      return ''
+    async getSample (name) {
+      const response = await fetch(`../samples/${name}`)
+      if (response.status !== 200) {
+        throw new Error('Sample not found')
+      }
+      return await response.text()
     }
   }
   
