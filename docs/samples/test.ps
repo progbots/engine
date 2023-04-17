@@ -1,0 +1,45 @@
+/describe {
+  dict begin % stack a context dictionary
+
+  /check_name_and_proc {
+    dup type "proctype" neq { typecheck } if
+    1 index type "string" neq { typecheck } if
+  } bind def
+
+  /it {
+    check_name_and_proc
+
+    dict
+      /type "it" set
+      /name 4 -1 roll set
+      /proc 3 -1 roll set
+      
+    content 
+    % add test dict to content
+
+  } bind def
+
+  {
+    check_name_and_proc
+
+    dict begin % stack describe dictionary
+    {
+      /type "describe" def
+      /name 3 -1 roll def
+      /content [] def
+
+      true exch if % execute proc
+    }
+    {
+      end % unstack describe dictionary
+    }
+    finally
+
+    currentdict
+
+  } bind
+  {
+    end % unstack context dictionary
+  } finally
+
+} bind def
