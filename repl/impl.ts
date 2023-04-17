@@ -77,10 +77,7 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
           }))
           lastOperandsCount = state.operands.length
           lastUsedMemory = state.usedMemory
-          const step = await replHost.getChar({
-            c: 'continue',
-            q: 'quit'
-          })
+          const step = await replHost.getChar()
           if (step === 'q') {
             debugging = false
           }
@@ -107,5 +104,6 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
         break
       }
     }
+    replHost.output('${red}terminated.')
   }
 }
