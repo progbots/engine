@@ -1,6 +1,22 @@
 body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   white-space: pre;
+  background-color: black;
+  color: white;
+}
+
+input[type=text] {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  white-space: pre;
+  background-color: black;
+  color: white;
+  border: 1px solid black;
+  outline: none;
+  font-size: initial;
+}
+
+input[type=text]:focus {
+  border: 1px dashed gray;
 }
 
 .blue {
@@ -24,6 +40,7 @@ body {
 }
 
 .white {
+  color: white;
 }
 
 .yellow {
