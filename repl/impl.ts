@@ -104,6 +104,6 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
         break
       }
     }
-    replHost.output('${red}terminated.')
   }
+  replHost.output(`${red}terminated.`)
 }
