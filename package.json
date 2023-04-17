@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest",
     "lint": "ts-standard --fix",
-    "build": "tsc --project tsconfig-build.json && uglifyjs dist/engine.js --compress --mangle -o dist/engine.js",
+    "build": "tsc --project tsconfig-build.json && terser dist/engine.js --compress --keep-fnames --mangle -o dist/engine.js",
     "start": "ts-node repl",
     "build:doc": "npm run build && ncp ./dist/engine.js ./docs/repl/engine.js && ts-node utf8toansii.ts docs/repl/engine.js && ncp ./node_modules/systemjs/dist/s.min.js ./docs/repl/systemjs.js && ncp ./node_modules/systemjs/dist/extras/named-register.min.js ./docs/repl/named-register.js",
     "start:doc": "npm run build:doc && reserve"
@@ -27,11 +27,11 @@
     "ncp": "^2.0.0",
     "reserve": "^1.15.2",
     "systemjs": "^6.14.1",
+    "terser": "^5.16.9",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "ts-standard": "^12.0.2",
-    "typescript": "^5.0.4",
-    "uglify-js": "^3.17.4"
+    "typescript": "^5.0.4"
   },
   "ts-standard": {
     "ignore": [
