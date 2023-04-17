@@ -33,7 +33,7 @@ const replHost: IReplHost = {
   },
 
   getSample (name: string) {
-    return readFileSync(join('samples', name)).toString()
+    return readFileSync(join('doc/samples', name)).toString()
   }
 }
 
