@@ -1,0 +1,46 @@
+/assert_eq 
+{
+  count 2 lt { stackundeflow } if
+
+  dict begin % stack a context dictionary
+
+  {
+    /expected exch def
+    /actual exch def
+
+    /error dict
+      /type "assert_fail"
+      /expected expected set
+      /actual actual set
+    def
+
+    actual type expected type neq
+    {
+      error
+        /message "Not the same type" set
+      throw
+    } if
+
+    % unsupported types (for now)
+    [
+      "arraytype"
+      "dicttype"
+      "proctype"
+      "operatortype"
+    ]
+    expected type 
+    in { typecheck } if
+
+    actual expected neq
+    {
+      error
+        /message "Not equal" set
+      throw
+    } if
+  }
+  {
+    end % unstack context dictionary
+  }
+  finally
+
+} bind def
