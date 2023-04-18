@@ -1,6 +1,16 @@
 /assert_eq 
 {
   count 2 lt { stackundeflow } if
+  
+  % unsupported types (for now)
+  [
+    "arraytype"
+    "dicttype"
+    "proctype"
+    "operatortype"
+  ]
+  1 index type 
+  in { typecheck } if
 
   dict begin % stack a context dictionary
 
@@ -20,16 +30,6 @@
         /message "Not the same type" set
       throw
     } if
-
-    % unsupported types (for now)
-    [
-      "arraytype"
-      "dicttype"
-      "proctype"
-      "operatortype"
-    ]
-    expected type 
-    in { typecheck } if
 
     actual expected neq
     {
