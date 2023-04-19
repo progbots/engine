@@ -85,8 +85,7 @@ export class MemoryTracker {
       if (isString(value)) {
         valueSize += this._addStringRef(value)
       } else if (isShareableObject(value)) {
-        const shareableObject = value.data as unknown as ShareableObject
-        shareableObject.addRef()
+        ShareableObject.addRef(value)
       }
     }
     this.increment(valueSize)
@@ -98,8 +97,7 @@ export class MemoryTracker {
       if (isString(value)) {
         valueSize += this._releaseString(value)
       } else if (isShareableObject(value)) {
-        const shareableObject = value.data as unknown as ShareableObject
-        shareableObject.release()
+        ShareableObject.release(value)
       }
     }
     this.decrement(valueSize)
