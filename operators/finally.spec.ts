@@ -13,7 +13,7 @@ describe('operators/finally', () => {
       expect: '1 3'
     },
     'throws the last error': {
-      src: '{ 1 stackunderflow 2 } { 3 undefined 4 }  finally',
+      src: '{ 1 stackunderflow 2 } { 3 undefined 4 } finally',
       error: Undefined,
       expect: '1 3'
     },
