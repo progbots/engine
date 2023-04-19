@@ -19,33 +19,35 @@ function executeTest (test: TestDescription): void {
     expect: expectedResult
   } = test
   const state = new State()
+  let exceptionCaught: Error | undefined
+  let cyclesCount = 0
   try {
-    const cyclesCount = itLength(state.parse(src))
-    if (expectedCycles !== undefined) {
-      expect(cyclesCount).toStrictEqual(expectedCycles)
-    }
-    expect(expectedError).toBeUndefined()
-    if (typeof expectedResult === 'function') {
-      expectedResult(state)
-    } else if (expectedResult !== undefined) {
-      let expectedOperands
-      if (typeof expectedResult === 'string') {
-        const expectedState = new State()
-        itLength(expectedState.parse(expectedResult))
-        expectedOperands = expectedState.operandsRef
-      } else {
-        expectedOperands = expectedResult
-      }
-      const operands = state.operandsRef
-      expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
-      expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
-    }
+    cyclesCount = itLength(state.parse(src))
   } catch (e) {
-    if (expectedError !== undefined) {
-      expect(e).toBeInstanceOf(expectedError)
-      return
+    exceptionCaught = e as Error
+  }
+  if (expectedCycles !== undefined) {
+    expect(cyclesCount).toStrictEqual(expectedCycles)
+  }
+  if (typeof expectedResult === 'function') {
+    expectedResult(state)
+  } else if (expectedResult !== undefined) {
+    let expectedOperands
+    if (typeof expectedResult === 'string') {
+      const expectedState = new State()
+      itLength(expectedState.parse(expectedResult))
+      expectedOperands = expectedState.operandsRef
+    } else {
+      expectedOperands = expectedResult
     }
-    throw e
+    const operands = state.operandsRef
+    expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
+    expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
+  }
+  if (expectedError === undefined) {
+    expect(exceptionCaught).toBeUndefined()
+  } else {
+    expect(exceptionCaught).toBeInstanceOf(expectedError)
   }
 }
 
