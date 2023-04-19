@@ -17,6 +17,17 @@
 | `end` | ∅ ⇒ ∅ | removes the current dictionary from the top of the [dictionary stack][dictionary stack] |
 | `eq` | any:1 any:2 ⇒ boolean | returns true if the two items are [strictly equal][strict comparison] |
 | `exch` | any:1 any:2 ⇒ any:2 any:1 | swaps the top two items of the [operand stack][operand stack] |
+| `false` | ∅ ⇒ boolean | false |
+| `finally` | proc:safe proc:finally ⇒ ∅ | executes proc:safe and, even if an exception occurs, executes proc:finally |
+| `get` | string integer:pos ⇒ integer | returns the character code at position pos _(0-based)_ in the string|
+|  | array integer:pos ⇒ any | returns the item at position pos _(0-based)_ in the array |
+|  | proc integer:pos ⇒ any | returns the item at position pos _(0-based)_ in the proc |
+|  | dict name:key ⇒ any | returns the value associated to the name key in the dictionary |
+| `globaldict` | ∅ ⇒ dict | returns the global dictionary from the [dictionary stack][dictionary stack] |
+| `if` | boolean proc ⇒ ∅ | executes the proc if the boolean is true |
+| `ifelse` | boolean proc:if proc:else ⇒ ∅ | depending on the boolean value, executes either the proc:if or the proc:else |
+| `index` | integer ⇒ any | get an item from the [operand stack][operand stack] based on its index (0-based) |
+
 
 [dictionary stack]: https://github.com/progbots/engine/blob/main/docs/README.md
 [operand stack]: https://github.com/progbots/engine/blob/main/docs/README.md
