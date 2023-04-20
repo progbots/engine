@@ -1,4 +1,4 @@
-import { Value, ValueType } from '../index'
+import { IDictionary, Value, ValueType } from '../index'
 import { IWritableDictionary } from '../objects/dictionaries/index'
 import { InternalValue } from '../state/index'
 
@@ -13,6 +13,12 @@ export class BaseError extends Error implements IWritableDictionary {
     super(message)
     this.name = this.constructor.name
   }
+
+  get dictionary (): IDictionary {
+    return this
+  }
+
+  release (): void {}
 
   private _callstack: string = ''
 
