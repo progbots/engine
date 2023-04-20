@@ -10,6 +10,7 @@ import { renderCallStack } from '../state/callstack'
 import { forEach } from './forEach'
 import { formatters } from '../formatters'
 import { InternalValue } from '../state/types'
+import { Custom } from '../errors/Custom'
 
 export async function main (replHost: IReplHost, debug: boolean): Promise<void> {
   if (debug) {
@@ -99,6 +100,7 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
         break
       } else if (e instanceof BaseError) {
         replHost.output(`${red}/!\\ ${e.name}: ${e.message}\n${e.callstack}`)
+        e.release()
       } else {
         replHost.output(`${red}${(e as Error).toString()}`)
         break
