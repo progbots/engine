@@ -20,6 +20,12 @@ describe('operators/catch', () => {
       error: Undefined,
       expect: '1 "StackUnderflow" 3'
     },
+    'does not catch non managed exceptions': {
+      skip: true,
+      // Need to create a host specific function that generates a non managed exception
+      src: '',
+      expect: ''
+    },
     'fails with StackUnderflow on a stack with only one proc': {
       src: '{ } catch',
       error: StackUnderflow

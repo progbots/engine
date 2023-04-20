@@ -15,10 +15,13 @@ export function * catchOp (state: State): Generator {
     if (e instanceof BaseError) {
       state.push({
         type: ValueType.dict,
-        data: e as IDictionary
+        data: e.dictionary
       })
+      yield * state.eval(procCatch)
+    } else {
+      // Any other error is incompatible with the engine
+      throw e
     }
-    yield * state.eval(procCatch)
   } finally {
     ShareableObject.release([proc, procCatch])
   }
