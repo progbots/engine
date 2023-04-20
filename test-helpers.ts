@@ -1,5 +1,5 @@
-import { Value } from './index'
-import { State } from './state/index'
+import { IDictionary, Value, ValueType } from './index'
+import { OperatorFunction, State } from './state/index'
 import { length as itLength } from './iterators'
 import { BaseError } from './errors/BaseError'
 
@@ -10,6 +10,8 @@ interface TestDescription {
   cycles?: number // default to 1
   error?: Function // Subclass of BaseError
   expect?: Value[] | string | ((state: State) => void)
+  host?: Record<string, OperatorFunction>
+  cleanBeforeCheckingForLeaks?: string
 }
 
 function executeTest (test: TestDescription): void {
@@ -17,9 +19,33 @@ function executeTest (test: TestDescription): void {
     src,
     cycles: expectedCycles,
     error: expectedError,
-    expect: expectedResult
+    expect: expectedResult,
+    host,
+    cleanBeforeCheckingForLeaks
   } = test
-  const state = new State()
+  let hostDictionary: IDictionary | undefined
+  if (host !== undefined) {
+    hostDictionary = {
+      get names () {
+        return Object.keys(host)
+      },
+
+      lookup (name: string): Value | null {
+        const operator = host[name]
+        if (operator === undefined) {
+          return null
+        }
+        return {
+          type: ValueType.operator,
+          data: operator
+        }
+      }
+    }
+  }
+  const state = new State({
+    hostDictionary
+  })
+  const initialMemory = state.usedMemory
   let exceptionCaught: Error | undefined
   let cyclesCount = 0
   try {
@@ -53,6 +79,12 @@ function executeTest (test: TestDescription): void {
   if (exceptionCaught !== undefined && exceptionCaught instanceof BaseError) {
     exceptionCaught.release()
   }
+  if (cleanBeforeCheckingForLeaks !== undefined) {
+    itLength(state.parse(cleanBeforeCheckingForLeaks))
+  }
+  itLength(state.parse('clear'))
+  const finalMemory = state.usedMemory
+  expect(finalMemory).toStrictEqual(initialMemory)
 }
 
 export function executeTests (tests: Record<string, TestDescription | TestDescription[]>): void {

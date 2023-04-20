@@ -6,7 +6,7 @@ describe('operators/dictstack', () => {
       src: 'dictstack length',
       expect: '2'
     }, {
-      src: '/test 42 def dictstack 0 get /test get',
+      src: 'dict begin /test 42 def dictstack 0 get /test get end',
       expect: '42'
     }, {
       src: 'dictstack 1 get',

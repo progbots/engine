@@ -8,7 +8,8 @@ describe('operators/open-proc ({)', () => {
       expect: [{
         type: ValueType.mark,
         data: null
-      }]
+      }],
+      cleanBeforeCheckingForLeaks: '}'
     },
     'prevents call execution': {
       src: '{ add',
@@ -18,7 +19,26 @@ describe('operators/open-proc ({)', () => {
       }, {
         type: ValueType.mark,
         data: null
-      }]
+      }],
+      cleanBeforeCheckingForLeaks: '}'
+    },
+    'prevents call execution (recursive)': {
+      src: '{ add { dup } sub ',
+      expect: [{
+        type: ValueType.call,
+        data: 'sub'
+      }, {
+        type: ValueType.proc,
+        data: expect.anything() // Not relevant here
+      }, {
+        type: ValueType.call,
+        data: 'add'
+      }, {
+        type: ValueType.mark,
+        data: null
+      }],
+      cleanBeforeCheckingForLeaks: '}'
     }
+
   })
 })
