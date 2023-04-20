@@ -1,5 +1,8 @@
 import { StackUnderflow, TypeCheck, Undefined } from '../errors/index'
+import { State } from '../state/index'
 import { executeTests } from '../test-helpers'
+
+class Fail extends Error {}
 
 describe('operators/catch', () => {
   executeTests({
@@ -21,10 +24,14 @@ describe('operators/catch', () => {
       expect: '1 "StackUnderflow" 3'
     },
     'does not catch non managed exceptions': {
-      skip: true,
-      // Need to create a host specific function that generates a non managed exception
-      src: '',
-      expect: ''
+      host: {
+        fail: function * (state: State): Generator {
+          throw new Fail()
+        }
+      },
+      src: '{ 1 fail } { pop 2 } catch',
+      error: Fail,
+      expect: '1'
     },
     'fails with StackUnderflow on a stack with only one proc': {
       src: '{ } catch',

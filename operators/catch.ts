@@ -1,5 +1,5 @@
 import { State } from '../state/index'
-import { IDictionary, ValueType } from '../index'
+import { ValueType } from '../index'
 import { checkOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
 import { BaseError } from '../errors/BaseError'
@@ -17,6 +17,7 @@ export function * catchOp (state: State): Generator {
         type: ValueType.dict,
         data: e.dictionary
       })
+      e.release()
       yield * state.eval(procCatch)
     } else {
       // Any other error is incompatible with the engine
