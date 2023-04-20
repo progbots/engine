@@ -10,7 +10,6 @@ import { renderCallStack } from '../state/callstack'
 import { forEach } from './forEach'
 import { formatters } from '../formatters'
 import { InternalValue } from '../state/types'
-import { Custom } from '../errors/Custom'
 
 export async function main (replHost: IReplHost, debug: boolean): Promise<void> {
   if (debug) {
