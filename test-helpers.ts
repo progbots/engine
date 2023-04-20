@@ -1,6 +1,7 @@
 import { Value } from './index'
 import { State } from './state/index'
 import { length as itLength } from './iterators'
+import { BaseError } from './errors/BaseError'
 
 interface TestDescription {
   skip?: boolean
@@ -48,6 +49,9 @@ function executeTest (test: TestDescription): void {
     expect(exceptionCaught).toBeUndefined()
   } else {
     expect(exceptionCaught).toBeInstanceOf(expectedError)
+  }
+  if (exceptionCaught !== undefined && exceptionCaught instanceof BaseError) {
+    exceptionCaught.release()
   }
 }
 
