@@ -57,7 +57,11 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
           debugging = true
         } else if (value === $load) {
           const { data } = state.operands.at(0)
-          nextValue = await replHost.getSample(data as string)
+          try {
+            nextValue = await replHost.getSample(data as string)
+          } catch (e) {
+            nextValue = e
+          }
         }
 
         if (debugging) {
