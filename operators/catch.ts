@@ -2,7 +2,7 @@ import { State } from '../state/index'
 import { ValueType } from '../index'
 import { checkOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
-import { BaseError } from '../errors/BaseError'
+import { InternalError } from '../errors/InternalError'
 
 export function * catchOp (state: State): Generator {
   const [procCatch, proc] = checkOperands(state, ValueType.proc, ValueType.proc)
@@ -12,7 +12,7 @@ export function * catchOp (state: State): Generator {
     state.pop()
     yield * state.eval(proc)
   } catch (e) {
-    if (e instanceof BaseError) {
+    if (e instanceof InternalError) {
       state.push({
         type: ValueType.dict,
         data: e.dictionary

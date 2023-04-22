@@ -18,7 +18,7 @@ describe('operators/catch', () => {
       src: '{ 1 undefined 2 } { begin type name end } catch',
       expect: '1 "system" "Undefined"'
     },
-    'throws the error in the catch proc': {
+    'enables to throw an error in the catch proc': {
       src: '{ 1 stackunderflow 2 } { /name get 3 undefined 4 } catch',
       error: Undefined,
       expect: '1 "StackUnderflow" 3'
