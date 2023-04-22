@@ -97,8 +97,16 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
     } catch (e) {
       if (e instanceof ExitError) {
         break
+      } else if (!(e instanceof Error)) {
+        replHost.output(`${red}(X) Unknown error`)
       } else {
-        replHost.output(`${red}/!\\ ${(e as Error).toString()}`)
+        const firstLine = e.toString()
+        replHost.output(`${red}/!\\ ${firstLine}`)
+        e.stack?.split('\n').forEach((line: string, index: number) => {
+          if (index !== 0 || line !== firstLine) {
+            replHost.output(`${red}${line}`)
+          }
+        })
       }
     }
   }
