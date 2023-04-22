@@ -3,7 +3,7 @@ import { blue, cyan, green, red, white, yellow } from './colors'
 import { hostDictionary } from './host/index'
 import { createState } from '../factory'
 import { ExitError } from './host/exit'
-import { BaseError } from '../errors/BaseError'
+import { InternalError } from '../errors/InternalError'
 import { memory, status } from './status'
 import { $debug, $load, $state } from './signals'
 import { renderCallStack } from '../state/callstack'
@@ -97,11 +97,8 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
     } catch (e) {
       if (e instanceof ExitError) {
         break
-      } else if (e instanceof BaseError) {
-        replHost.output(`${red}/!\\ ${e.name}: ${e.message}\n${e.callstack}`)
-        e.release()
       } else {
-        replHost.output(`${red}${(e as Error).toString()}`)
+        replHost.output(`${red}/!\\ ${(e as Error).toString()}`)
         break
       }
     }
