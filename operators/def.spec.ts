@@ -4,7 +4,7 @@ import { executeTests } from '../test-helpers'
 describe('operators/def', () => {
   executeTests({
     'sets a value on the top dictionary': {
-      src: 'dict begin /test 42 def test end',
+      src: 'dict begin "test" 42 def test end',
       expect: '42'
     },
     'fails with StackUnderflow on empty stack': {

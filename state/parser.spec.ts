@@ -23,10 +23,6 @@ describe('state/parser', () => {
       type: ValueType.string,
       data: 'a'
     },
-    '/add': {
-      type: ValueType.name,
-      data: 'add'
-    },
     '[': {
       type: ValueType.call,
       data: '['
@@ -47,16 +43,8 @@ describe('state/parser', () => {
       type: ValueType.call,
       data: '\'123'
     },
-    '/\'123': {
-      type: ValueType.name,
-      data: '\'123'
-    },
     ',': {
       type: ValueType.call,
-      data: ','
-    },
-    '/,': {
-      type: ValueType.name,
       data: ','
     }
   }

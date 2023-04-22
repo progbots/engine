@@ -15,10 +15,6 @@ describe('operators/type', () => {
       src: '"string" type',
       expect: '"stringtype"'
     },
-    'gives type of a name': {
-      src: '/add type',
-      expect: '"nametype"'
-    },
     'gives type of a call': {
       src: '{ add } 0 get type',
       expect: '"calltype"'

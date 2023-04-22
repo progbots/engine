@@ -1,7 +1,7 @@
 import { RangeCheck, StackUnderflow, TypeCheck, Undefined } from '../errors/index'
 import { executeTests } from '../test-helpers'
 
-describe('operators/errors/index', () => {
+describe('operators/errors', () => {
   executeTests({
     'it throws RangeCheck': {
       src: 'rangecheck',

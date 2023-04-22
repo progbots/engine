@@ -2,7 +2,6 @@ export enum ValueType {
   boolean = 'booleantype',
   integer = 'integertype',
   string = 'stringtype',
-  name = 'nametype',
   call = 'calltype',
   operator = 'operatortype',
   mark = 'marktype',
@@ -30,7 +29,7 @@ export interface Value {
   readonly data: null // mark
   | boolean // boolean
   | number // integer
-  | string // string, name, call
+  | string // string, call
   | IOperator // operator
   | IArray // array, proc
   | IDictionary // dict

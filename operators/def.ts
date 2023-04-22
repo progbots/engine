@@ -4,7 +4,7 @@ import { State } from '../state/index'
 import { checkOperands } from './operands'
 
 export function * def (state: State): Generator {
-  const [value, name] = checkOperands(state, null, ValueType.name)
+  const [value, name] = checkOperands(state, null, ValueType.string)
   const [{ data: top }] = state.dictionariesRef
   const topDict = top as IDictionary
   checkIWritableDictionary(topDict)

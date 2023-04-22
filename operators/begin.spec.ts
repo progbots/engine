@@ -8,7 +8,7 @@ describe('operators/begin', () => {
       expect: '3'
     },
     'updates the evaluation context': {
-      src: 'dict /test "hello" set begin test end',
+      src: 'dict "test" "hello" set begin test end',
       expect: '"hello"'
     },
     'fails with StackUnderflow on empty stack': {

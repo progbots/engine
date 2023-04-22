@@ -47,7 +47,7 @@ const setters: Record<string, (state: State) => InternalValue> = {
 
   [ValueType.dict]: (state: State): InternalValue => {
     const [value, index, container] = state.operandsRef
-    if (index.type !== ValueType.name) {
+    if (index.type !== ValueType.string) {
       throw new TypeCheck()
     }
     const name = index.data as string

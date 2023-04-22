@@ -19,7 +19,7 @@ describe('operators/catch', () => {
       expect: '1 "system" "Undefined"'
     },
     'enables to throw an error in the catch proc': {
-      src: '{ 1 stackunderflow 2 } { /name get 3 undefined 4 } catch',
+      src: '{ 1 stackunderflow 2 } { "name" get 3 undefined 4 } catch',
       error: Undefined,
       expect: '1 "StackUnderflow" 3'
     },

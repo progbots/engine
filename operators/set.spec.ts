@@ -12,7 +12,7 @@ describe('operators/set', () => {
       expect: '"aBc"'
     },
     'sets item in a dictionary': {
-      src: 'dict /test 42 set /test get',
+      src: 'dict "test" 42 set "test" get',
       expect: '42'
     },
     'fails with StackUnderflow on empty stack': {
@@ -27,7 +27,7 @@ describe('operators/set', () => {
       error: StackUnderflow
     }],
     'fails with TypeCheck if container is an array but index is not an integer': {
-      src: '[1] /test 0 set',
+      src: '[1] "test" 0 set',
       error: TypeCheck
     },
     'fails with RangeCheck if container is an array and index is out of range': [{

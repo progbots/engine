@@ -34,7 +34,6 @@ const renderers: Record<ValueType, (value: Value, step: number | undefined) => s
     }
     return stringify(text)
   },
-  [ValueType.name]: unexpected,
   [ValueType.call]: (value: Value): string => formatters[value.type](value),
   [ValueType.operator]: (value: Value, step: number | undefined): string => {
     const base = formatters[value.type](value)

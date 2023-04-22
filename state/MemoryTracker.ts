@@ -12,7 +12,6 @@ const stringSizer = (data: string): number => {
 function isString (value: Value): boolean {
   return [
     ValueType.string,
-    ValueType.name,
     ValueType.call
   ].includes(value.type)
 }

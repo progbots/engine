@@ -4,12 +4,12 @@ import { executeTests } from '../test-helpers'
 describe('operators/bind', () => {
   executeTests({
     'replaces proc calls with their callees': {
-      src: '{ true [ 42 ] /unchanged } bind aload',
-      expect: `systemdict /true get
-               systemdict /[ get
+      src: '{ true [ 42 ] "unchanged" } bind aload',
+      expect: `systemdict "true" get
+               systemdict "[" get
                42
-               systemdict /] get
-               /unchanged
+               systemdict "]" get
+               "unchanged"
               `
     },
     'replaces proc recursively': {
@@ -18,9 +18,9 @@ describe('operators/bind', () => {
             3 1 roll aload
             3 1 roll
            `,
-      expect: `systemdict /true get
-               systemdict /false get
-               systemdict /ifelse get
+      expect: `systemdict "true" get
+               systemdict "false" get
+               systemdict "ifelse" get
               `
     },
     'should not fail if a call cannot be bound yet': {

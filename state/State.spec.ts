@@ -5,7 +5,7 @@ import { InternalError } from '../errors/InternalError'
 import { length as itLength } from '../iterators'
 import { add } from '../operators'
 
-describe('state/state/index', () => {
+describe('state/State', () => {
   describe('stack management', () => {
     describe('happy path', () => {
       it('starts with an empty stack', () => {
@@ -164,7 +164,7 @@ describe('state/state/index', () => {
 
     it('allows proc definition and execution', () => {
       const state = new State()
-      expect(itLength(state.parse('/test { 2 3 add } def test'))).toStrictEqual(25)
+      expect(itLength(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(25)
       expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 5
@@ -173,7 +173,7 @@ describe('state/state/index', () => {
 
     it('controls call execution', () => {
       const state = new State()
-      itLength(state.parse('/test { { 1 } } def test'))
+      itLength(state.parse('"test" { { 1 } } def test'))
       expect(state.operandsRef.length).toStrictEqual(1)
       expect(state.operandsRef[0].type).toStrictEqual(ValueType.proc)
     })

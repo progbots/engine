@@ -20,7 +20,7 @@ describe('operators/if', () => {
       error: StackUnderflow
     },
     'fails with TypeCheck if boolean is there but not the proc': {
-      src: 'true /test if',
+      src: 'true "test" if',
       error: TypeCheck
     },
     'fails with TypeCheck if proc is there but not the boolean': {

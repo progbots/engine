@@ -8,8 +8,8 @@ describe('operators/aload', () => {
       expect: '1 2 3'
     },
     'pushes all the element of the proc': {
-      src: '{ 1 2 /add } aload',
-      expect: '1 2 /add'
+      src: '{ 1 2 "add" } aload',
+      expect: '1 2 "add"'
     },
     'fails with StackUnderflow on an empty stack': {
       src: 'aload',
