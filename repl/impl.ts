@@ -99,7 +99,6 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
         break
       } else {
         replHost.output(`${red}/!\\ ${(e as Error).toString()}`)
-        break
       }
     }
   }
