@@ -1,7 +1,7 @@
 import { State } from './index'
 import { Value, ValueType } from '../index'
 import { InvalidBreak, StackUnderflow, Undefined } from '../errors/index'
-import { BaseError } from '../errors/BaseError'
+import { InternalError } from '../errors/InternalError'
 import { length as itLength } from '../iterators'
 import { add } from '../operators'
 
@@ -214,6 +214,36 @@ describe('state/state/index', () => {
     })
   })
 
+  describe('exception handling', () => {
+    it('does not expose internal error type', () => {
+      const state = new State()
+      let exceptionCaught: Error | undefined
+      try {
+        itLength(state.parse('typecheck'))
+      } catch (e) {
+        expect(e).toBeInstanceOf(Error)
+        expect(e).not.toBeInstanceOf(InternalError)
+        exceptionCaught = e as Error
+        expect((e as Error).name).toStrictEqual('TypeCheck')
+      }
+      expect(exceptionCaught).not.toBeUndefined()
+    })
+
+    it('adds the call stack to the exception', () => {
+      const state = new State()
+      let exceptionCaught: Error | undefined
+      try {
+        itLength(state.parse('typecheck'))
+      } catch (e) {
+        exceptionCaught = e as Error
+      }
+      if (exceptionCaught === undefined) {
+        throw new Error('No exception thrown')
+      }
+      expect(exceptionCaught.stack).toStrictEqual('-typecheck-\ntypecheck\n"»typecheck«"')
+    })
+  })
+
   describe('break and invalid break', () => {
     it('signals an invalid use of break (eval)', () => {
       const state = new State()
@@ -225,24 +255,14 @@ describe('state/state/index', () => {
 
     it('signals an invalid use of break (parse)', () => {
       const state = new State()
-      expect(() => itLength(state.parse('break'))).toThrowError(InvalidBreak)
-    })
-  })
-
-  describe('exception handling', () => {
-    it('adds the call stack to the exception', () => {
-      const state = new State()
-      let exceptionCaught: BaseError | undefined
+      let exceptionCaught: Error | undefined
       try {
-        itLength(state.parse('typecheck'))
+        itLength(state.parse('break'))
       } catch (e) {
-        expect(e).toBeInstanceOf(BaseError)
-        exceptionCaught = e as BaseError
+        exceptionCaught = e as Error
+        expect(exceptionCaught.name).toStrictEqual('InvalidBreak')
       }
-      if (exceptionCaught === undefined) {
-        throw new Error('No exception thrown')
-      }
-      expect(exceptionCaught.callstack).toStrictEqual('-typecheck-\ntypecheck\n"»typecheck«"')
+      expect(exceptionCaught).not.toBeUndefined()
     })
   })
 })

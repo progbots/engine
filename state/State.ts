@@ -5,7 +5,7 @@ import { Stack } from '../objects/Stack'
 import { MemoryTracker } from './MemoryTracker'
 import { Dictionary, SystemDictionary } from '../objects/dictionaries/index'
 import { HostDictionary } from '../objects/dictionaries/Host'
-import { BaseError } from '../errors/BaseError'
+import { InternalError } from '../errors/InternalError'
 import { renderCallStack } from './callstack'
 
 export class State implements IState {
@@ -59,10 +59,22 @@ export class State implements IState {
   }
 
   * parse (source: string, sourceFile?: string): Generator {
-    if (this._calls.length !== 0) {
-      throw new BusyParsing()
+    try {
+      if (this._calls.length !== 0) {
+        throw new BusyParsing()
+      }
+      yield * this.innerParse(source, sourceFile)
+    } catch (e) {
+      // No internal error should go out because memory cannot be controlled (and they are not documented)
+      if (e instanceof InternalError) {
+        const ex = new Error(e.message)
+        ex.name = e.name
+        ex.stack = e.callstack
+        e.release()
+        throw ex
+      }
+      throw e
     }
-    yield * this.innerParse(source, sourceFile)
   }
 
   // endregion IState
@@ -142,7 +154,7 @@ export class State implements IState {
     try {
       yield * call.apply(this)
     } catch (e) {
-      if (e instanceof BaseError) {
+      if (e instanceof InternalError) {
         e.callstack = renderCallStack(this.calls)
       }
       throw e
