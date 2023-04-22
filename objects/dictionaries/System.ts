@@ -1,10 +1,8 @@
-import { Value, ValueType } from '../../index'
+import { Value, ValueType, IDictionary } from '../../index'
 import { ShareableObject } from '../ShareableObject'
-import { InvalidAccess } from '../../errors/index'
 import { OperatorFunction } from '../../state/index'
 import * as operatorFunctions from '../../operators/index'
 import * as errorFunctions from '../../operators/errors'
-import { IWritableDictionary } from './types'
 
 const operators: Record<string, OperatorFunction> = {}
 
@@ -15,8 +13,8 @@ Object.values(errorFunctions.default).forEach(operator => {
   operators[operator.name] = operator
 })
 
-export class SystemDictionary extends ShareableObject implements IWritableDictionary {
-  // region IWritableDictionary
+export class SystemDictionary extends ShareableObject implements IDictionary {
+  // region IDictionary
 
   get names (): string [] {
     return Object.keys(operators)
@@ -33,11 +31,7 @@ export class SystemDictionary extends ShareableObject implements IWritableDictio
     }
   }
 
-  def (name: string, value: Value): void {
-    throw new InvalidAccess()
-  }
-
-  // endregion IWritableDictionary
+  // endregion IDictionary
 
   protected _dispose (): void {}
 }

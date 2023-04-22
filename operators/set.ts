@@ -1,10 +1,10 @@
-import { ValueType } from '../index'
+import { ValueType, IDictionary } from '../index'
 import { RangeCheck, TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
 import { checkOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
-import { IWritableDictionary } from '../objects/dictionaries/index'
+import { checkIWritableDictionary } from '../objects/dictionaries/index'
 
 const setters: Record<string, (state: State) => InternalValue> = {
   [ValueType.string]: (state: State): InternalValue => {
@@ -51,7 +51,8 @@ const setters: Record<string, (state: State) => InternalValue> = {
       throw new TypeCheck()
     }
     const name = index.data as string
-    const iDict = container.data as IWritableDictionary
+    const iDict = container.data as IDictionary
+    checkIWritableDictionary(iDict)
     iDict.def(name, value)
     return container
   }

@@ -1,10 +1,8 @@
 import { ShareableObject } from '../ShareableObject'
-import { IWritableDictionary } from './types'
 import { IDictionary, Value } from '../../index'
-import { InvalidAccess } from '../../errors/index'
 
-export class HostDictionary extends ShareableObject implements IWritableDictionary {
-  // region IWritableDictionary
+export class HostDictionary extends ShareableObject implements IDictionary {
+  // region IDictionary
 
   get names (): string [] {
     return this._hostDictionary.names
@@ -14,11 +12,7 @@ export class HostDictionary extends ShareableObject implements IWritableDictiona
     return this._hostDictionary.lookup(name)
   }
 
-  def (name: string, value: Value): void {
-    throw new InvalidAccess()
-  }
-
-  // endregion IWritableDictionary
+  // endregion IDictionary
 
   constructor (
     private readonly _hostDictionary: IDictionary

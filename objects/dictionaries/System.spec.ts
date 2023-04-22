@@ -2,15 +2,13 @@ import { SystemDictionary } from './System'
 import { ValueType } from '../../index'
 import { InvalidAccess } from '../../errors/index'
 import { add, index, sub } from '../../operators'
+import { checkIWritableDictionary } from './types'
 
 describe('objects/dictionaries/System', () => {
   const context = new SystemDictionary()
 
   it('is read-only', () => {
-    expect(() => context.def('test', {
-      type: ValueType.integer,
-      data: 1
-    })).toThrowError(InvalidAccess)
+    expect(() => checkIWritableDictionary(context)).toThrowError(InvalidAccess)
   })
 
   it('returns null on unknown name', () => {
