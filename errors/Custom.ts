@@ -2,9 +2,9 @@ import { IDictionary, Value, ValueType } from '../index'
 import { ShareableObject } from '../objects/ShareableObject'
 import { IWritableDictionary } from '../objects/dictionaries'
 import { InternalValue } from '../state/index'
-import { BaseError } from './BaseError'
+import { InternalError } from './InternalError'
 
-export class Custom extends BaseError {
+export class Custom extends InternalError {
   constructor (
     private readonly _dictionary: IWritableDictionary
   ) {

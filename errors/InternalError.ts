@@ -8,7 +8,7 @@ export function setInvalidAccess (InvalidAccess: typeof _InvalidAccess): void {
   _InvalidAccess = InvalidAccess
 }
 
-export class BaseError extends Error implements IWritableDictionary {
+export class InternalError extends Error implements IWritableDictionary {
   constructor (message: string) {
     super(message)
     this.name = this.constructor.name
