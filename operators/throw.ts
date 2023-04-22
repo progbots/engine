@@ -5,7 +5,7 @@ import { ShareableObject } from '../objects/ShareableObject'
 import { TypeCheck } from '../errors'
 import { IWritableDictionary } from '../objects/dictionaries'
 import { Custom } from '../errors/Custom'
-import { BaseError } from '../errors/BaseError'
+import { InternalError } from '../errors/InternalError'
 
 export function * throwOp (state: State): Generator {
   const [dictValue] = checkOperands(state, ValueType.dict)
@@ -16,7 +16,7 @@ export function * throwOp (state: State): Generator {
   }
   ShareableObject.addRef(dictValue)
   state.pop()
-  if (dict instanceof BaseError) {
+  if (dict instanceof InternalError) {
     throw dict
   }
   throw new Custom(dict)
