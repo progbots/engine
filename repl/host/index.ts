@@ -5,12 +5,14 @@ import { debug } from './debug'
 import { exit } from './exit'
 import { load } from './load'
 import { state } from './state'
+import { error } from './error'
 
 const hostMethods: Record<string, OperatorFunction> = {
   debug,
   exit,
   load,
-  state
+  state,
+  error
 }
 
 export const hostDictionary = {
