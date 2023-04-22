@@ -1,14 +1,14 @@
 import { IDictionary, Value, ValueType } from './index'
 import { OperatorFunction, State } from './state/index'
 import { length as itLength } from './iterators'
-import { BaseError } from './errors/BaseError'
+import { InternalError } from './errors/InternalError'
 
 interface TestDescription {
   skip?: boolean
   only?: boolean
   src: string
   cycles?: number // default to 1
-  error?: Function // Subclass of BaseError
+  error?: Function // Subclass of InternalError
   expect?: Value[] | string | ((state: State) => void)
   host?: Record<string, OperatorFunction>
   cleanBeforeCheckingForLeaks?: string
@@ -18,7 +18,7 @@ function executeTest (test: TestDescription): void {
   const {
     src,
     cycles: expectedCycles,
-    error: expectedError,
+    error: expectedErrorClass,
     expect: expectedResult,
     host,
     cleanBeforeCheckingForLeaks
@@ -71,13 +71,16 @@ function executeTest (test: TestDescription): void {
     expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
     expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
   }
-  if (expectedError === undefined) {
+  if (expectedErrorClass === undefined) {
     expect(exceptionCaught).toBeUndefined()
+  } else if (exceptionCaught === undefined) {
+    expect(exceptionCaught).not.toBeUndefined()
+  } else if (expectedErrorClass.prototype instanceof InternalError) {
+    expect(exceptionCaught).toBeInstanceOf(Error)
+    const { name } = expectedErrorClass
+    expect(exceptionCaught.name).toStrictEqual(name)
   } else {
-    expect(exceptionCaught).toBeInstanceOf(expectedError)
-  }
-  if (exceptionCaught !== undefined && exceptionCaught instanceof BaseError) {
-    exceptionCaught.release()
+    expect(exceptionCaught).toBeInstanceOf(expectedErrorClass)
   }
   if (cleanBeforeCheckingForLeaks !== undefined) {
     itLength(state.parse(cleanBeforeCheckingForLeaks))
