@@ -1,6 +1,6 @@
-import { BaseError } from './BaseError'
+import { InternalError } from './InternalError'
 
-export class TypeCheck extends BaseError {
+export class TypeCheck extends InternalError {
   constructor () {
     super('operand is of the wrong type')
   }

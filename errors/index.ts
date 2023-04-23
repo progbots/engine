@@ -1,5 +1,5 @@
 import { InvalidAccess } from './InvalidAccess'
-import { setInvalidAccess } from './BaseError'
+import { setInvalidAccess } from './InternalError'
 
 export * from './Break'
 export * from './BusyParsing'

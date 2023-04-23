@@ -1,6 +1,4 @@
-import { Value, ValueType } from '../index'
-import { IWritableDictionary } from '../objects/dictionaries/index'
-import { InternalValue } from '../state/index'
+import { IDictionary, Value, ValueType } from '../index'
 
 let _InvalidAccess: new () => Error
 
@@ -8,11 +6,17 @@ export function setInvalidAccess (InvalidAccess: typeof _InvalidAccess): void {
   _InvalidAccess = InvalidAccess
 }
 
-export class BaseError extends Error implements IWritableDictionary {
+export class InternalError extends Error implements IDictionary {
   constructor (message: string) {
     super(message)
     this.name = this.constructor.name
   }
+
+  get dictionary (): IDictionary {
+    return this
+  }
+
+  release (): void {}
 
   private _callstack: string = ''
 
@@ -29,7 +33,7 @@ export class BaseError extends Error implements IWritableDictionary {
     }
   }
 
-  // region IWritableDictionary
+  // region IDictionary
 
   get names (): string[] {
     return ['type', 'name', 'message', 'stack']
@@ -55,9 +59,5 @@ export class BaseError extends Error implements IWritableDictionary {
     return null
   }
 
-  def (name: string, value: InternalValue): void {
-    throw new _InvalidAccess()
-  }
-
-  // endregion IWritableDictionary
+  // endregion IDictionary
 }

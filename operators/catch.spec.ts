@@ -1,5 +1,8 @@
 import { StackUnderflow, TypeCheck, Undefined } from '../errors/index'
+import { State } from '../state/index'
 import { executeTests } from '../test-helpers'
+
+class Fail extends Error {}
 
 describe('operators/catch', () => {
   executeTests({
@@ -15,10 +18,20 @@ describe('operators/catch', () => {
       src: '{ 1 undefined 2 } { begin type name end } catch',
       expect: '1 "system" "Undefined"'
     },
-    'throws the error in the catch proc': {
-      src: '{ 1 stackunderflow 2 } { /name get 3 undefined 4 } catch',
+    'enables to throw an error in the catch proc': {
+      src: '{ 1 stackunderflow 2 } { "name" get 3 undefined 4 } catch',
       error: Undefined,
       expect: '1 "StackUnderflow" 3'
+    },
+    'does not catch non managed exceptions': {
+      host: {
+        fail: function * (state: State): Generator {
+          throw new Fail()
+        }
+      },
+      src: '{ 1 fail } { pop 2 } catch',
+      error: Fail,
+      expect: '1'
     },
     'fails with StackUnderflow on a stack with only one proc': {
       src: '{ } catch',

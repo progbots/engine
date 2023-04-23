@@ -1,20 +1,11 @@
-import { ValueType } from '../index'
 import { StackUnderflow, TypeCheck } from '../errors/index'
-import { State } from '../state/index'
 import { executeTests } from '../test-helpers'
 
 describe('operators/def', () => {
   executeTests({
     'sets a value on the top dictionary': {
-      src: '/test 1 def',
-      expect: (state: State) => {
-        expect(state.operandsRef.length).toStrictEqual(0)
-        expect(state.lookup('test')).toStrictEqual({
-          type: ValueType.integer,
-          data: 1
-        })
-        expect(state.globaldict.names).toStrictEqual(['test'])
-      }
+      src: 'dict begin "test" 42 def test end',
+      expect: '42'
     },
     'fails with StackUnderflow on empty stack': {
       src: 'def',

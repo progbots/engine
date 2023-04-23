@@ -1,4 +1,4 @@
-/assert_eq 
+"assert_eq"
 {
   count 2 lt { stackundeflow } if
   
@@ -15,26 +15,26 @@
   dict begin % stack a context dictionary
 
   {
-    /expected exch def
-    /actual exch def
+    "expected" exch def
+    "actual" exch def
 
-    /error dict
-      /type "assert_fail" set
-      /expected expected set
-      /actual actual set
+    "error" dict
+      "type" "assert_fail" set
+      "expected" expected set
+      "actual" actual set
     def
 
     actual type expected type neq
     {
       error
-        /message "Not the same type" set
+        "message" "Not the same type" set
       throw
     } if
 
     actual expected neq
     {
       error
-        /message "Not equal" set
+        "message" "Not equal" set
       throw
     } if
   }

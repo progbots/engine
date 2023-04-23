@@ -1,6 +1,6 @@
-import { BaseError } from './BaseError'
+import { InternalError } from './InternalError'
 
-export class VMError extends BaseError {
+export class VMError extends InternalError {
   constructor () {
     super('virtual memory full')
   }

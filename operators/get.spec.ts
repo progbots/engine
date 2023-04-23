@@ -14,7 +14,7 @@ describe('operators/get', () => {
       expect: '97'
     },
     'gets item of a dictionary': {
-      src: 'systemdict /add get',
+      src: 'systemdict "add" get',
       expect: [{
         type: ValueType.operator,
         data: add
@@ -33,7 +33,7 @@ describe('operators/get', () => {
       error: StackUnderflow
     },
     'fails with TypeCheck if container is an array but index is not an integer': {
-      src: '[1] /test get',
+      src: '[1] "test" get',
       error: TypeCheck
     },
     'fails with RangeCheck if container is an array and index is out of range': [{
@@ -55,11 +55,11 @@ describe('operators/get', () => {
       error: TypeCheck
     },
     'fails with Undefined if container is a dictionary and index is an unknown key': {
-      src: 'systemdict /wontfind get',
+      src: 'systemdict "wontfind" get',
       error: Undefined
     },
     'fails with TypeCheck if container is a proc but index is not an integer': {
-      src: '{ } /name get',
+      src: '{ } "name" get',
       error: TypeCheck
     },
     'fails with RangeCheck if container is a proc and index is out of range': {

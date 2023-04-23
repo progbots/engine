@@ -11,21 +11,13 @@ describe('operators/neq', () => {
       src: '1 2 neq',
       expect: 'true'
     },
-    'outputs 1 != /name': {
-      src: '1 /name neq',
+    'outputs 1 != "name"': {
+      src: '1 "name" neq',
       expect: 'true'
-    },
-    'outputs /name != /name': {
-      src: '/name /name neq',
-      expect: 'false'
     },
     'outputs "name" != "name"': {
       src: '"name" "name" neq',
       expect: 'false'
-    },
-    'outputs /name != "name"': {
-      src: '/name "name" neq',
-      expect: 'true'
     },
     'outputs [ 1 ] != [ 1 ] (same ref)': {
       src: '[ 1 ] dup neq',

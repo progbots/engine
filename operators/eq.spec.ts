@@ -11,21 +11,13 @@ describe('operators/eq', () => {
       src: '1 2 eq',
       expect: 'false'
     },
-    'outputs 1 == /name': {
-      src: '1 /name eq',
+    'outputs 1 == "name"': {
+      src: '1 "name" eq',
       expect: 'false'
-    },
-    'outputs /name == /name': {
-      src: '/name /name eq',
-      expect: 'true'
     },
     'outputs "name" == "name"': {
       src: '"name" "name" eq',
       expect: 'true'
-    },
-    'outputs /name == "name"': {
-      src: '/name "name" eq',
-      expect: 'false'
     },
     'outputs [ 1 ] == [ 1 ] (same ref)': {
       src: '[ 1 ] dup eq',

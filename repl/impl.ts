@@ -3,7 +3,6 @@ import { blue, cyan, green, red, white, yellow } from './colors'
 import { hostDictionary } from './host/index'
 import { createState } from '../factory'
 import { ExitError } from './host/exit'
-import { BaseError } from '../errors/BaseError'
 import { memory, status } from './status'
 import { $debug, $load, $state } from './signals'
 import { renderCallStack } from '../state/callstack'
@@ -58,7 +57,11 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
           debugging = true
         } else if (value === $load) {
           const { data } = state.operands.at(0)
-          nextValue = await replHost.getSample(data as string)
+          try {
+            nextValue = await replHost.getSample(data as string)
+          } catch (e) {
+            nextValue = e
+          }
         }
 
         if (debugging) {
@@ -97,11 +100,16 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
     } catch (e) {
       if (e instanceof ExitError) {
         break
-      } else if (e instanceof BaseError) {
-        replHost.output(`${red}/!\\ ${e.name}: ${e.message}\n${e.callstack}`)
+      } else if (!(e instanceof Error)) {
+        replHost.output(`${red}(X) Unknown error`)
       } else {
-        replHost.output(`${red}${(e as Error).toString()}`)
-        break
+        const firstLine = e.toString()
+        replHost.output(`${red}/!\\ ${firstLine}`)
+        e.stack?.split('\n').forEach((line: string, index: number) => {
+          if (index !== 0 || line !== firstLine) {
+            replHost.output(`${red}${line}`)
+          }
+        })
       }
     }
   }

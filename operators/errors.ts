@@ -1,4 +1,4 @@
-import { BaseError } from '../errors/BaseError'
+import { InternalError } from '../errors/InternalError'
 import * as errorClasses from '../errors/index'
 import { OperatorFunction, State } from '../state/index'
 
@@ -9,7 +9,7 @@ Object.values(errorClasses).forEach((ErrorClass: Function) => {
     return // filter out
   }
 
-  const ErrorConstructor = ErrorClass as (new () => BaseError)
+  const ErrorConstructor = ErrorClass as (new () => InternalError)
 
   const operator = function * (state: State): Generator {
     throw new ErrorConstructor()

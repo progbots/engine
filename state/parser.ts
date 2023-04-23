@@ -2,10 +2,10 @@ import { ValueType } from '../index'
 import { InternalValue } from './index'
 
 export function * parse (source: string, sourceFile?: string): Generator<InternalValue, void> {
-  const matcher = /%[^\n]*|(?:"([^"]*)")|\s+|((?:-|\+)?\d+)|\/(\S+)|(\[|\]|{|}|[^[\]{}}\s]+)/g
+  const matcher = /%[^\n]*|(?:"([^"]*)")|\s+|((?:-|\+)?\d+)|(\[|\]|{|}|[^[\]{}}\s]+)/g
   let match = matcher.exec(source)
   while (match !== null) {
-    const [, string, integer, name, call] = match
+    const [, string, integer, call] = match
     const debugValue: InternalValue = {
       type: ValueType.integer,
       data: 0,
@@ -26,12 +26,6 @@ export function * parse (source: string, sourceFile?: string): Generator<Interna
         ...debugValue,
         type: ValueType.integer,
         data: parseInt(integer, 10)
-      }
-    } else if (name !== undefined) {
-      yield {
-        ...debugValue,
-        type: ValueType.name,
-        data: name
       }
     } else if (call !== undefined) {
       yield {

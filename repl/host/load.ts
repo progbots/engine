@@ -5,7 +5,11 @@ import { $load } from '../signals'
 
 export function * load (state: State): Generator {
   const [name] = checkOperands(state, ValueType.string).map(value => value.data as string)
-  const source = yield $load
-  state.pop()
-  yield * state.innerParse(source as string, name)
+  const sourceOrError = yield $load
+  if (typeof sourceOrError === 'string') {
+    state.pop()
+    yield * state.innerParse(sourceOrError, name)
+  } else {
+    throw sourceOrError
+  }
 }

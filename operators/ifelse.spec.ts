@@ -22,13 +22,13 @@ describe('operators/ifelse', () => {
       error: StackUnderflow
     }],
     'fails with TypeCheck on invalid signature': [{
-      src: 'true /if /else ifelse',
+      src: 'true "if" "else" ifelse',
       error: TypeCheck
     }, {
-      src: 'true { } /else ifelse',
+      src: 'true { } "else" ifelse',
       error: TypeCheck
     }, {
-      src: 'true /if { } ifelse',
+      src: 'true "if" { } ifelse',
       error: TypeCheck
     }, {
       src: '0 { } { } ifelse',

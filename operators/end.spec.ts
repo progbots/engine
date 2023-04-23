@@ -11,7 +11,7 @@ describe('operators/end', () => {
       }
     },
     'updates the evaluation context': {
-      src: 'dict /test "hello" set begin end test',
+      src: 'dict "test" "hello" set begin end test',
       error: Undefined
     },
     'fails with DictStackUnderflow if no dictionary was added': {

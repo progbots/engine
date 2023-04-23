@@ -5,7 +5,6 @@ export const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',
   [ValueType.integer]: (value: Value): string => (value.data as number).toString(),
   [ValueType.string]: (value: Value): string => JSON.stringify(value.data as string),
-  [ValueType.name]: (value: Value): string => `/${value.data as string}`,
   [ValueType.call]: (value: Value): string => value.data as string,
   [ValueType.operator]: (value: Value): string => `-${(value.data as IOperator).name}-`,
   [ValueType.mark]: (value: Value): string => '--mark--',

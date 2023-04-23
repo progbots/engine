@@ -1,18 +1,18 @@
-/describe {
+"describe" {
   dict begin % stack a context dictionary
 
-  /check_name_and_proc {
+  "check_name_and_proc" {
     dup type "proctype" neq { typecheck } if
     1 index type "string" neq { typecheck } if
   } bind def
 
-  /it {
+  "it" {
     check_name_and_proc
 
     dict
-      /type "it" set
-      /name 4 -1 roll set
-      /proc 3 -1 roll set
+      "type" "it" set
+      "name" 4 -1 roll set
+      "proc" 3 -1 roll set
       
     content exch apush
 
@@ -23,9 +23,9 @@
 
     dict begin % stack describe dictionary
     {
-      /type "describe" def
-      /name 3 -1 roll def
-      /content [] def
+      "type" "describe" def
+      "name" 3 -1 roll def
+      "content" [] def
 
       true exch if % execute proc
     }

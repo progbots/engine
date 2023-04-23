@@ -21,7 +21,7 @@ describe('operators/length', () => {
       src: 'dict length',
       expect: '0'
     }, {
-      src: 'dict /test 42 set length',
+      src: 'dict "test" 42 set length',
       expect: '1'
     }],
     'returns the length of a proc': [{

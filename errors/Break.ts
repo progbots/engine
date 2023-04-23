@@ -1,6 +1,6 @@
-import { BaseError } from './BaseError'
+import { InternalError } from './InternalError'
 
-export class Break extends BaseError {
+export class Break extends InternalError {
   constructor () {
     super('break')
   }
