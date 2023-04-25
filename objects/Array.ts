@@ -38,4 +38,8 @@ export class ArrayLike extends BaseArray {
     }
     this._values[index] = value
   }
+
+  some (predicate: (value: InternalValue, index: number) => boolean): boolean {
+    return this._values.some(predicate)
+  }
 }
