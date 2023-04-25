@@ -2,6 +2,7 @@
 |---|---|---|
 | `add` | integer integer ⇒ integer | adds two integer |
 | `aload` | array ⇒ ... any | dumps the content of the array on the [operand stack][operand stack] |
+| `apush` | array any ⇒ ∅ | pushes the value into the array |
 | `begin` | dict ⇒ ∅ | adds the dictionary to the top of the [dictionary stack][dictionary stack] |
 | `bind` | proc ⇒ proc | replace proc calls with their actual implementation |
 | `catch` | proc:safe proc:caught ⇒ ∅ | executes proc:safe and, if any exception occurs, executes proc:caught after adding the exception descriptor on the operand stack |

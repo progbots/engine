@@ -1,5 +1,6 @@
 export * from './add'
 export * from './aload'
+export * from './apush'
 export * from './begin'
 export * from './bind'
 export * from './catch'
