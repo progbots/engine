@@ -1,6 +1,6 @@
 import { IDictionary, Value, ValueType } from '../index'
 import { ShareableObject } from '../objects/ShareableObject'
-import { IWritableDictionary } from '../objects/dictionaries'
+import { IWritableDictionary } from '../objects/dictionaries/index'
 import { InternalValue } from '../state/index'
 import { InternalError } from './InternalError'
 
