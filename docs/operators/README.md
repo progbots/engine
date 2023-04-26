@@ -1,6 +1,6 @@
 | **name** | **signature(s)** | **summary** |
 |---|---|---|
-| `add` | integer integer ⇒ integer | adds two integer |
+| `add` | integer:a integer:b ⇒ integer:a+b | adds two integer |
 | `aload` | array ⇒ ... any | dumps the content of the array on the [operand stack][operand stack] |
 | `apush` | array any ⇒ ∅ | pushes the value into the array |
 | `begin` | dict ⇒ ∅ | adds the dictionary to the top of the [dictionary stack][dictionary stack] |
@@ -36,6 +36,7 @@
 |  | dict ⇒ integer | returns the number of values in the dictionary |
 |  | proc ⇒ integer | returns the number of values in the proc |
 | `loop`  | proc ⇒ ∅ | executes the proc repeatedely (must use `break` to stop the loop) |
+| `lt`  | integer:a integer:b ⇒ integer:a&lt;b | compares two integers |
 | `mark`  | ∅ ⇒ mark | mark |
 | `neq` | any:1 any:0 ⇒ boolean | returns true if the two items are **not** [strictly equal][strict comparison] |
 | `pop`  | any ⇒ ∅ | removes the top of the [operand stack][operand stack] |
