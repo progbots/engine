@@ -6,6 +6,22 @@ import { length as itLength } from '../iterators'
 import { add } from '../operators'
 
 describe('state/State', () => {
+  describe('protection against concurrent execution', () => {
+    it('fails with BusyParsing if an execution is in progress', () => {
+      const state = new State()
+      state.parse('1 2 3')
+      let exceptionCaught: Error | undefined
+      try {
+        state.parse('4 5 6')
+      } catch (e) {
+        exceptionCaught = e as Error
+      }
+      expect(exceptionCaught).not.toBeUndefined()
+      expect(exceptionCaught).toBeInstanceOf(Error)
+      expect(exceptionCaught!.name).toStrictEqual('BusyParsing')
+    })
+  })
+
   describe('stack management', () => {
     describe('happy path', () => {
       it('starts with an empty stack', () => {
@@ -263,6 +279,28 @@ describe('state/State', () => {
         expect(exceptionCaught.name).toStrictEqual('InvalidBreak')
       }
       expect(exceptionCaught).not.toBeUndefined()
+    })
+  })
+
+  describe('debug information', () => {
+    it('drops debug information when off', () => {
+      const state = new State()
+      itLength(state.parse('1', 'test'))
+      const value = state.operandsRef[0]
+      expect(value.source).toBeUndefined()
+      expect(value.sourceFile).toBeUndefined()
+      expect(value.sourcePos).toBeUndefined()
+    })
+
+    it('keeps debug information when on', () => {
+      const state = new State({
+        keepDebugInfo: true
+      })
+      itLength(state.parse('1', 'test'))
+      const value = state.operandsRef[0]
+      expect(value.source).toStrictEqual('1')
+      expect(value.sourceFile).toStrictEqual('test')
+      expect(value.sourcePos).toStrictEqual(0)
     })
   })
 })
