@@ -26,6 +26,7 @@
 |  | proc integer:pos ⇒ any | returns the item at position pos _(0-based)_ in the proc |
 | `globaldict` | ∅ ⇒ dict | returns the **global** dictionary from the [dictionary stack][dictionary stack] |
 | `gt`  | integer:a integer:b ⇒ integer:a&gt;b | compares two integers |
+| `gte`  | integer:a integer:b ⇒ integer:a&gt;=b | compares two integers |
 | `if` | boolean proc ⇒ ∅ | executes the proc if the boolean is true |
 | `ifelse` | boolean proc:if proc:else ⇒ ∅ | depending on the boolean value, executes either the proc:if or the proc:else |
 | `in` | array any:value ⇒ boolean | check if the value exists in the array |
