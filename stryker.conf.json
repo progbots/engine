@@ -28,5 +28,6 @@
   "ignoreStatic": true,
   "jest": {
     "enableFindRelatedTests": false
-  }
+  },
+  "timeoutMS": 60000
 }
