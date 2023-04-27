@@ -1,4 +1,6 @@
-import { StackUnderflow, TypeCheck } from '../errors/index'
+import { InvalidAccess, StackUnderflow, TypeCheck } from '../errors/index'
+import { InternalValue, State } from '../state/index'
+import { ArrayLike } from '../objects/Array'
 import { executeTests } from '../test-helpers'
 
 describe('operators/bind', () => {
@@ -26,6 +28,19 @@ describe('operators/bind', () => {
     'should not fail if a call cannot be bound yet': {
       src: '{ test } bind aload',
       expect: '{ test } aload'
+    },
+    'should not ignore errors': {
+      host: {
+        asro: function * (state: State): Generator {
+          const [value] = state.operandsRef
+          const proc = value.data as unknown as ArrayLike
+          proc.set = function (index: number, value: InternalValue): void {
+            throw new InvalidAccess()
+          }
+        }
+      },
+      src: '{ add } asro bind',
+      error: InvalidAccess
     },
     'fails with StackUnderflow on empty stack': {
       src: 'bind',
