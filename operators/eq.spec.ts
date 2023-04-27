@@ -19,6 +19,10 @@ describe('operators/eq', () => {
       src: '"name" "name" eq',
       expect: 'true'
     },
+    'outputs name == "name"': {
+      src: '{ name } aload "name" eq',
+      expect: 'false'
+    },
     'outputs [ 1 ] == [ 1 ] (same ref)': {
       src: '[ 1 ] dup eq',
       expect: 'true'
