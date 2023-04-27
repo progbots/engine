@@ -1,6 +1,6 @@
 import { ValueType } from '../index'
 import { State } from '../state/index'
-import { checkOperands } from './operands'
+import { checkOperands, spliceOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
 import { StackUnderflow } from '../errors/index'
 
@@ -12,8 +12,7 @@ export function * roll (state: State): Generator {
   const values = state.operandsRef.slice(2, 2 + size).reverse()
   ShareableObject.addRef(values)
   try {
-    state.pop()
-    state.pop()
+    spliceOperands(state, 2)
     let index
     for (index = 0; index < size; ++index) {
       state.pop()

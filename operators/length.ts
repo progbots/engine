@@ -1,7 +1,7 @@
 import { IDictionary, ValueType } from '../index'
 import { TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
-import { checkOperands } from './operands'
+import { checkOperands, spliceOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 
@@ -35,8 +35,7 @@ export function * length (state: State): Generator {
   ShareableObject.addRef(container)
   try {
     const length = sizer(container)
-    state.pop()
-    state.push({
+    spliceOperands(state, 1, {
       type: ValueType.integer,
       data: length
     })

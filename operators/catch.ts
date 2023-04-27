@@ -1,6 +1,6 @@
 import { State } from '../state/index'
 import { ValueType } from '../index'
-import { checkOperands } from './operands'
+import { checkOperands, spliceOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
 import { InternalError } from '../errors/InternalError'
 
@@ -8,8 +8,7 @@ export function * catchOp (state: State): Generator {
   const [procCatch, proc] = checkOperands(state, ValueType.proc, ValueType.proc)
   ShareableObject.addRef([proc, procCatch])
   try {
-    state.pop()
-    state.pop()
+    spliceOperands(state, 2)
     yield * state.eval(proc)
   } catch (e) {
     if (e instanceof InternalError) {

@@ -1,7 +1,7 @@
 import { IDictionary, ValueType } from '../index'
 import { TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
-import { checkOperands } from './operands'
+import { checkOperands, spliceOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 
@@ -36,9 +36,7 @@ export function * inOp (state: State): Generator {
   ShareableObject.addRef(container)
   try {
     const data = impl(state)
-    state.pop()
-    state.pop()
-    state.push({
+    spliceOperands(state, 2, {
       type: ValueType.boolean,
       data
     })

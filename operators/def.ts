@@ -1,7 +1,7 @@
 import { ValueType, IDictionary } from '../index'
 import { checkIWritableDictionary } from '../objects/dictionaries/index'
 import { State } from '../state/index'
-import { checkOperands } from './operands'
+import { checkOperands, spliceOperands } from './operands'
 
 export function * def (state: State): Generator {
   const [value, name] = checkOperands(state, null, ValueType.string)
@@ -9,6 +9,5 @@ export function * def (state: State): Generator {
   const topDict = top as IDictionary
   checkIWritableDictionary(topDict)
   topDict.def(name.data as string, value)
-  state.pop()
-  state.pop()
+  spliceOperands(state, 2)
 }

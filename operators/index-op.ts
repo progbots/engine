@@ -1,5 +1,5 @@
 import { State } from '../state/index'
-import { checkOperands } from './operands'
+import { checkOperands, spliceOperands } from './operands'
 import { ValueType } from '../index'
 import { RangeCheck, StackUnderflow } from '../errors/index'
 
@@ -9,10 +9,9 @@ export function * index (state: State): Generator {
     throw new RangeCheck()
   }
   const stack = state.operandsRef
-  if (pos + 1 >= stack.length) {
+  const valuePos = pos + 1
+  if (valuePos >= stack.length) {
     throw new StackUnderflow()
   }
-  state.pop()
-  const value = stack[pos]
-  state.push(value)
+  spliceOperands(state, 1, stack[valuePos])
 }

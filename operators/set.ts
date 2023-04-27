@@ -1,7 +1,7 @@
 import { ValueType, IDictionary } from '../index'
 import { RangeCheck, TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
-import { checkOperands } from './operands'
+import { checkOperands, spliceOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 import { checkIWritableDictionary } from '../objects/dictionaries/index'
@@ -67,10 +67,7 @@ export function * set (state: State): Generator {
   ShareableObject.addRef(container)
   try {
     const value = setter(state)
-    state.pop()
-    state.pop()
-    state.pop()
-    state.push(value)
+    spliceOperands(state, 3, value)
   } finally {
     ShareableObject.release(container)
   }

@@ -16,6 +16,15 @@ export function checkOperands (state: State, ...types: Array<ValueType | null>):
   })
 }
 
+export function spliceOperands (state: State, count: number, ...values: InternalValue[]): void {
+  for (let index = 0; index < count; ++index) {
+    state.pop()
+  }
+  for (const value of values) {
+    state.push(value)
+  }
+}
+
 export function findMarkPos (state: State): number {
   const pos = state.operandsRef.findIndex((value: InternalValue) => value.type === ValueType.mark)
   if (pos === -1) {

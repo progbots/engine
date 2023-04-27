@@ -1,7 +1,7 @@
 import { ValueType } from '../index'
 import { ArrayLike } from '../objects/Array'
 import { State } from '../state/index'
-import { findMarkPos } from './operands'
+import { findMarkPos, spliceOperands } from './operands'
 
 export function openWithMark (state: State): void {
   const openInstruction = state.callsRef[0]
@@ -22,10 +22,7 @@ export function closeToMark (state: State, type: ValueType.array | ValueType.pro
     for (index = 0; index < markPos; ++index) {
       array.unshift(operands[index])
     }
-    for (index = 0; index <= markPos; ++index) {
-      state.pop()
-    }
-    state.push({
+    spliceOperands(state, markPos + 1, {
       ...mark, // propagate debug infos
       type,
       data: array

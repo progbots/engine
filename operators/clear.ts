@@ -1,8 +1,7 @@
 import { State } from '../state/index'
+import { spliceOperands } from './operands'
 
 export function * clear (state: State): Generator {
-  const stack = state.operandsRef
-  while (stack.length > 0) {
-    state.pop()
-  }
+  const { length } = state.operandsRef
+  spliceOperands(state, length)
 }

@@ -1,6 +1,6 @@
 import { State } from '../state/index'
 import { ValueType } from '../index'
-import { checkOperands } from './operands'
+import { checkOperands, spliceOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
 
 export function * finallyOp (state: State): Generator {
@@ -14,8 +14,7 @@ export function * finallyOp (state: State): Generator {
     }
   }
   try {
-    state.pop()
-    state.pop()
+    spliceOperands(state, 2)
     yield * state.eval(proc)
   } finally {
     try {
