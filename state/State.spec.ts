@@ -2,7 +2,7 @@ import { State } from './index'
 import { Value, ValueType } from '../index'
 import { InvalidBreak, StackUnderflow, Undefined } from '../errors/index'
 import { InternalError } from '../errors/InternalError'
-import { length as itLength } from '../iterators'
+import { waitForCycles } from '../test-helpers'
 import { add } from '../operators'
 
 describe('state/State', () => {
@@ -12,7 +12,7 @@ describe('state/State', () => {
       expect(state.parsing).toStrictEqual(false)
       const generator = state.parse('1 2 3')
       expect(state.parsing).toStrictEqual(true)
-      itLength(generator)
+      waitForCycles(generator)
       expect(state.parsing).toStrictEqual(false)
     })
 
@@ -147,7 +147,7 @@ describe('state/State', () => {
         const state = new State({
           hostDictionary
         })
-        itLength(state.parse('test'))
+        waitForCycles(state.parse('test'))
         expect(state.operandsRef).toStrictEqual([{
           type: ValueType.integer,
           data: 42
@@ -159,7 +159,7 @@ describe('state/State', () => {
   describe('execution (and cycles) management', () => {
     it('stacks integer value', () => {
       const state = new State()
-      expect(itLength(state.parse('1'))).toStrictEqual(3)
+      expect(waitForCycles(state.parse('1'))).toStrictEqual(3)
       expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 1
@@ -168,7 +168,7 @@ describe('state/State', () => {
 
     it('considers the first item as the last pushed', () => {
       const state = new State()
-      expect(itLength(state.parse('1 2'))).toStrictEqual(5)
+      expect(waitForCycles(state.parse('1 2'))).toStrictEqual(5)
       const [first, second] = state.operandsRef
       expect(first).toStrictEqual({
         type: ValueType.integer,
@@ -182,7 +182,7 @@ describe('state/State', () => {
 
     it('resolves and call an operator', () => {
       const state = new State()
-      expect(itLength(state.parse('1 2 add'))).toStrictEqual(8)
+      expect(waitForCycles(state.parse('1 2 add'))).toStrictEqual(8)
       expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 3
@@ -191,7 +191,7 @@ describe('state/State', () => {
 
     it('allows proc definition and execution', () => {
       const state = new State()
-      expect(itLength(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(25)
+      expect(waitForCycles(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(25)
       expect(state.operandsRef).toStrictEqual([{
         type: ValueType.integer,
         data: 5
@@ -200,7 +200,7 @@ describe('state/State', () => {
 
     it('controls call execution', () => {
       const state = new State()
-      itLength(state.parse('"test" { { 1 } } def test'))
+      waitForCycles(state.parse('"test" { { 1 } } def test'))
       expect(state.operandsRef.length).toStrictEqual(1)
       expect(state.operandsRef[0].type).toStrictEqual(ValueType.proc)
     })
@@ -246,7 +246,7 @@ describe('state/State', () => {
       const state = new State()
       let exceptionCaught: Error | undefined
       try {
-        itLength(state.parse('typecheck'))
+        waitForCycles(state.parse('typecheck'))
       } catch (e) {
         expect(e).toBeInstanceOf(Error)
         expect(e).not.toBeInstanceOf(InternalError)
@@ -260,7 +260,7 @@ describe('state/State', () => {
       const state = new State()
       let exceptionCaught: Error | undefined
       try {
-        itLength(state.parse('typecheck'))
+        waitForCycles(state.parse('typecheck'))
       } catch (e) {
         exceptionCaught = e as Error
       }
@@ -274,7 +274,7 @@ describe('state/State', () => {
   describe('break and invalid break', () => {
     it('signals an invalid use of break (eval)', () => {
       const state = new State()
-      expect(() => itLength(state.eval({
+      expect(() => waitForCycles(state.eval({
         type: ValueType.call,
         data: 'break'
       }))).toThrowError(InvalidBreak)
@@ -284,7 +284,7 @@ describe('state/State', () => {
       const state = new State()
       let exceptionCaught: Error | undefined
       try {
-        itLength(state.parse('break'))
+        waitForCycles(state.parse('break'))
       } catch (e) {
         exceptionCaught = e as Error
         expect(exceptionCaught.name).toStrictEqual('InvalidBreak')
@@ -296,7 +296,7 @@ describe('state/State', () => {
   describe('debug information', () => {
     it('drops debug information when off', () => {
       const state = new State()
-      itLength(state.parse('1', 'test'))
+      waitForCycles(state.parse('1', 'test'))
       const value = state.operandsRef[0]
       expect(value.source).toBeUndefined()
       expect(value.sourceFile).toBeUndefined()
@@ -307,7 +307,7 @@ describe('state/State', () => {
       const state = new State({
         keepDebugInfo: true
       })
-      itLength(state.parse('1', 'test'))
+      waitForCycles(state.parse('1', 'test'))
       const value = state.operandsRef[0]
       expect(value.source).toStrictEqual('1')
       expect(value.sourceFile).toStrictEqual('test')

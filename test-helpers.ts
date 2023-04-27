@@ -1,6 +1,5 @@
 import { IDictionary, Value, ValueType } from './index'
 import { OperatorFunction, State } from './state/index'
-import { length as itLength } from './iterators'
 import { InternalError } from './errors/InternalError'
 
 interface TestDescription {
@@ -12,6 +11,19 @@ interface TestDescription {
   expect?: Value[] | string | ((state: State) => void)
   host?: Record<string, OperatorFunction>
   cleanBeforeCheckingForLeaks?: string
+}
+
+export function waitForCycles (iterator: Generator): number {
+  let count = 0
+  let { done } = iterator.next()
+  while (done === false) {
+    ++count
+    if (count > 1000) {
+      throw new Error('Too many cycles (infinite loop ?)')
+    }
+    done = iterator.next().done
+  }
+  return count
 }
 
 function executeTest (test: TestDescription): void {
@@ -49,7 +61,7 @@ function executeTest (test: TestDescription): void {
   let exceptionCaught: Error | undefined
   let cyclesCount = 0
   try {
-    cyclesCount = itLength(state.parse(src))
+    cyclesCount = waitForCycles(state.parse(src))
   } catch (e) {
     exceptionCaught = e as Error
   }
@@ -62,7 +74,7 @@ function executeTest (test: TestDescription): void {
     let expectedOperands
     if (typeof expectedResult === 'string') {
       const expectedState = new State()
-      itLength(expectedState.parse(expectedResult))
+      waitForCycles(expectedState.parse(expectedResult))
       expectedOperands = expectedState.operandsRef
     } else {
       expectedOperands = expectedResult
@@ -83,9 +95,9 @@ function executeTest (test: TestDescription): void {
     expect(exceptionCaught).toBeInstanceOf(expectedErrorClass)
   }
   if (cleanBeforeCheckingForLeaks !== undefined) {
-    itLength(state.parse(cleanBeforeCheckingForLeaks))
+    waitForCycles(state.parse(cleanBeforeCheckingForLeaks))
   }
-  itLength(state.parse('clear'))
+  waitForCycles(state.parse('clear'))
   const finalMemory = state.usedMemory
   expect(finalMemory).toStrictEqual(initialMemory)
 }
