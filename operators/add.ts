@@ -1,13 +1,6 @@
 import { State } from '../state/index'
-import { ValueType } from '../index'
-import { checkOperands } from './operands'
+import { compute } from './integer'
 
 export function * add (state: State): Generator {
-  const [num1, num2] = checkOperands(state, ValueType.integer, ValueType.integer).map(value => value.data as number)
-  state.pop()
-  state.pop()
-  state.push({
-    type: ValueType.integer,
-    data: num1 + num2
-  })
+  compute(state, (value1: number, value2: number) => value1 + value2)
 }
