@@ -18,6 +18,7 @@ export class State implements IState {
   private readonly _calls: Stack
   private readonly _keepDebugInfo: boolean = false
   private _noCall: number = 0
+  private _parsing: boolean = false
 
   constructor (settings: StateFactorySettings = {}) {
     this._memoryTracker = new MemoryTracker(settings.maxMemoryBytes)
@@ -58,23 +59,16 @@ export class State implements IState {
     return this._calls
   }
 
-  * parse (source: string, sourceFile?: string): Generator {
-    try {
-      if (this._calls.length !== 0) {
-        throw new BusyParsing()
-      }
-      yield * this.innerParse(source, sourceFile)
-    } catch (e) {
-      // No internal error should go out because memory cannot be controlled (and they are not documented)
-      if (e instanceof InternalError) {
-        const ex = new Error(e.message)
-        ex.name = e.name
-        ex.stack = e.callstack
-        e.release()
-        throw ex
-      }
-      throw e
+  get parsing (): boolean {
+    return this._parsing
+  }
+
+  parse (source: string, sourceFile?: string): Generator {
+    if (this._parsing) {
+      this.wrapError(new BusyParsing())
     }
+    this._parsing = true
+    return this.outerParse(source, sourceFile)
   }
 
   // endregion IState
@@ -146,6 +140,18 @@ export class State implements IState {
 
   allowCall (): void {
     --this._noCall
+  }
+
+  private wrapError (error: Error): void {
+    // No internal error should go out because memory cannot be controlled (and they are not documented)
+    if (error instanceof InternalError) {
+      const ex = new Error(error.message)
+      ex.name = error.name
+      ex.stack = error.callstack
+      error.release()
+      throw ex
+    }
+    throw error
   }
 
   private * wrapCall (value: InternalValue, call: () => Generator): Generator {
@@ -229,6 +235,16 @@ export class State implements IState {
         throw invalidBreak
       }
       throw e
+    }
+  }
+
+  * outerParse (source: string, sourceFile?: string): Generator {
+    try {
+      yield * this.innerParse(source, sourceFile)
+    } catch (e) {
+      this.wrapError(e as Error)
+    } finally {
+      this._parsing = false
     }
   }
 

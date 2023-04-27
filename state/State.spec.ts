@@ -7,6 +7,15 @@ import { add } from '../operators'
 
 describe('state/State', () => {
   describe('protection against concurrent execution', () => {
+    it('maintains a parsing flag', () => {
+      const state = new State()
+      expect(state.parsing).toStrictEqual(false)
+      const generator = state.parse('1 2 3')
+      expect(state.parsing).toStrictEqual(true)
+      itLength(generator)
+      expect(state.parsing).toStrictEqual(false)
+    })
+
     it('fails with BusyParsing if an execution is in progress', () => {
       const state = new State()
       state.parse('1 2 3')
@@ -17,8 +26,10 @@ describe('state/State', () => {
         exceptionCaught = e as Error
       }
       expect(exceptionCaught).not.toBeUndefined()
-      expect(exceptionCaught).toBeInstanceOf(Error)
-      expect(exceptionCaught!.name).toStrictEqual('BusyParsing')
+      if (exceptionCaught !== undefined) {
+        expect(exceptionCaught).toBeInstanceOf(Error)
+        expect(exceptionCaught.name).toStrictEqual('BusyParsing')
+      }
     })
   })
 
