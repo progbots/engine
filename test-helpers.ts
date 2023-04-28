@@ -104,19 +104,29 @@ function executeTest (test: TestDescription): void {
   expect(finalMemory).toStrictEqual(initialMemory)
 }
 
-export function executeTests (tests: Record<string, TestDescription | TestDescription[]>): void {
-  Object.keys(tests).forEach((label: string) => {
-    const test = tests[label]
-    if (Array.isArray(test)) {
-      test.forEach((item, index) => {
-        it(`${label} (${index + 1})`, executeTest.bind(null, item))
-      })
-    } else if (test.skip === true) {
-      it.skip(label, executeTest.bind(null, test))
-    } else if (test.only === true) {
-      it.only(label, executeTest.bind(null, test))
+export function executeTests (descriptions: Record<string, TestDescription | TestDescription[]>): void {
+  Object.keys(descriptions).forEach((label: string) => {
+    const description = descriptions[label]
+    let tests: TestDescription[]
+    if (Array.isArray(description)) {
+      tests = description
     } else {
-      it(label, executeTest.bind(null, test))
+      tests = [description]
     }
+    tests.forEach((test, index) => {
+      let testLabel
+      if (index > 0) {
+        testLabel = `${label} (${index + 1})`
+      } else {
+        testLabel = label
+      }
+      if (test.skip === true) {
+        it.skip(testLabel, executeTest.bind(null, test))
+      } else if (test.only === true) {
+        it.only(testLabel, executeTest.bind(null, test))
+      } else {
+        it(testLabel, executeTest.bind(null, test))
+      }
+    })
   })
 }
