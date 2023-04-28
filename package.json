@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Main engine",
   "scripts": {
+    "pretest": "rimraf .stryker-tmp",
     "test": "jest",
     "lint": "ts-standard --fix",
     "build": "tsc --project tsconfig-build.json && terser dist/engine.js --compress --keep-fnames --mangle -o dist/engine.js",
@@ -30,6 +31,7 @@
     "jest": "^29.5.0",
     "ncp": "^2.0.0",
     "reserve": "^1.15.2",
+    "rimraff": "^0.0.1-security",
     "systemjs": "^6.14.1",
     "terser": "^5.16.9",
     "ts-jest": "^29.1.0",
