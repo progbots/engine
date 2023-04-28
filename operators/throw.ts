@@ -14,6 +14,9 @@ export function * throwOp (state: State): Generator {
   if (!names.includes('name') || !names.includes('message')) {
     throw new TypeCheck()
   }
+  if (dict instanceof InternalError) {
+    throw dict
+  }
   try {
     checkIWritableDictionary(dict)
   } catch (e) {
@@ -21,9 +24,6 @@ export function * throwOp (state: State): Generator {
   }
   ShareableObject.addRef(dictValue)
   state.pop()
-  if (dict instanceof InternalError) {
-    throw dict
-  }
   throw new Custom(dict)
 }
 
