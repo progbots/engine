@@ -32,6 +32,10 @@ describe('operators/get', () => {
       src: '0 get',
       error: StackUnderflow
     },
+    'fails with TypeCheck if container is not an array, a string, a dict or a proc': {
+      src: 'mark "whatever" get',
+      error: TypeCheck
+    },
     'fails with TypeCheck if container is an array but index is not an integer': {
       src: '[1] "test" get',
       error: TypeCheck
@@ -43,6 +47,10 @@ describe('operators/get', () => {
       src: '[-1] -1 get',
       error: RangeCheck
     }],
+    'fails with TypeCheck if container is a string but index is not an integer': {
+      src: '"a" "1" get',
+      error: TypeCheck
+    },
     'fails with RangeCheck if container is a string and index is out of range': [{
       src: '"a" 1 get',
       error: RangeCheck
