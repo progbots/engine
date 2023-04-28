@@ -3,10 +3,13 @@ import { executeTests } from '../test-helpers'
 
 describe('operators/index', () => {
   executeTests({
-    'picks a value in the stack by position': {
+    'picks a value in the stack by position': [{
       src: '"a" "b" 1 index',
       expect: '"a"'
-    },
+    }, {
+      src: '"a" "b" 0 index',
+      expect: '"b"'
+    }],
     'fails with StackUnderflow when going beyond the stack size': {
       src: '"a" "b" 2 index',
       error: StackUnderflow
