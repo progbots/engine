@@ -8,7 +8,7 @@ interface TestDescription {
   src: string
   cycles?: number // default to 1
   error?: Function // Subclass of InternalError
-  expect?: Value[] | string | ((state: State) => void)
+  expect?: Value[] | string | ((state: State, exceptionCaught?: Error) => void)
   host?: Record<string, OperatorFunction>
   cleanBeforeCheckingForLeaks?: string
 }
@@ -69,7 +69,7 @@ function executeTest (test: TestDescription): void {
     expect(cyclesCount).toStrictEqual(expectedCycles)
   }
   if (typeof expectedResult === 'function') {
-    expectedResult(state)
+    expectedResult(state, exceptionCaught)
   } else if (expectedResult !== undefined) {
     let expectedOperands
     if (typeof expectedResult === 'string') {
@@ -83,16 +83,18 @@ function executeTest (test: TestDescription): void {
     expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
     expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
   }
-  if (expectedErrorClass === undefined) {
-    expect(exceptionCaught).toBeUndefined()
-  } else if (exceptionCaught === undefined) {
-    expect(exceptionCaught).not.toBeUndefined()
-  } else if (expectedErrorClass.prototype instanceof InternalError) {
-    expect(exceptionCaught).toBeInstanceOf(Error)
-    const { name } = expectedErrorClass
-    expect(exceptionCaught.name).toStrictEqual(name)
-  } else {
-    expect(exceptionCaught).toBeInstanceOf(expectedErrorClass)
+  if (typeof expectedResult !== 'function' || expectedResult.length !== 2) {
+    if (expectedErrorClass === undefined) {
+      expect(exceptionCaught).toBeUndefined()
+    } else if (exceptionCaught === undefined) {
+      expect(exceptionCaught).not.toBeUndefined()
+    } else if (expectedErrorClass.prototype instanceof InternalError) {
+      expect(exceptionCaught).toBeInstanceOf(Error)
+      const { name } = expectedErrorClass
+      expect(exceptionCaught.name).toStrictEqual(name)
+    } else {
+      expect(exceptionCaught).toBeInstanceOf(expectedErrorClass)
+    }
   }
   if (cleanBeforeCheckingForLeaks !== undefined) {
     waitForCycles(state.parse(cleanBeforeCheckingForLeaks))
