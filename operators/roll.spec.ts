@@ -24,6 +24,9 @@ describe('operators/roll', () => {
     }, {
       src: '1 1 roll',
       error: StackUnderflow
+    }, {
+      src: '2 1 roll',
+      error: StackUnderflow
     }],
     'fails with TypeCheck on invalid parameters': [{
       src: '"a" "b" "c" 3 "a" roll',

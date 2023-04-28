@@ -6,9 +6,7 @@ import { StackUnderflow } from '../errors/index'
 
 export function * roll (state: State): Generator {
   const [steps, size] = checkOperands(state, ValueType.integer, ValueType.integer).map(value => value.data as number)
-  if (state.operandsRef.length < size + 2) {
-    throw new StackUnderflow()
-  }
+
   const values = state.operandsRef.slice(2, 2 + size).reverse()
   ShareableObject.addRef(values)
   try {
