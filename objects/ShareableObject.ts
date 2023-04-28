@@ -1,3 +1,4 @@
+import { Internal } from '../errors'
 import { InternalValue } from '../state/index'
 
 export abstract class ShareableObject {
@@ -40,8 +41,11 @@ export abstract class ShareableObject {
   }
 
   release (): void {
-    if (--this._refCount === 0) {
+    const refCount = --this._refCount
+    if (refCount === 0) {
       this._dispose()
+    } else if (refCount < 0) {
+      throw new Internal('Superfluous release')
     }
   }
 
