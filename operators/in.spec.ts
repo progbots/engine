@@ -23,6 +23,12 @@ describe('operators/get', () => {
     }, {
       src: '{ 1 2 add } 3 in',
       expect: 'false'
+    }, {
+      src: '{ 1 2 "add" } "add" in',
+      expect: 'true'
+    }, {
+      src: '{ 1 2 add } "add" in',
+      expect: 'false'
     }],
     'fails with StackUnderflow on insufficient stack': [{
       src: 'in',
@@ -31,6 +37,10 @@ describe('operators/get', () => {
       src: '1 in',
       error: StackUnderflow
     }],
+    'fails with TypeCheck if container is not an array, a dict or a proc': {
+      src: 'mark 1 in',
+      error: TypeCheck
+    },
     'fails with TypeCheck if container is a dict but name is not a string': {
       src: 'dict 1 in',
       error: TypeCheck
