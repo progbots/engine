@@ -19,6 +19,10 @@ describe('operators/neq', () => {
       src: '"name" "name" neq',
       expect: 'false'
     },
+    'outputs name != "name"': {
+      src: '{ name } aload "name" neq',
+      expect: 'true'
+    },
     'outputs [ 1 ] != [ 1 ] (same ref)': {
       src: '[ 1 ] dup neq',
       expect: 'false'
