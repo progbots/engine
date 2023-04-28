@@ -4,19 +4,20 @@ import { IWritableDictionary } from '../objects/dictionaries/index'
 import { InternalValue } from '../state/index'
 import { InternalError } from './InternalError'
 
+const extract = (dict: IDictionary, name: string, defaultValue: string): string => {
+  const value = dict.lookup(name)
+  if (value === null) {
+    return defaultValue
+  }
+  return value.data as string
+}
+
 export class Custom extends InternalError {
   constructor (
     private readonly _dictionary: IWritableDictionary
   ) {
-    const extract = (name: string, defaultValue: string): string => {
-      const value = _dictionary.lookup(name)
-      if (value === null) {
-        return defaultValue
-      }
-      return value.data as string
-    }
-    super(extract('message', 'custom error'))
-    this.name = this.name + `:${extract('name', 'custom')}`
+    super(extract(_dictionary, 'message', 'custom error'))
+    this.name = this.name + `:${extract(_dictionary, 'name', 'custom')}`
   }
 
   get dictionary (): IDictionary {
