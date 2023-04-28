@@ -17,17 +17,13 @@ const setters: Record<string, (state: State) => InternalValue> = {
     if (pos < 0 || pos >= string.length) {
       throw new RangeCheck()
     }
-    const parts: string[] = []
-    if (pos > 0) {
-      parts.push(string.substring(0, pos))
-    }
-    parts.push(String.fromCharCode(value.data as number))
-    if (pos + 1 < string.length) {
-      parts.push(string.substring(pos + 1))
-    }
     return {
       type: ValueType.string,
-      data: parts.join('')
+      data: [
+        string.substring(0, pos),
+        String.fromCharCode(value.data as number),
+        string.substring(pos + 1)
+      ].join('')
     }
   },
 

@@ -7,11 +7,14 @@ describe('operators/set', () => {
       src: '[31 41 59] 1 42 set',
       expect: '[31 42 59]'
     },
-    'sets character code of a string': {
+    'sets character code of a string': [{
+      src: '"abc" 0 65 set',
+      expect: '"Abc"'
+    }, {
       src: '"abc" 1 66 set',
       expect: '"aBc"'
-    },
-    'sets item in a dictionary': {
+    }],
+    'sets item in a dict': {
       src: 'dict "test" 42 set "test" get',
       expect: '42'
     },
@@ -37,6 +40,14 @@ describe('operators/set', () => {
       src: '[-1] -1 0 set',
       error: RangeCheck
     }],
+    'fails with TypeCheck if container is a string and index is not an integer': {
+      src: '"abc" "a" 0 set',
+      error: TypeCheck
+    },
+    'fails with TypeCheck if container is a string and value is not an integer': {
+      src: '"abc" 0 "d" set',
+      error: TypeCheck
+    },
     'fails with RangeCheck if container is a string and index is out of range': [{
       src: '"abc" 3 0 set',
       error: RangeCheck
@@ -44,8 +55,12 @@ describe('operators/set', () => {
       src: '"abc" -1 0 set',
       error: RangeCheck
     }],
-    'fails with TypeCheck if container is a dictionary but index is not a name': {
+    'fails with TypeCheck if container is a dict but index is not a name': {
       src: 'systemdict 0 0 set',
+      error: TypeCheck
+    },
+    'fails with TypeCheck if container is not a string, an array or a dict': {
+      src: '{ test } 0 0 set',
       error: TypeCheck
     }
   })
