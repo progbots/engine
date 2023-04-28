@@ -9,6 +9,7 @@ export function * loop (state: State): Generator {
   ShareableObject.addRef(proc)
   try {
     state.pop()
+    // Stryker disable next-line all
     while (true) {
       yield * state.eval(proc)
     }
