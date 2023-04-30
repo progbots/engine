@@ -17,6 +17,9 @@ export function checkOperands (state: State, ...types: Array<ValueType | null>):
 }
 
 export function spliceOperands (state: State, count: number, ...values: InternalValue[]): void {
+  if (state.operandsRef.length < count) {
+    throw new StackUnderflow()
+  }
   for (let index = 0; index < count; ++index) {
     state.pop()
   }

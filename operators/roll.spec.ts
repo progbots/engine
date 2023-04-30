@@ -23,17 +23,21 @@ describe('operators/roll', () => {
       error: StackUnderflow
     }, {
       src: '1 1 roll',
-      error: StackUnderflow
+      error: StackUnderflow,
+      expect: '1 1'
     }, {
       src: '2 1 roll',
-      error: StackUnderflow
+      error: StackUnderflow,
+      expect: '2 1'
     }],
     'fails with TypeCheck on invalid parameters': [{
       src: '"a" "b" "c" 3 "a" roll',
-      error: TypeCheck
+      error: TypeCheck,
+      expect: '"a" "b" "c" 3 "a"'
     }, {
       src: '"a" "b" "c" "d" 1 roll',
-      error: TypeCheck
+      error: TypeCheck,
+      expect: '"a" "b" "c" "d" 1'
     }]
   })
 })
