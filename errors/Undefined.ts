@@ -1,7 +1,9 @@
 import { InternalError } from './InternalError'
 
+const message = 'Name is not defined in the dictionary stack'
+
 export class Undefined extends InternalError {
   constructor () {
-    super('name is not defined in any dictionary on the stack')
+    super(message)
   }
 }
