@@ -15,12 +15,20 @@ describe('operators/errors', () => {
       src: 'typecheck',
       error: TypeCheck
     },
+    'it does not know busyparsing': {
+      src: 'busyparsing',
+      error: Undefined
+    },
+    'it does not know dictstackunderflow': {
+      src: 'dictstackunderflow',
+      error: Undefined
+    },
     'it does not know internal': {
       src: 'internal',
       error: Undefined
     },
-    'it does not know busyparsing': {
-      src: 'busyparsing',
+    'it does not know invalidbreak': {
+      src: 'invalidbreak',
       error: Undefined
     }
   })
