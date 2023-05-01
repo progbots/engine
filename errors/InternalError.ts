@@ -1,5 +1,20 @@
 import { IDictionary, Value, ValueType } from '../index'
 
+const TYPE_PROPERTY = 'type'
+const NAME_PROPERTY = 'name'
+const MESSAGE_PROPERTY = 'message'
+const STACK_PROPERTY = 'stack'
+
+const NAMES = [
+  TYPE_PROPERTY,
+  NAME_PROPERTY,
+  MESSAGE_PROPERTY,
+  STACK_PROPERTY
+]
+
+const CR = '\n'
+const NO_STACK = ''
+
 let _InvalidAccess: new () => Error
 
 export function setInvalidAccess (InvalidAccess: typeof _InvalidAccess): void {
@@ -24,7 +39,7 @@ export class InternalError extends Error implements IDictionary {
     if (this._callstack !== '') {
       return this._callstack
     }
-    return this.stack?.split('\n').slice(1).join('\n') ?? ''
+    return this.stack?.split(CR).slice(1).join(CR) ?? NO_STACK
   }
 
   set callstack (value: string) {
@@ -36,18 +51,18 @@ export class InternalError extends Error implements IDictionary {
   // region IDictionary
 
   get names (): string[] {
-    return ['type', 'name', 'message', 'stack']
+    return NAMES
   }
 
   lookup (name: string): Value | null {
     let data: string | undefined
-    if (name === 'type') {
+    if (name === TYPE_PROPERTY) {
       data = 'system'
-    } else if (name === 'name') {
+    } else if (name === NAME_PROPERTY) {
       data = this.name
-    } else if (name === 'message') {
+    } else if (name === MESSAGE_PROPERTY) {
       data = this.message
-    } else if (name === 'stack') {
+    } else if (name === STACK_PROPERTY) {
       data = this.callstack
     }
     if (data !== undefined) {
