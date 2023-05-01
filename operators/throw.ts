@@ -10,10 +10,6 @@ import { InternalError } from '../errors/InternalError'
 export function * throwOp (state: State): Generator {
   const [dictValue] = checkOperands(state, ValueType.dict)
   const dict = dictValue.data as IDictionary
-  const { names } = dict
-  if (!names.includes('name') || !names.includes('message')) {
-    throw new TypeCheck()
-  }
   if (dict instanceof InternalError) {
     throw dict
   }
@@ -22,9 +18,10 @@ export function * throwOp (state: State): Generator {
   } catch (e) {
     throw new TypeCheck()
   }
+  const customError = new Custom(dict) // may throw TypeCheck
   ShareableObject.addRef(dictValue)
   state.pop()
-  throw new Custom(dict)
+  throw customError
 }
 
 Object.defineProperty(throwOp, 'name', {

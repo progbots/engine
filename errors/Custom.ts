@@ -3,11 +3,15 @@ import { ShareableObject } from '../objects/ShareableObject'
 import { IWritableDictionary } from '../objects/dictionaries/index'
 import { InternalValue } from '../state/index'
 import { InternalError } from './InternalError'
+import { TypeCheck } from './TypeCheck'
 
-const extract = (dict: IDictionary, name: string, defaultValue: string): string => {
+const NAME_PROPERTY = 'name'
+const MESSAGE_PROPERTY = 'message'
+
+const extract = (dict: IDictionary, name: string): string => {
   const value = dict.lookup(name)
-  if (value === null) {
-    return defaultValue
+  if (value === null || value.type !== ValueType.string) {
+    throw new TypeCheck()
   }
   return value.data as string
 }
@@ -16,8 +20,8 @@ export class Custom extends InternalError {
   constructor (
     private readonly _dictionary: IWritableDictionary
   ) {
-    super(extract(_dictionary, 'message', 'custom error'))
-    this.name = this.name + `:${extract(_dictionary, 'name', 'custom')}`
+    super(extract(_dictionary, MESSAGE_PROPERTY))
+    this.name = this.name + `:${extract(_dictionary, NAME_PROPERTY)}`
   }
 
   get dictionary (): IDictionary {
