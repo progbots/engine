@@ -3,6 +3,8 @@ import { executeTests } from '../test-helpers'
 import { IArray, ValueType } from '../index'
 import { State } from '../state/index'
 
+// test-for open-close-helper.ts
+
 describe('operators/close-proc (})', () => {
   executeTests({
     'creates a proc': {
