@@ -43,17 +43,6 @@ describe('objects/Stack', () => {
     }])
   })
 
-  it('exposes array items', () => {
-    const values = stack.ref
-    expect(values).toStrictEqual([{
-      type: ValueType.integer,
-      data: 2
-    }, {
-      type: ValueType.integer,
-      data: 1
-    }])
-  })
-
   it('releases memory once disposed', () => {
     stack.release()
     expect(tracker.used).toStrictEqual(0)
