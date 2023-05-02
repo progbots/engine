@@ -7,9 +7,9 @@ describe('operators/roll', () => {
       src: '"a" "b" "c" 3 -1 roll',
       expect: '"b" "c" "a"'
     },
-    'rolls 1 up': {
-      src: '"a" "b" "c" 3 1 roll',
-      expect: '"c" "a" "b"'
+    'rolls 1 up (and handles shared objects)': {
+      src: '"a" ["b" "c"] "d" 3 1 roll aload',
+      expect: '"d" "a" "b" "c"'
     },
     'does nothing if 0': {
       src: '"a" "b" "c" 3 0 roll',
