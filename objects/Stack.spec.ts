@@ -2,6 +2,8 @@ import { Stack } from './Stack'
 import { MemoryTracker } from '../state/MemoryTracker'
 import { ValueType } from '../index'
 
+// test-for BaseArray.ts
+
 describe('objects/Stack', () => {
   let tracker: MemoryTracker
   let stack: Stack
