@@ -1,3 +1,4 @@
+import { Internal } from '../errors'
 import { IArray, IDictionary, ValueType } from '../index'
 import { ShareableObject } from './ShareableObject'
 
@@ -23,6 +24,13 @@ describe('objects/ShareableObject', () => {
     object.release()
     expect(object.refCount).toStrictEqual(0)
     expect(object.disposeCalled).toStrictEqual(1)
+  })
+
+  it('detects invalid use of release', () => {
+    const object = new MyObject()
+    expect(object.refCount).toStrictEqual(1)
+    object.release()
+    expect(() => object.release()).toThrow(Internal)
   })
 
   it('offers a generic addRef helper', () => {

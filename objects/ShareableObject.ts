@@ -1,6 +1,8 @@
 import { Internal } from '../errors'
 import { InternalValue } from '../state/index'
 
+const TOOMANY_RELEASE = 'Superfluous release'
+
 export abstract class ShareableObject {
   public static addRef (values: InternalValue | InternalValue[]): void {
     if (Array.isArray(values)) {
@@ -44,8 +46,10 @@ export abstract class ShareableObject {
     const refCount = --this._refCount
     if (refCount === 0) {
       this._dispose()
-    } else if (refCount < 0) {
-      throw new Internal('Superfluous release')
+    } else
+    // Stryker disable next-line EqualityOperator
+    if (refCount < 0) {
+      throw new Internal(TOOMANY_RELEASE)
     }
   }
 
