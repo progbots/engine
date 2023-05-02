@@ -73,17 +73,6 @@ describe('objects/Array', () => {
     }])
   })
 
-  it('exposes array items', () => {
-    const values = array.ref
-    expect(values).toStrictEqual([{
-      type: ValueType.integer,
-      data: 1
-    }, {
-      type: ValueType.integer,
-      data: 2
-    }])
-  })
-
   describe('set', () => {
     it('allows setting a new item', () => {
       array.set(2, {
@@ -124,6 +113,11 @@ describe('objects/Array', () => {
         data: 0
       })).toThrowError(RangeCheck)
     })
+  })
+
+  it('offers some', () => {
+    expect(array.some(value => value.data === 2)).toStrictEqual(true)
+    expect(array.some(value => value.data === 3)).toStrictEqual(false)
   })
 
   it('releases memory once disposed', () => {
