@@ -1,6 +1,3 @@
-import { InvalidAccess } from './InvalidAccess'
-import { setInvalidAccess } from './InternalError'
-
 export * from './Break'
 export * from './BusyParsing'
 export * from './DictStackUnderflow'
@@ -13,5 +10,3 @@ export * from './TypeCheck'
 export * from './Undefined'
 export * from './UnmatchedMark'
 export * from './VMerror'
-
-setInvalidAccess(InvalidAccess)

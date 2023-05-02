@@ -15,12 +15,6 @@ const NAMES = [
 const CR = '\n'
 const NO_STACK = ''
 
-let _InvalidAccess: new () => Error
-
-export function setInvalidAccess (InvalidAccess: typeof _InvalidAccess): void {
-  _InvalidAccess = InvalidAccess
-}
-
 export class InternalError extends Error implements IDictionary {
   constructor (message: string) {
     super(message)
