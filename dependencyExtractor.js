@@ -11,7 +11,7 @@ module.exports = {
     if (filePath.endsWith('.spec.ts')) {
       const set = new Set()
       set.add(filePath.replace('.spec.ts', '.ts'))
-      code.replace(/\/\/\s*test-for\s+(.*)\n/, (match, dependencies) => {
+      code.replace(/\/\/\s*test-for\s+([^\n]*)\n/g, (match, dependencies) => {
         dependencies.replace(/\s*([^ ,]+),?/g, (match, dependency) => {
           set.add(join(filePath, '..', dependency))
         })
