@@ -66,9 +66,9 @@ export abstract class BaseArray extends ShareableObject implements IArray {
   }
 
   protected _dispose (): void {
-    while (this._values.length > 0) {
-      this.pop()
+    for (const value of this._values) {
+      this._memoryTracker.releaseValue(value)
     }
-    this._memoryTracker.decrement(BaseArray.INITIAL_SIZE)
+    this._memoryTracker.decrement(BaseArray.INITIAL_SIZE + this._values.length * BaseArray.VALUE_ADDITIONAL_SIZE)
   }
 }
