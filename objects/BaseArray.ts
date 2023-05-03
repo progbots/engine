@@ -1,8 +1,11 @@
 import { ShareableObject } from './ShareableObject'
 import { IArray, Value } from '../index'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { RangeCheck, StackUnderflow } from '../errors/index'
+import { RangeCheck } from '../errors/index'
 import { InternalValue } from '../state/index'
+import { InternalError } from '../errors/InternalError'
+
+const EMPTY_ARRAY = 'Empty array'
 
 export abstract class BaseArray extends ShareableObject implements IArray {
   public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
@@ -55,7 +58,7 @@ export abstract class BaseArray extends ShareableObject implements IArray {
 
   pop (): void {
     if (this._values.length === 0) {
-      throw new StackUnderflow()
+      throw new InternalError(EMPTY_ARRAY)
     }
     const value = this.popImpl()
     this.releaseValue(value)
@@ -65,10 +68,16 @@ export abstract class BaseArray extends ShareableObject implements IArray {
     return this._values
   }
 
-  protected _dispose (): void {
+  protected _clear (): void {
     for (const value of this._values) {
       this._memoryTracker.releaseValue(value)
     }
-    this._memoryTracker.decrement(BaseArray.INITIAL_SIZE + this._values.length * BaseArray.VALUE_ADDITIONAL_SIZE)
+    this._memoryTracker.decrement(this._values.length * BaseArray.VALUE_ADDITIONAL_SIZE)
+    this._values.length = 0
+  }
+
+  protected _dispose (): void {
+    this._clear()
+    this._memoryTracker.decrement(BaseArray.INITIAL_SIZE)
   }
 }
