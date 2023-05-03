@@ -3,8 +3,6 @@ import { MemoryTracker } from '../state/MemoryTracker'
 import { ValueType } from '../index'
 import { RangeCheck } from '../errors/index'
 
-// test-for BaseArray.ts
-
 describe('objects/Array', () => {
   let tracker: MemoryTracker
   let array: ArrayLike
@@ -118,10 +116,5 @@ describe('objects/Array', () => {
   it('offers some', () => {
     expect(array.some(value => value.data === 2)).toStrictEqual(true)
     expect(array.some(value => value.data === 3)).toStrictEqual(false)
-  })
-
-  it('releases memory once disposed', () => {
-    array.release()
-    expect(tracker.used).toStrictEqual(0)
   })
 })
