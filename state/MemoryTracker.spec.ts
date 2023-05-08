@@ -175,6 +175,11 @@ describe('state/MemoryTracker', () => {
   })
 
   describe('VMerror', () => {
+    it('does not raise an error when the limit is not exceeded', () => {
+      const tracker = new MemoryTracker(10)
+      expect(() => tracker.increment(10)).not.toThrowError(VMError)
+    })
+
     it('raises an error if limit is exceeded', () => {
       const tracker = new MemoryTracker(10)
       expect(() => tracker.increment(11)).toThrowError(VMError)

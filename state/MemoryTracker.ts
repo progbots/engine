@@ -16,14 +16,6 @@ function isString (value: Value): boolean {
   ].includes(value.type)
 }
 
-function isShareableObject (value: Value): boolean {
-  return [
-    ValueType.array,
-    ValueType.proc,
-    ValueType.dict
-  ].includes(value.type)
-}
-
 export class MemoryTracker {
   public static readonly POINTER_SIZE = 4
   public static readonly INTEGER_SIZE = 4
@@ -83,7 +75,7 @@ export class MemoryTracker {
     if (value.untracked !== true) {
       if (isString(value)) {
         valueSize += this._addStringRef(value)
-      } else if (isShareableObject(value)) {
+      } else {
         ShareableObject.addRef(value)
       }
     }
@@ -95,7 +87,7 @@ export class MemoryTracker {
     if (value.untracked !== true) {
       if (isString(value)) {
         valueSize += this._releaseString(value)
-      } else if (isShareableObject(value)) {
+      } else {
         ShareableObject.release(value)
       }
     }
