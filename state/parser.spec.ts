@@ -7,13 +7,25 @@ describe('state/parser', () => {
       type: ValueType.integer,
       data: 1
     },
+    123: {
+      type: ValueType.integer,
+      data: 123
+    },
     '+1': {
       type: ValueType.integer,
       data: 1
     },
+    '+123': {
+      type: ValueType.integer,
+      data: 123
+    },
     '-1': {
       type: ValueType.integer,
       data: -1
+    },
+    '-123': {
+      type: ValueType.integer,
+      data: -123
     },
     add: {
       type: ValueType.call,
@@ -22,6 +34,10 @@ describe('state/parser', () => {
     '"a"': {
       type: ValueType.string,
       data: 'a'
+    },
+    '"abc"': {
+      type: ValueType.string,
+      data: 'abc'
     },
     '[': {
       type: ValueType.call,
