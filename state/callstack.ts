@@ -6,6 +6,7 @@ import { Internal } from '../errors/index'
 
 const BEFORE_CURRENT = '»'
 const AFTER_CURRENT = '«'
+const UNEXPECTED_PARSER_FAILURE = 'Unexpected parser failure'
 
 const unexpected = (value: Value): string => `/!\\ unexpected stack item type ${value.type}`
 
@@ -26,7 +27,7 @@ const renderers: Record<ValueType, (value: Value, step: number | undefined) => s
       const parser = parse(text.substring(step))
       const { value } = parser.next()
       if (value === undefined) {
-        throw new Internal('Unexpected parser failure')
+        throw new Internal(UNEXPECTED_PARSER_FAILURE)
       }
       const keyword = formatters[value.type](value)
       const after = text.substring(step + keyword.length)

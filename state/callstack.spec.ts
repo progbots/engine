@@ -53,6 +53,28 @@ const testCases: Record<string, TestCase> = {
     }],
     expected: '"1 »2« add" @test.ps:0'
   },
+  'shows parser with current token (no sourceFile)': {
+    calls: [{
+      type: ValueType.integer,
+      data: 2
+    }, {
+      type: ValueType.string,
+      data: '1 2 add',
+      sourcePos: 0
+    }],
+    expected: '"1 »2« add"'
+  },
+  'shows parser with current token (no sourcePos)': {
+    calls: [{
+      type: ValueType.integer,
+      data: 2
+    }, {
+      type: ValueType.string,
+      data: '1 2 add',
+      sourceFile: 'test.ps'
+    }],
+    expected: '"1 »2« add"'
+  },
   'formats parsed content': {
     calls: [{
       type: ValueType.string,
@@ -71,6 +93,21 @@ const testCases: Record<string, TestCase> = {
       sourcePos: 0
     }],
     expected: '-test-\ntest @test.ps:0'
+  },
+  'shows operator and call progress': {
+    calls: [{
+      type: ValueType.integer,
+      data: 2
+    }, {
+      type: ValueType.operator,
+      data: function * test (): Generator {}
+    }, {
+      type: ValueType.call,
+      data: 'test',
+      sourceFile: 'test.ps',
+      sourcePos: 0
+    }],
+    expected: '-test-:2\ntest @test.ps:0'
   },
   'shows proc': {
     calls: [{
@@ -106,6 +143,13 @@ const testCases: Record<string, TestCase> = {
       }])
     }],
     expected: '{ 1 »2« add }'
+  },
+  'formats unexpected items as an error': {
+    calls: [{
+      type: ValueType.dict,
+      data: null
+    }],
+    expected: '/!\\ unexpected stack item type dicttype'
   }
 }
 
