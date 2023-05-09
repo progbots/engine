@@ -24,7 +24,7 @@ describe('operators/close-proc (})', () => {
       expect: '2'
     },
     'enables back call execution': {
-      src: 'mark { add } 3 4 add countomark',
+      src: 'mark { add } 3 4 add counttomark',
       expect: '7 2'
     },
     'fails with UnmatchedMark if the stack does not contain a mark': {
