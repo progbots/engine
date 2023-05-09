@@ -2,7 +2,6 @@ import { ValueType, IDictionary } from '../index'
 import { RangeCheck, TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
 import { ArrayLike } from '../objects/Array'
-import { ShareableObject } from '../objects/ShareableObject'
 import { checkIWritableDictionary } from '../objects/dictionaries/index'
 
 const setters: Record<string, (container: InternalValue, index: InternalValue, value: InternalValue) => InternalValue> = {
