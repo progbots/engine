@@ -6,8 +6,8 @@ describe('operators/end', () => {
   executeTests({
     'removes the dictionary from the dictionary stack': {
       src: 'dict begin end',
-      expect: (state: State) => {
-        expect(state.dictionariesRef.length).toStrictEqual(2)
+      expect: ({ dictionaries }: State) => {
+        expect(dictionaries.length).toStrictEqual(2)
       }
     },
     'updates the evaluation context': {
