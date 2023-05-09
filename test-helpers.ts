@@ -75,11 +75,11 @@ function executeTest (test: TestDescription): void {
     if (typeof expectedResult === 'string') {
       const expectedState = new State()
       waitForCycles(expectedState.parse(expectedResult))
-      expectedOperands = expectedState.operandsRef
+      expectedOperands = expectedState.operands.ref
     } else {
       expectedOperands = expectedResult
     }
-    const operands = state.operandsRef
+    const operands = state.operands.ref
     expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
     expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
   }
