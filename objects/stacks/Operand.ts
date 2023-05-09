@@ -17,14 +17,19 @@ export class OperandStack extends Stack {
     })
   }
 
-  splice (count: number, ...values: InternalValue[]): void {
+  splice (count: number, values?: InternalValue | InternalValue[]): void {
     if (this.length < count) {
       throw new StackUnderflow()
     }
-    for (const value of values) {
-      this.addValueRef(value)
+    const removedValues = this._values.splice(0, count)
+    if (values !== undefined) {
+      if (!Array.isArray(values)) {
+        values = [values]
+      }
+      for (const value of values) {
+        this.push(value)
+      }
     }
-    const removedValues = this._values.splice(0, count, ...values.reverse())
     for (const value of removedValues) {
       this.releaseValue(value)
     }

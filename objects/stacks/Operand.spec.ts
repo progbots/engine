@@ -1,7 +1,16 @@
 import { MemoryTracker } from '../../state/MemoryTracker'
-import { ValueType } from '../../index'
+import { IArray, ValueType } from '../../index'
 import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../errors'
 import { OperandStack } from './Operand'
+import { ShareableObject } from '../ShareableObject'
+
+class MyObject extends ShareableObject {
+  public disposeCalled: number = 0
+
+  protected _dispose (): void {
+    ++this.disposeCalled
+  }
+}
 
 describe('objects/stacks/Operand', () => {
   let tracker: MemoryTracker
@@ -80,11 +89,40 @@ describe('objects/stacks/Operand', () => {
       expect(tracker.used).toStrictEqual(initialUsedMemory)
     })
 
+    describe('handling of shared objects', () => {
+      let sharedObject: MyObject
+
+      beforeEach(() => {
+        sharedObject = new MyObject()
+        stack.push({
+          type: ValueType.array,
+          data: sharedObject as unknown as IArray
+        })
+        sharedObject.release()
+        expect(sharedObject.refCount).toStrictEqual(1)
+      })
+
+      it('releases on splice', () => {
+        stack.splice(1)
+        expect(sharedObject.refCount).toStrictEqual(0)
+        expect(sharedObject.disposeCalled).toStrictEqual(1)
+      })
+
+      it('does not release if added again (1)', () => {
+        stack.splice(1, [{
+          type: ValueType.array,
+          data: sharedObject as unknown as IArray
+        }])
+        expect(sharedObject.refCount).toStrictEqual(1)
+        expect(sharedObject.disposeCalled).toStrictEqual(0)
+      })
+    })
+
     it('removes and adds values to the stack (1)', () => {
-      stack.splice(1, {
+      stack.splice(1, [{
         type: ValueType.integer,
         data: 456
-      })
+      }])
       expect(stack.ref).toStrictEqual([{
         type: ValueType.integer,
         data: 456
@@ -95,13 +133,13 @@ describe('objects/stacks/Operand', () => {
     })
 
     it('removes and adds values to the stack (2)', () => {
-      stack.splice(2, {
+      stack.splice(2, [{
         type: ValueType.integer,
         data: 456
       }, {
         type: ValueType.string,
         data: 'def'
-      })
+      }])
       expect(stack.ref).toStrictEqual([{
         type: ValueType.string,
         data: 'def'
