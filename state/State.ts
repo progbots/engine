@@ -1,7 +1,7 @@
 import { ValueType, IArray, IDictionary, Value, IState, StateFactorySettings } from '../index'
 import { Break, BusyParsing, DictStackUnderflow, InvalidBreak, Undefined } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
-import { Stack } from '../objects/Stack'
+import { Stack } from '../objects/stacks/Stack'
 import { MemoryTracker } from './MemoryTracker'
 import { Dictionary, SystemDictionary } from '../objects/dictionaries/index'
 import { HostDictionary } from '../objects/dictionaries/Host'
