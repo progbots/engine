@@ -9,7 +9,7 @@ class MyStack extends Stack {
   }
 }
 
-describe('objects/Stack', () => {
+describe('objects/stacks/Stack', () => {
   let tracker: MemoryTracker
   let stack: MyStack
 
