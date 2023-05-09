@@ -18,7 +18,7 @@ export class OperandStack extends Stack {
   }
 
   splice (count: number, ...values: InternalValue[]): void {
-    if (this._values.length < count) {
+    if (this.length < count) {
       throw new StackUnderflow()
     }
     this._values.splice(0, count, ...values.reverse())
