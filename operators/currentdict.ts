@@ -1,5 +1,5 @@
 import { State } from '../state/index'
 
-export function * currentdict (state: State): Generator {
-  state.push(state.dictionariesRef[0])
+export function * currentdict ({ operands, dictionaries }: State): Generator {
+  operands.push(dictionaries.at(0))
 }

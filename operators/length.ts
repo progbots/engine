@@ -1,7 +1,6 @@
 import { IDictionary, ValueType } from '../index'
 import { TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
-import { checkOperands, spliceOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 
@@ -26,8 +25,8 @@ const sizers: Record<string, (container: InternalValue) => number> = {
   [ValueType.proc]: arrayLikeLength
 }
 
-export function * length (state: State): Generator {
-  const [container] = checkOperands(state, null)
+export function * length ({ operands }: State): Generator {
+  const [container] = operands.check(null)
   const sizer = sizers[container.type]
   if (sizer === undefined) {
     throw new TypeCheck()
@@ -35,7 +34,7 @@ export function * length (state: State): Generator {
   ShareableObject.addRef(container)
   try {
     const length = sizer(container)
-    spliceOperands(state, 1, {
+    operands.splice(1, {
       type: ValueType.integer,
       data: length
     })

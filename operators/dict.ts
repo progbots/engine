@@ -4,7 +4,7 @@ import { Dictionary } from '../objects/dictionaries/index'
 
 export function * dict (state: State): Generator {
   const dict = new Dictionary(state.memoryTracker)
-  state.push({
+  state.operands.push({
     type: ValueType.dict,
     data: dict
   })

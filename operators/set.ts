@@ -1,14 +1,12 @@
 import { ValueType, IDictionary } from '../index'
 import { RangeCheck, TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
-import { checkOperands, spliceOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 import { checkIWritableDictionary } from '../objects/dictionaries/index'
 
-const setters: Record<string, (state: State) => InternalValue> = {
-  [ValueType.string]: (state: State): InternalValue => {
-    const [value, index, container] = state.operandsRef
+const setters: Record<string, (container: InternalValue, index: InternalValue, value: InternalValue) => InternalValue> = {
+  [ValueType.string]: (container: InternalValue, index: InternalValue, value: InternalValue): InternalValue => {
     if (index.type !== ValueType.integer || value.type !== ValueType.integer) {
       throw new TypeCheck()
     }
@@ -27,8 +25,7 @@ const setters: Record<string, (state: State) => InternalValue> = {
     }
   },
 
-  [ValueType.array]: (state: State): InternalValue => {
-    const [value, index, container] = state.operandsRef
+  [ValueType.array]: (container: InternalValue, index: InternalValue, value: InternalValue): InternalValue => {
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
     }
@@ -41,8 +38,7 @@ const setters: Record<string, (state: State) => InternalValue> = {
     return container
   },
 
-  [ValueType.dict]: (state: State): InternalValue => {
-    const [value, index, container] = state.operandsRef
+  [ValueType.dict]: (container: InternalValue, index: InternalValue, value: InternalValue): InternalValue => {
     if (index.type !== ValueType.string) {
       throw new TypeCheck()
     }
@@ -54,16 +50,16 @@ const setters: Record<string, (state: State) => InternalValue> = {
   }
 }
 
-export function * set (state: State): Generator {
-  const [,, container] = checkOperands(state, null, null, null)
+export function * set ({ operands }: State): Generator {
+  const [value, index, container] = operands.check(null, null, null)
   const setter = setters[container.type]
   if (setter === undefined) {
     throw new TypeCheck()
   }
   ShareableObject.addRef(container)
   try {
-    const value = setter(state)
-    spliceOperands(state, 3, value)
+    const result = setter(container, index, value)
+    operands.splice(3, result)
   } finally {
     ShareableObject.release(container)
   }

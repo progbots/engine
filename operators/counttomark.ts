@@ -1,10 +1,9 @@
 import { ValueType } from '../index'
 import { State } from '../state/index'
-import { findMarkPos } from './operands'
 
-export function * counttomark (state: State): Generator {
-  state.push({
+export function * counttomark ({ operands }: State): Generator {
+  operands.push({
     type: ValueType.integer,
-    data: findMarkPos(state)
+    data: operands.findMarkPos()
   })
 }

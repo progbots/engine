@@ -2,13 +2,13 @@ import { ValueType } from '../index'
 import { Break } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
 import { State } from '../state/index'
-import { checkOperands } from './operands'
 
 export function * loop (state: State): Generator {
-  const [proc] = checkOperands(state, ValueType.proc)
+  const { operands } = state
+  const [proc] = operands.check(ValueType.proc)
   ShareableObject.addRef(proc)
   try {
-    state.pop()
+    operands.pop()
     // Stryker disable next-line all
     while (true) {
       yield * state.eval(proc)

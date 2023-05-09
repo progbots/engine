@@ -1,12 +1,10 @@
 import { IDictionary, ValueType } from '../index'
 import { RangeCheck, TypeCheck, Undefined } from '../errors/index'
 import { InternalValue, State } from '../state/index'
-import { checkOperands, spliceOperands } from './operands'
 import { ArrayLike } from '../objects/Array'
 import { ShareableObject } from '../objects/ShareableObject'
 
-function arrayLikeGetter (state: State): InternalValue {
-  const [index, container] = state.operandsRef
+function arrayLikeGetter (container: InternalValue, index: InternalValue): InternalValue {
   if (index.type !== ValueType.integer) {
     throw new TypeCheck()
   }
@@ -15,9 +13,8 @@ function arrayLikeGetter (state: State): InternalValue {
   return array.at(pos)
 }
 
-const getters: Record<string, (state: State) => InternalValue> = {
-  [ValueType.string]: (state: State): InternalValue => {
-    const [index, container] = state.operandsRef
+const getters: Record<string, (container: InternalValue, index: InternalValue) => InternalValue> = {
+  [ValueType.string]: (container: InternalValue, index: InternalValue): InternalValue => {
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
     }
@@ -34,8 +31,7 @@ const getters: Record<string, (state: State) => InternalValue> = {
 
   [ValueType.array]: arrayLikeGetter,
 
-  [ValueType.dict]: (state: State): InternalValue => {
-    const [index, container] = state.operandsRef
+  [ValueType.dict]: (container: InternalValue, index: InternalValue): InternalValue => {
     if (index.type !== ValueType.string) {
       throw new TypeCheck()
     }
@@ -51,16 +47,16 @@ const getters: Record<string, (state: State) => InternalValue> = {
   [ValueType.proc]: arrayLikeGetter
 }
 
-export function * get (state: State): Generator {
-  const [, container] = checkOperands(state, null, null)
+export function * get ({ operands }: State): Generator {
+  const [index, container] = operands.check(null, null)
   const getter = getters[container.type]
   if (getter === undefined) {
     throw new TypeCheck()
   }
-  ShareableObject.addRef(container)
+  ShareableObject.addRef(container) // TODO: does not work for strings
   try {
-    const value = getter(state)
-    spliceOperands(state, 2, value)
+    const value = getter(container, index)
+    operands.splice(2, value)
   } finally {
     ShareableObject.release(container)
   }

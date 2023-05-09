@@ -1,9 +1,8 @@
 import { IDictionary, ValueType } from '../index'
 import { State } from '../state/index'
-import { checkOperands } from './operands'
 
-export function * begin (state: State): Generator {
-  const [dict] = checkOperands(state, ValueType.dict)
-  state.begin(dict.data as IDictionary)
-  state.pop()
+export function * begin ({ operands, dictionaries }: State): Generator {
+  const [dict] = operands.check(ValueType.dict)
+  dictionaries.begin(dict.data as IDictionary)
+  operands.pop()
 }
