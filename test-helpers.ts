@@ -73,7 +73,9 @@ function executeTest (test: TestDescription): void {
   } else if (expectedResult !== undefined) {
     let expectedOperands
     if (typeof expectedResult === 'string') {
-      const expectedState = new State()
+      const expectedState = new State({
+        hostDictionary
+      })
       waitForCycles(expectedState.parse(expectedResult))
       expectedOperands = expectedState.operands.ref
     } else {
