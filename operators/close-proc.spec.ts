@@ -8,8 +8,16 @@ import { State } from '../state/index'
 describe('operators/close-proc (})', () => {
   executeTests({
     'creates a proc': {
+      host: {
+        addCall: function * ({ operands }: State): Generator {
+          operands.push({
+            type: ValueType.call,
+            data: 'add'
+          })
+        }
+      },
       src: '{ 3 4 add } aload',
-      expect: '3 4 systemdict "add" get'
+      expect: '3 4 addCall'
     },
     'handles proc inside proc': {
       src: 'true { false { 1 } { 2 } ifelse } if',
