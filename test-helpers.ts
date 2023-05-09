@@ -65,6 +65,19 @@ function executeTest (test: TestDescription): void {
   } catch (e) {
     exceptionCaught = e as Error
   }
+  if (typeof expectedResult !== 'function' || expectedResult.length !== 2) {
+    if (expectedErrorClass === undefined) {
+      expect(exceptionCaught).toBeUndefined()
+    } else if (exceptionCaught === undefined) {
+      expect(exceptionCaught).not.toBeUndefined()
+    } else if (expectedErrorClass.prototype instanceof InternalError) {
+      expect(exceptionCaught).toBeInstanceOf(Error)
+      const { name } = expectedErrorClass
+      expect(exceptionCaught.name).toStrictEqual(name)
+    } else {
+      expect(exceptionCaught).toBeInstanceOf(expectedErrorClass)
+    }
+  }
   if (expectedCycles !== undefined) {
     expect(cyclesCount).toStrictEqual(expectedCycles)
   }
@@ -84,19 +97,6 @@ function executeTest (test: TestDescription): void {
     const operands = state.operands.ref
     expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
     expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
-  }
-  if (typeof expectedResult !== 'function' || expectedResult.length !== 2) {
-    if (expectedErrorClass === undefined) {
-      expect(exceptionCaught).toBeUndefined()
-    } else if (exceptionCaught === undefined) {
-      expect(exceptionCaught).not.toBeUndefined()
-    } else if (expectedErrorClass.prototype instanceof InternalError) {
-      expect(exceptionCaught).toBeInstanceOf(Error)
-      const { name } = expectedErrorClass
-      expect(exceptionCaught.name).toStrictEqual(name)
-    } else {
-      expect(exceptionCaught).toBeInstanceOf(expectedErrorClass)
-    }
   }
   if (cleanBeforeCheckingForLeaks !== undefined) {
     waitForCycles(state.parse(cleanBeforeCheckingForLeaks))
