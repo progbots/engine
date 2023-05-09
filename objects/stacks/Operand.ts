@@ -21,7 +21,13 @@ export class OperandStack extends Stack {
     if (this.length < count) {
       throw new StackUnderflow()
     }
-    this._values.splice(0, count, ...values.reverse())
+    for (const value of values) {
+      this.addValueRef(value)
+    }
+    const removedValues = this._values.splice(0, count, ...values.reverse())
+    for (const value of removedValues) {
+      this.releaseValue(value)
+    }
   }
 
   findMarkPos (): number {

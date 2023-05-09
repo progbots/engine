@@ -6,10 +6,12 @@ import { OperandStack } from './Operand'
 describe('objects/stacks/Operand', () => {
   let tracker: MemoryTracker
   let stack: OperandStack
+  let initialUsedMemory: number
 
   beforeEach(() => {
     tracker = new MemoryTracker()
     stack = new OperandStack(tracker)
+    initialUsedMemory = tracker.used
     stack.push({
       type: ValueType.string,
       data: 'abc'
@@ -73,6 +75,11 @@ describe('objects/stacks/Operand', () => {
   })
 
   describe('splice', () => {
+    it('removes values from the stack', () => {
+      stack.splice(2)
+      expect(tracker.used).toStrictEqual(initialUsedMemory)
+    })
+
     it('removes and adds values to the stack (1)', () => {
       stack.splice(1, {
         type: ValueType.integer,
