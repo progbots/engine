@@ -1,9 +1,8 @@
 import { State } from './index'
-import { Value, ValueType } from '../index'
-import { InvalidBreak, StackUnderflow, Undefined } from '../errors/index'
+import { ValueType } from '../index'
+import { InvalidBreak } from '../errors/index'
 import { InternalError } from '../errors/InternalError'
 import { waitForCycles } from '../test-helpers'
-import { add } from '../operators'
 
 describe('state/State', () => {
   describe('protection against concurrent execution', () => {
