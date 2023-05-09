@@ -2,7 +2,6 @@ import { IDictionary, ValueType } from '../index'
 import { TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
 import { ArrayLike } from '../objects/Array'
-import { ShareableObject } from '../objects/ShareableObject'
 
 function arrayLikeLength (container: InternalValue): number {
   const array = container.data as ArrayLike
@@ -31,14 +30,8 @@ export function * length ({ operands }: State): Generator {
   if (sizer === undefined) {
     throw new TypeCheck()
   }
-  ShareableObject.addRef(container)
-  try {
-    const length = sizer(container)
-    operands.splice(1, {
-      type: ValueType.integer,
-      data: length
-    })
-  } finally {
-    ShareableObject.release(container)
-  }
+  operands.splice(1, {
+    type: ValueType.integer,
+    data: sizer(container)
+  })
 }

@@ -11,5 +11,5 @@ export function * index ({ operands }: State): Generator {
   if (valuePos >= operands.length) {
     throw new StackUnderflow()
   }
-  operands.splice(1, operands.at(valuePos))
+  operands.splice(1, operands.ref[valuePos])
 }

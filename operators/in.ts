@@ -2,7 +2,6 @@ import { IDictionary, ValueType } from '../index'
 import { TypeCheck } from '../errors/index'
 import { InternalValue, State } from '../state/index'
 import { ArrayLike } from '../objects/Array'
-import { ShareableObject } from '../objects/ShareableObject'
 
 function arrayLikeImpl (container: InternalValue, value: InternalValue): boolean {
   const array = container.data as ArrayLike
@@ -30,16 +29,10 @@ export function * inOp ({ operands }: State): Generator {
   if (impl === undefined) {
     throw new TypeCheck()
   }
-  ShareableObject.addRef(container)
-  try {
-    const data = impl(container, value)
-    operands.splice(2, {
-      type: ValueType.boolean,
-      data
-    })
-  } finally {
-    ShareableObject.release(container)
-  }
+  operands.splice(2, {
+    type: ValueType.boolean,
+    data: impl(container, value)
+  })
 }
 
 Object.defineProperty(inOp, 'name', {

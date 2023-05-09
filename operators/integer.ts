@@ -7,18 +7,16 @@ function extract ({ operands }: State): number[] {
 
 export function compare (state: State, implementation: (value1: number, value2: number) => boolean): void {
   const [value2, value1] = extract(state)
-  const result = implementation(value1, value2)
   state.operands.splice(2, {
     type: ValueType.boolean,
-    data: result
+    data: implementation(value1, value2)
   })
 }
 
 export function compute (state: State, implementation: (value1: number, value2: number) => number): void {
   const [value2, value1] = extract(state)
-  const result = implementation(value1, value2)
   state.operands.splice(2, {
     type: ValueType.integer,
-    data: result
+    data: implementation(value1, value2)
   })
 }

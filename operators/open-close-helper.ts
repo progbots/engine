@@ -2,8 +2,8 @@ import { ValueType } from '../index'
 import { ArrayLike } from '../objects/Array'
 import { State } from '../state/index'
 
-export function openWithMark ({ operands }: State): void {
-  const openInstruction = operands.at(0)
+export function openWithMark ({ operands, calls }: State): void {
+  const openInstruction = calls.ref[0]
   operands.push({
     ...openInstruction, // propagate debug infos
     type: ValueType.mark,
@@ -14,12 +14,12 @@ export function openWithMark ({ operands }: State): void {
 export function closeToMark (state: State, type: ValueType.array | ValueType.proc): void {
   const { operands } = state
   const markPos = operands.findMarkPos()
-  const mark = operands.at(markPos)
+  const mark = operands.ref[markPos]
   const array = new ArrayLike(state.memoryTracker)
   try {
     let index: number
     for (index = 0; index < markPos; ++index) {
-      array.unshift(operands.at(index))
+      array.unshift(operands.ref[index])
     }
     operands.splice(markPos + 1, {
       ...mark, // propagate debug infos

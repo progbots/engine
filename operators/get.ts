@@ -2,7 +2,6 @@ import { IDictionary, ValueType } from '../index'
 import { RangeCheck, TypeCheck, Undefined } from '../errors/index'
 import { InternalValue, State } from '../state/index'
 import { ArrayLike } from '../objects/Array'
-import { ShareableObject } from '../objects/ShareableObject'
 
 function arrayLikeGetter (container: InternalValue, index: InternalValue): InternalValue {
   if (index.type !== ValueType.integer) {
@@ -53,11 +52,6 @@ export function * get ({ operands }: State): Generator {
   if (getter === undefined) {
     throw new TypeCheck()
   }
-  ShareableObject.addRef(container) // TODO: does not work for strings
-  try {
-    const value = getter(container, index)
-    operands.splice(2, value)
-  } finally {
-    ShareableObject.release(container)
-  }
+  const value = getter(container, index)
+  operands.splice(2, value)
 }

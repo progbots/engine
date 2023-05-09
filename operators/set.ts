@@ -56,11 +56,5 @@ export function * set ({ operands }: State): Generator {
   if (setter === undefined) {
     throw new TypeCheck()
   }
-  ShareableObject.addRef(container)
-  try {
-    const result = setter(container, index, value)
-    operands.splice(3, result)
-  } finally {
-    ShareableObject.release(container)
-  }
+  operands.splice(3, setter(container, index, value))
 }
