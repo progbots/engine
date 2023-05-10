@@ -119,10 +119,10 @@ describe('objects/stacks/Operand', () => {
     })
 
     it('removes and adds values to the stack (1)', () => {
-      stack.splice(1, [{
+      stack.splice(1, {
         type: ValueType.integer,
         data: 456
-      }])
+      })
       expect(stack.ref).toStrictEqual([{
         type: ValueType.integer,
         data: 456
