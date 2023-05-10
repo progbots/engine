@@ -1,12 +1,16 @@
+import { RangeCheck } from '../errors'
 import { ValueType } from '../index'
 import { State } from '../state/index'
 
 export function * roll ({ operands }: State): Generator {
   const [steps, size] = operands.check(ValueType.integer, ValueType.integer).map(value => value.data as number)
-  const values = operands.ref.slice(2, 2 + size).reverse()
-  const rolledValues = []
-  for (let index = 0; index < size; ++index) {
-    rolledValues.push(values[(size + index - steps) % size])
+  if (size <= 0) {
+    throw new RangeCheck()
   }
-  operands.splice(2 + size, rolledValues)
+  const values = operands.ref.slice(2, 2 + size).reverse()
+  const rolledValues = [...values, ...values]
+  const from = (size - steps) % size
+  operands.splice(2 + size,
+    // Stryker disable next-line ArithmeticOperator: replacing + with - leads to equivalent result
+    rolledValues.slice(from, from + size))
 }
