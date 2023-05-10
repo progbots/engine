@@ -9,7 +9,7 @@ export function * loop (state: State): Generator {
   ShareableObject.addRef(proc)
   try {
     operands.pop()
-    // Stryker disable next-line all
+    // Stryker disable next-line all: will obviously lead to a timeout
     while (true) {
       yield * state.eval(proc)
     }
