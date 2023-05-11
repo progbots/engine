@@ -1,4 +1,4 @@
-import { RangeCheck } from '../errors'
+import { RangeCheck } from '../errors/index'
 import { ValueType } from '../index'
 import { State } from '../state/index'
 

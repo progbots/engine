@@ -1,4 +1,4 @@
-import { Internal } from '../errors'
+import { Internal } from '../errors/index'
 import { IArray, IDictionary, ValueType } from '../index'
 import { ShareableObject } from './ShareableObject'
 

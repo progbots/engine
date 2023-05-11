@@ -1,6 +1,6 @@
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { IArray, ValueType } from '../../index'
-import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../errors'
+import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../errors/index'
 import { OperandStack } from './Operand'
 import { ShareableObject } from '../ShareableObject'
 

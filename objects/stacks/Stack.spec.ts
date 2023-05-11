@@ -1,7 +1,7 @@
 import { Stack } from './Stack'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { ValueType } from '../../index'
-import { StackUnderflow } from '../../errors'
+import { StackUnderflow } from '../../errors/index'
 
 class MyStack extends Stack {
   clear (): void {

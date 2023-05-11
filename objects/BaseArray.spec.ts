@@ -2,8 +2,8 @@ import { BaseArray } from './BaseArray'
 import { MemoryTracker } from '../state/MemoryTracker'
 import { ValueType } from '../index'
 import { InternalValue } from '../state/index'
-import { Dictionary } from './dictionaries'
-import { RangeCheck } from '../errors'
+import { Dictionary } from './dictionaries/index'
+import { RangeCheck } from '../errors/index'
 import { InternalError } from '../errors/InternalError'
 
 class MyArray extends BaseArray {
