@@ -21,13 +21,14 @@ describe('state/MemoryTracker', () => {
 
   describe('integer data type', () => {
     let integerValueSize: number
+    const integer = {
+      type: ValueType.integer,
+      data: 1
+    }
 
-    beforeAll(() => {
+    beforeEach(() => {
       const tracker = new MemoryTracker()
-      tracker.addValueRef({
-        type: ValueType.integer,
-        data: 1
-      })
+      tracker.addValueRef(integer)
       integerValueSize = tracker.used
     })
 
@@ -35,83 +36,84 @@ describe('state/MemoryTracker', () => {
       expect(integerValueSize).not.toStrictEqual(0)
     })
 
-    it('accumulates Value sizes', () => {
+    it('sums up bytes', () => {
       const tracker = new MemoryTracker()
-      const value = {
-        type: ValueType.integer,
-        data: 1
-      }
-      tracker.addValueRef(value)
-      tracker.addValueRef(value)
+      tracker.addValueRef(integer)
+      tracker.addValueRef(integer)
       expect(tracker.used).toStrictEqual(2 * integerValueSize)
+    })
+
+    it('frees bytes', () => {
+      const tracker = new MemoryTracker()
+      tracker.addValueRef(integer)
+      tracker.releaseValue(integer)
+      expect(tracker.used).toStrictEqual(0)
     })
   })
 
   describe('string management', () => {
-    it('counts small string size', () => {
-      const tracker = new MemoryTracker()
-      tracker.addValueRef({
+    describe('small strings', () => {
+      const string = {
         type: ValueType.string,
         data: 'small'
-      })
-      expect(tracker.used).toStrictEqual(MemoryTracker.VALUE_SIZE + 6)
-    })
+      }
+      const expectedSize = MemoryTracker.VALUE_SIZE + 6
 
-    it('duplicates small strings', () => {
-      const tracker = new MemoryTracker()
-      tracker.addValueRef({
-        type: ValueType.string,
-        data: 'small'
+      it('counts small string size', () => {
+        const tracker = new MemoryTracker()
+        tracker.addValueRef(string)
+        expect(tracker.used).toStrictEqual(expectedSize)
       })
-      const { used } = tracker
-      tracker.addValueRef({
-        type: ValueType.string,
-        data: 'small'
+
+      it('sums up bytes', () => {
+        const tracker = new MemoryTracker()
+        tracker.addValueRef(string)
+        tracker.addValueRef(string)
+        expect(tracker.used).toStrictEqual(2 * expectedSize)
       })
-      expect(tracker.used).toStrictEqual(2 * used)
+
+      it('frees bytes', () => {
+        const tracker = new MemoryTracker()
+        tracker.addValueRef(string)
+        tracker.releaseValue(string)
+        expect(tracker.used).toStrictEqual(0)
+      })
     })
 
     describe('reference counts big strings', () => {
-      const bigString = ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef')
+      const value = {
+        type: ValueType.string,
+        data: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef')
+      }
+      const expectedSize = MemoryTracker.VALUE_SIZE + MemoryTracker.INTEGER_SIZE + MemoryTracker.CACHABLE_STRING_LENGTH + 1
       let tracker: MemoryTracker
       let initial: number
-      let addedOnce: number
 
-      beforeAll(() => {
+      beforeEach(() => {
         tracker = new MemoryTracker()
         initial = tracker.used
+        tracker.addValueRef(value) // 1
       })
 
       it('stores string in a buffer', () => {
-        tracker.addValueRef({
-          type: ValueType.string,
-          data: bigString
-        })
-        addedOnce = tracker.used
-        expect(addedOnce).toBeGreaterThan(initial)
+        expect(tracker.used).toStrictEqual(expectedSize)
       })
 
       it('does not duplicate string if already reference counted', () => {
-        tracker.addValueRef({
-          type: ValueType.string,
-          data: bigString
-        })
-        expect(tracker.used).toBeLessThan(2 * addedOnce)
+        tracker.addValueRef(value) // 2
+        expect(tracker.used).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
       })
 
       it('does not free memory until removed the right number of times', () => {
-        tracker.releaseValue({
-          type: ValueType.string,
-          data: bigString
-        })
-        expect(tracker.used).toStrictEqual(addedOnce)
+        tracker.addValueRef(value) // 2
+        tracker.releaseValue(value) // 1
+        expect(tracker.used).toStrictEqual(expectedSize)
       })
 
       it('frees memory on last release', () => {
-        tracker.releaseValue({
-          type: ValueType.string,
-          data: bigString
-        })
+        tracker.addValueRef(value) // 2
+        tracker.releaseValue(value) // 1
+        tracker.releaseValue(value) // 0
         expect(tracker.used).toStrictEqual(initial)
       })
     })
