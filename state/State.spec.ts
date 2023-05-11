@@ -33,8 +33,17 @@ describe('state/State', () => {
   })
 
   describe('execution (and cycles) management', () => {
+    let state: State
+
+    beforeEach(() => {
+      state = new State()
+    })
+
+    afterEach(() => {
+      expect(state.calls.length).toStrictEqual(0)
+    })
+
     it('stacks integer value', () => {
-      const state = new State()
       expect(waitForCycles(state.parse('1'))).toStrictEqual(3)
       expect(state.operands.ref).toStrictEqual([{
         type: ValueType.integer,
@@ -43,7 +52,6 @@ describe('state/State', () => {
     })
 
     it('considers the first item as the last pushed', () => {
-      const state = new State()
       expect(waitForCycles(state.parse('1 2'))).toStrictEqual(5)
       const [first, second] = state.operands.ref
       expect(first).toStrictEqual({
@@ -57,7 +65,6 @@ describe('state/State', () => {
     })
 
     it('resolves and call an operator', () => {
-      const state = new State()
       expect(waitForCycles(state.parse('1 2 add'))).toStrictEqual(8)
       expect(state.operands.ref).toStrictEqual([{
         type: ValueType.integer,
@@ -66,7 +73,6 @@ describe('state/State', () => {
     })
 
     it('allows proc definition and execution', () => {
-      const state = new State()
       expect(waitForCycles(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(25)
       expect(state.operands.ref).toStrictEqual([{
         type: ValueType.integer,
@@ -74,9 +80,8 @@ describe('state/State', () => {
       }])
     })
 
-    it('controls call execution', () => {
-      const state = new State()
-      waitForCycles(state.parse('"test" { { 1 } } def test'))
+    it('controls call execution (defining)', () => {
+      waitForCycles(state.parse('"test" { { 1 } } def test', 'test.ps'))
       expect(state.operands.ref.length).toStrictEqual(1)
       expect(state.operands.ref[0].type).toStrictEqual(ValueType.proc)
     })
@@ -115,6 +120,20 @@ describe('state/State', () => {
       const used = state.usedMemory
       expect(used).toStrictEqual(initialMemoryUsed)
     })
+
+    it('does not include parsed source size', () => {
+      const state = new State({
+        maxMemoryBytes: 256
+      })
+      waitForCycles(state.parse(`
+% ${''.padStart(1024, 'abc')}
+1 2 add
+      `))
+      expect(state.operands.ref[0]).toStrictEqual({
+        type: ValueType.integer,
+        data: 3
+      })
+    })
   })
 
   describe('exception handling', () => {
@@ -148,6 +167,21 @@ describe('state/State', () => {
   })
 
   describe('break and invalid break', () => {
+    beforeAll(() => {
+      // Securing loop test against infinite loops
+      const state = new State()
+      waitForCycles(state.parse('true { 42 } if'))
+      expect(state.operands.at(0)).toStrictEqual({
+        type: ValueType.integer,
+        data: 42
+      })
+    })
+
+    it('breaks a loop', () => {
+      const state = new State()
+      waitForCycles(state.parse('{ break } loop'))
+    })
+
     it('signals an invalid use of break (eval)', () => {
       const state = new State()
       expect(() => waitForCycles(state.eval({
@@ -167,27 +201,43 @@ describe('state/State', () => {
       }
       expect(exceptionCaught).not.toBeUndefined()
     })
+
+    it('signals an invalid use of break (parse + if)', () => {
+      const state = new State()
+      let exceptionCaught: Error | undefined
+      try {
+        waitForCycles(state.parse('true { break } if'))
+      } catch (e) {
+        exceptionCaught = e as Error
+        expect(exceptionCaught.name).toStrictEqual('InvalidBreak')
+      }
+      expect(exceptionCaught).not.toBeUndefined()
+    })
   })
 
   describe('debug information', () => {
-    it('drops debug information when off', () => {
-      const state = new State()
-      waitForCycles(state.parse('1', 'test'))
-      const value = state.operands.ref[0]
-      expect(value.source).toBeUndefined()
-      expect(value.sourceFile).toBeUndefined()
-      expect(value.sourcePos).toBeUndefined()
+    describe('when off', () => {
+      it('drops debug information', () => {
+        const state = new State()
+        waitForCycles(state.parse('1', 'test.ps'))
+        const value = state.operands.ref[0]
+        expect(value.source).toBeUndefined()
+        expect(value.sourceFile).toBeUndefined()
+        expect(value.sourcePos).toBeUndefined()
+      })
     })
 
-    it('keeps debug information when on', () => {
-      const state = new State({
-        keepDebugInfo: true
+    describe('when on', () => {
+      it('keeps debug information', () => {
+        const state = new State({
+          keepDebugInfo: true
+        })
+        waitForCycles(state.parse('1', 'test.ps'))
+        const value = state.operands.ref[0]
+        expect(value.source).toStrictEqual('1')
+        expect(value.sourceFile).toStrictEqual('test.ps')
+        expect(value.sourcePos).toStrictEqual(0)
       })
-      waitForCycles(state.parse('1', 'test'))
-      const value = state.operands.ref[0]
-      expect(value.source).toStrictEqual('1')
-      expect(value.sourceFile).toStrictEqual('test')
-      expect(value.sourcePos).toStrictEqual(0)
     })
   })
 })

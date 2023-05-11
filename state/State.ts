@@ -106,14 +106,7 @@ export class State implements IState {
 
   private * evalCall (value: InternalValue): Generator {
     yield * this.wrapCall(value, function * (this: State): Generator {
-      let resolvedValue = this._dictionaries.lookup(value.data as string)
-      if (resolvedValue.type === ValueType.operator && this._keepDebugInfo) {
-        resolvedValue = {
-          ...value, // propagate debug infos
-          ...resolvedValue
-        }
-      }
-      yield * this.eval(resolvedValue)
+      yield * this.eval(this._dictionaries.lookup(value.data as string))
     })
   }
 
@@ -155,7 +148,7 @@ export class State implements IState {
 
   * eval (value: InternalValue): Generator {
     try {
-      if (value.type === ValueType.proc && this._noCall === 0) {
+      if (value.type === ValueType.proc) { // } && this._noCall === 0) {
         yield * this.evalProc(value)
       } else {
         yield * this.evalWithoutProc(value)
