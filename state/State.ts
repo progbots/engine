@@ -79,6 +79,12 @@ export class State implements IState {
 
   private wrapError (error: Error): void {
     // No internal error should go out because memory cannot be controlled (and they are not documented)
+    if (error instanceof Break) {
+      const invalidBreak = new InvalidBreak()
+      invalidBreak.callstack = error.callstack
+      error = invalidBreak
+    }
+    // No internal error should go out because memory cannot be controlled (and they are not documented)
     if (error instanceof InternalError) {
       const ex = new Error(error.message)
       ex.name = error.name
@@ -147,22 +153,10 @@ export class State implements IState {
   }
 
   * eval (value: InternalValue): Generator {
-    try {
-      if (value.type === ValueType.proc) { // } && this._noCall === 0) {
-        yield * this.evalProc(value)
-      } else {
-        yield * this.evalWithoutProc(value)
-      }
-    } catch (e) {
-      if (e instanceof Break &&
-        // Allowed only in a breakable operator
-        !this._calls.ref.some(({ type, data }) => type === ValueType.operator && (data as OperatorFunction).breakable === true)
-      ) {
-        const invalidBreak = new InvalidBreak()
-        invalidBreak.callstack = e.callstack
-        throw invalidBreak
-      }
-      throw e
+    if (value.type === ValueType.proc) { // } && this._noCall === 0) {
+      yield * this.evalProc(value)
+    } else {
+      yield * this.evalWithoutProc(value)
     }
   }
 

@@ -1,6 +1,5 @@
 import { State } from './index'
 import { ValueType } from '../index'
-import { InvalidBreak } from '../errors/index'
 import { InternalError } from '../errors/InternalError'
 import { waitForCycles } from '../test-helpers'
 
@@ -182,15 +181,7 @@ describe('state/State', () => {
       waitForCycles(state.parse('{ break } loop'))
     })
 
-    it('signals an invalid use of break (eval)', () => {
-      const state = new State()
-      expect(() => waitForCycles(state.eval({
-        type: ValueType.call,
-        data: 'break'
-      }))).toThrowError(InvalidBreak)
-    })
-
-    it('signals an invalid use of break (parse)', () => {
+    it('signals an invalid use of break', () => {
       const state = new State()
       let exceptionCaught: Error | undefined
       try {
@@ -202,7 +193,7 @@ describe('state/State', () => {
       expect(exceptionCaught).not.toBeUndefined()
     })
 
-    it('signals an invalid use of break (parse + if)', () => {
+    it('signals an invalid use of break (inside if)', () => {
       const state = new State()
       let exceptionCaught: Error | undefined
       try {

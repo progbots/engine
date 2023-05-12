@@ -4,7 +4,6 @@ import { State } from './State'
 export interface OperatorFunction {
   (state: State): Generator
   name: string
-  breakable?: boolean
 }
 
 export interface InternalValue extends Value {
