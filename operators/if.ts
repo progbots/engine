@@ -1,13 +1,13 @@
 import { State } from '../state/index'
 import { ValueType } from '../index'
-import { checkOperands, spliceOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
 
 export function * ifOp (state: State): Generator {
-  const [proc, condition] = checkOperands(state, ValueType.proc, ValueType.boolean)
+  const { operands } = state
+  const [proc, condition] = operands.check(ValueType.proc, ValueType.boolean)
   ShareableObject.addRef(proc)
   try {
-    spliceOperands(state, 2)
+    operands.splice(2)
     if (condition.data as boolean) {
       yield * state.eval(proc)
     }

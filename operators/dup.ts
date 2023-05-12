@@ -1,7 +1,6 @@
 import { State } from '../state/index'
-import { checkOperands } from './operands'
 
-export function * dup (state: State): Generator {
-  const [value] = checkOperands(state, null)
-  state.push(value)
+export function * dup ({ operands }: State): Generator {
+  const [value] = operands.check(null)
+  operands.push(value)
 }

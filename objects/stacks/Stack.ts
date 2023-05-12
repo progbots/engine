@@ -1,6 +1,6 @@
-import { StackUnderflow } from '../errors'
-import { InternalValue } from '../state/index'
-import { BaseArray } from './BaseArray'
+import { StackUnderflow } from '../../errors/index'
+import { InternalValue } from '../../state/index'
+import { BaseArray } from '../BaseArray'
 
 export class Stack extends BaseArray {
   protected pushImpl (value: InternalValue): void {

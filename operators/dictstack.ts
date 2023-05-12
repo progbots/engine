@@ -4,12 +4,12 @@ import { ValueType } from '../index'
 
 export function * dictstack (state: State): Generator {
   const array = new ArrayLike(state.memoryTracker)
-  const dictionaries = state.dictionariesRef
+  const { operands, dictionaries } = state
   try {
-    for (const value of dictionaries) {
+    for (const value of dictionaries.ref) {
       array.push(value)
     }
-    state.push({
+    operands.push({
       type: ValueType.array,
       data: array
     })

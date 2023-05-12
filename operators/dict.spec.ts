@@ -7,8 +7,8 @@ describe('operators/dict', () => {
   executeTests({
     'creates a new dictionary': {
       src: 'dict',
-      expect: (state: State) => {
-        const [top] = state.operandsRef
+      expect: ({ operands }: State) => {
+        const top = operands.ref[0]
         expect(top.type).toStrictEqual(ValueType.dict)
         expect(top.data).toBeInstanceOf(Dictionary)
       }

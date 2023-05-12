@@ -1,20 +1,15 @@
-import { ValueType, IArray, IDictionary, Value, IState, StateFactorySettings } from '../index'
-import { Break, BusyParsing, DictStackUnderflow, InvalidBreak, Undefined } from '../errors/index'
+import { ValueType, IArray, IState, StateFactorySettings } from '../index'
+import { Break, BusyParsing, InvalidBreak } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
-import { Stack } from '../objects/Stack'
+import { DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
 import { MemoryTracker } from './MemoryTracker'
-import { Dictionary, SystemDictionary } from '../objects/dictionaries/index'
-import { HostDictionary } from '../objects/dictionaries/Host'
 import { InternalError } from '../errors/InternalError'
 import { renderCallStack } from './callstack'
 
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
-  private readonly _systemdict: SystemDictionary = new SystemDictionary()
-  private readonly _globaldict: Dictionary
-  private readonly _minDictCount: number
-  private readonly _dictionaries: Stack
-  private readonly _operands: Stack
+  private readonly _dictionaries: DictionaryStack
+  private readonly _operands: OperandStack
   private readonly _calls: Stack
   private readonly _keepDebugInfo: boolean = false
   private _noCall: number = 0
@@ -22,19 +17,12 @@ export class State implements IState {
 
   constructor (settings: StateFactorySettings = {}) {
     this._memoryTracker = new MemoryTracker(settings.maxMemoryBytes)
-    this._dictionaries = new Stack(this._memoryTracker)
-    this._globaldict = new Dictionary(this._memoryTracker)
-    if (settings.hostDictionary != null) {
-      this.begin(new HostDictionary(settings.hostDictionary))
-    }
+    this._dictionaries = new DictionaryStack(this._memoryTracker, settings.hostDictionary)
+    this._operands = new OperandStack(this._memoryTracker)
+    this._calls = new Stack(this._memoryTracker)
     if (settings.keepDebugInfo === true) {
       this._keepDebugInfo = true
     }
-    this.begin(this._systemdict)
-    this.begin(this._globaldict)
-    this._minDictCount = this._dictionaries.length
-    this._operands = new Stack(this._memoryTracker)
-    this._calls = new Stack(this._memoryTracker)
   }
 
   // region IState
@@ -47,15 +35,15 @@ export class State implements IState {
     return this._memoryTracker.total
   }
 
-  get operands (): IArray {
+  get operands (): OperandStack {
     return this._operands
   }
 
-  get dictionaries (): IArray {
+  get dictionaries (): DictionaryStack {
     return this._dictionaries
   }
 
-  get calls (): IArray {
+  get calls (): Stack {
     return this._calls
   }
 
@@ -81,59 +69,6 @@ export class State implements IState {
     return this._keepDebugInfo
   }
 
-  get systemdict (): SystemDictionary {
-    return this._systemdict
-  }
-
-  get globaldict (): Dictionary {
-    return this._globaldict
-  }
-
-  get operandsRef (): readonly InternalValue[] {
-    return this._operands.ref
-  }
-
-  get callsRef (): readonly InternalValue[] {
-    return this._calls.ref
-  }
-
-  pop (): void {
-    this._operands.pop()
-  }
-
-  push (value: Value): void {
-    this._operands.push(value)
-  }
-
-  get dictionariesRef (): readonly InternalValue[] {
-    return this._dictionaries.ref
-  }
-
-  lookup (name: string): InternalValue {
-    for (const dictionaryValue of this._dictionaries.ref) {
-      const dictionary = dictionaryValue.data as IDictionary
-      const value = dictionary.lookup(name)
-      if (value !== null) {
-        return value
-      }
-    }
-    throw new Undefined()
-  }
-
-  begin (dictionary: IDictionary): void {
-    this._dictionaries.push({
-      type: ValueType.dict,
-      data: dictionary
-    })
-  }
-
-  end (): void {
-    if (this._dictionaries.ref.length === this._minDictCount) {
-      throw new DictStackUnderflow()
-    }
-    this._dictionaries.pop()
-  }
-
   preventCall (): void {
     ++this._noCall
   }
@@ -143,6 +78,12 @@ export class State implements IState {
   }
 
   private wrapError (error: Error): void {
+    // No internal error should go out because memory cannot be controlled (and they are not documented)
+    if (error instanceof Break) {
+      const invalidBreak = new InvalidBreak()
+      invalidBreak.callstack = error.callstack
+      error = invalidBreak
+    }
     // No internal error should go out because memory cannot be controlled (and they are not documented)
     if (error instanceof InternalError) {
       const ex = new Error(error.message)
@@ -171,14 +112,7 @@ export class State implements IState {
 
   private * evalCall (value: InternalValue): Generator {
     yield * this.wrapCall(value, function * (this: State): Generator {
-      let resolvedValue = this.lookup(value.data as string)
-      if (resolvedValue.type === ValueType.operator && this._keepDebugInfo) {
-        resolvedValue = {
-          ...value, // propagate debug infos
-          ...resolvedValue
-        }
-      }
-      yield * this.eval(resolvedValue)
+      yield * this.eval(this._dictionaries.lookup(value.data as string))
     })
   }
 
@@ -214,27 +148,15 @@ export class State implements IState {
       yield * this.evalOperator(value)
     } else {
       yield // execution cycle
-      this.push(value)
+      this.operands.push(value)
     }
   }
 
   * eval (value: InternalValue): Generator {
-    try {
-      if (value.type === ValueType.proc && this._noCall === 0) {
-        yield * this.evalProc(value)
-      } else {
-        yield * this.evalWithoutProc(value)
-      }
-    } catch (e) {
-      if (e instanceof Break &&
-        // Allowed only in a breakable operator
-        !this._calls.ref.some(({ type, data }) => type === ValueType.operator && (data as OperatorFunction).breakable === true)
-      ) {
-        const invalidBreak = new InvalidBreak()
-        invalidBreak.callstack = e.callstack
-        throw invalidBreak
-      }
-      throw e
+    if (value.type === ValueType.proc) { // } && this._noCall === 0) {
+      yield * this.evalProc(value)
+    } else {
+      yield * this.evalWithoutProc(value)
     }
   }
 

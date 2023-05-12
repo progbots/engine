@@ -1,6 +1,6 @@
 import { UnmatchedMark } from '../errors/index'
 import { executeTests } from '../test-helpers'
-import { IArray, ValueType } from '../index'
+import { ValueType } from '../index'
 import { State } from '../state/index'
 
 // test-for open-close-helper.ts
@@ -8,47 +8,24 @@ import { State } from '../state/index'
 describe('operators/close-proc (})', () => {
   executeTests({
     'creates a proc': {
-      src: '{ 3 4 add }',
-      expect: (state: State) => {
-        expect(state.operandsRef.length).toStrictEqual(1)
-        const [{ type, data }] = state.operandsRef
-        expect(type).toStrictEqual(ValueType.proc)
-        const array = data as IArray
-        expect(array.length).toStrictEqual(3)
-        expect(array.at(0).data).toStrictEqual(3)
-        expect(array.at(1).data).toStrictEqual(4)
-        expect(array.at(2)).toStrictEqual({
-          type: ValueType.call,
-          data: 'add'
-        })
-      }
+      host: {
+        addCall: function * ({ operands }: State): Generator {
+          operands.push({
+            type: ValueType.call,
+            data: 'add'
+          })
+        }
+      },
+      src: '{ 3 4 add } aload',
+      expect: '3 4 addCall'
     },
     'handles proc inside proc': {
-      src: '{ false { 1 } { 2 } ifelse }',
-      expect: (state: State) => {
-        expect(state.operandsRef.length).toStrictEqual(1)
-        const [{ type, data }] = state.operandsRef
-        expect(type).toStrictEqual(ValueType.proc)
-        const array = data as IArray
-        expect(array.length).toStrictEqual(4)
-        expect(array.at(0)).toStrictEqual({
-          type: ValueType.call,
-          data: 'false'
-        })
-        expect(array.at(1).type).toStrictEqual(ValueType.proc)
-        expect(array.at(2).type).toStrictEqual(ValueType.proc)
-        expect(array.at(3)).toStrictEqual({
-          type: ValueType.call,
-          data: 'ifelse'
-        })
-      }
+      src: 'true { false { 1 } { 2 } ifelse } if',
+      expect: '2'
     },
     'enables back call execution': {
-      src: '{ add } 3 4 add',
-      expect: (state: State) => {
-        expect(state.operandsRef.length).toStrictEqual(2)
-        expect(state.operandsRef[0].data).toStrictEqual(7)
-      }
+      src: 'mark { add } 3 4 add counttomark',
+      expect: '7 2'
     },
     'fails with UnmatchedMark if the stack does not contain a mark': {
       src: '3 4 }',

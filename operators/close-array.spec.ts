@@ -10,9 +10,9 @@ describe('operators/close-array (])', () => {
   executeTests({
     'creates an array': {
       src: '1 2 [ 3 4 ]',
-      expect: (state: State) => {
-        expect(state.operandsRef.length).toStrictEqual(3)
-        const [{ type, data }] = state.operandsRef
+      expect: ({ operands }: State) => {
+        expect(operands.length).toStrictEqual(3)
+        const { type, data } = operands.ref[0]
         expect(type).toStrictEqual(ValueType.array)
         const array = data as IArray
         expect(array.length).toStrictEqual(2)
@@ -21,15 +21,8 @@ describe('operators/close-array (])', () => {
       }
     },
     'evaluates calls during the array creation': {
-      src: '1 2 [ 3 4 add ]',
-      expect: (state: State) => {
-        expect(state.operandsRef.length).toStrictEqual(3)
-        const [{ type, data }] = state.operandsRef
-        expect(type).toStrictEqual(ValueType.array)
-        const array = data as IArray
-        expect(array.length).toStrictEqual(1)
-        expect(array.at(0).data).toStrictEqual(7)
-      }
+      src: '1 2 [ 3 4 add ] aload',
+      expect: '1 2 7'
     },
     'fails with UnmatchedMark if the stack does not contain a mark': {
       src: '3 4 ]',

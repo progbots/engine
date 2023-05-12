@@ -1,4 +1,4 @@
-import { Internal } from '../errors'
+import { Internal } from '../errors/index'
 import { InternalValue } from '../state/index'
 
 const TOOMANY_RELEASE = 'Superfluous release'

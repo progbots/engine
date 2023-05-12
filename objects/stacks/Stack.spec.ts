@@ -1,7 +1,7 @@
 import { Stack } from './Stack'
-import { MemoryTracker } from '../state/MemoryTracker'
-import { ValueType } from '../index'
-import { StackUnderflow } from '../errors'
+import { MemoryTracker } from '../../state/MemoryTracker'
+import { ValueType } from '../../index'
+import { StackUnderflow } from '../../errors/index'
 
 class MyStack extends Stack {
   clear (): void {
@@ -9,7 +9,7 @@ class MyStack extends Stack {
   }
 }
 
-describe('objects/Stack', () => {
+describe('objects/stacks/Stack', () => {
   let tracker: MemoryTracker
   let stack: MyStack
 

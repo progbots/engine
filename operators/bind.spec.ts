@@ -31,8 +31,8 @@ describe('operators/bind', () => {
     },
     'should not ignore errors': {
       host: {
-        asro: function * (state: State): Generator {
-          const [value] = state.operandsRef
+        asro: function * ({ operands }: State): Generator {
+          const value = operands.ref[0]
           const proc = value.data as unknown as ArrayLike
           proc.set = function (index: number, value: InternalValue): void {
             throw new InvalidAccess()

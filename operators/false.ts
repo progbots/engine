@@ -1,8 +1,8 @@
 import { State } from '../state/index'
 import { ValueType } from '../index'
 
-export function * falseOp (state: State): Generator {
-  state.push({
+export function * falseOp ({ operands }: State): Generator {
+  operands.push({
     type: ValueType.boolean,
     data: false
   })

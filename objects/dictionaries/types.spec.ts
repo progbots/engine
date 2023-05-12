@@ -1,5 +1,5 @@
 import { IDictionary } from '../..'
-import { InvalidAccess } from '../../errors'
+import { InvalidAccess } from '../../errors/index'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { Dictionary } from './Dictionary'
 import { SystemDictionary } from './System'

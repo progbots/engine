@@ -1,8 +1,8 @@
 import { State } from '../state/index'
 import { ValueType } from '../index'
 
-export function * mark (state: State): Generator {
-  state.push({
+export function * mark ({ operands }: State): Generator {
+  operands.push({
     type: ValueType.mark,
     data: null
   })

@@ -21,9 +21,6 @@ module.exports = {
           set.add(join(filePath, '..', dependency))
         })
       })
-      if (filePath.match(/\boperators\b/)) {
-        set.add(join(filePath, '../operands.ts'))
-      }
       // writeFileSync(logPath, '\tset:' + JSON.stringify([...set.entries()], undefined, 2) + '\t', { flag: 'a' })
       return set
     }

@@ -65,24 +65,6 @@ function executeTest (test: TestDescription): void {
   } catch (e) {
     exceptionCaught = e as Error
   }
-  if (expectedCycles !== undefined) {
-    expect(cyclesCount).toStrictEqual(expectedCycles)
-  }
-  if (typeof expectedResult === 'function') {
-    expectedResult(state, exceptionCaught)
-  } else if (expectedResult !== undefined) {
-    let expectedOperands
-    if (typeof expectedResult === 'string') {
-      const expectedState = new State()
-      waitForCycles(expectedState.parse(expectedResult))
-      expectedOperands = expectedState.operandsRef
-    } else {
-      expectedOperands = expectedResult
-    }
-    const operands = state.operandsRef
-    expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
-    expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
-  }
   if (typeof expectedResult !== 'function' || expectedResult.length !== 2) {
     if (expectedErrorClass === undefined) {
       expect(exceptionCaught).toBeUndefined()
@@ -95,6 +77,26 @@ function executeTest (test: TestDescription): void {
     } else {
       expect(exceptionCaught).toBeInstanceOf(expectedErrorClass)
     }
+  }
+  if (expectedCycles !== undefined) {
+    expect(cyclesCount).toStrictEqual(expectedCycles)
+  }
+  if (typeof expectedResult === 'function') {
+    expectedResult(state, exceptionCaught)
+  } else if (expectedResult !== undefined) {
+    let expectedOperands
+    if (typeof expectedResult === 'string') {
+      const expectedState = new State({
+        hostDictionary
+      })
+      waitForCycles(expectedState.parse(expectedResult))
+      expectedOperands = expectedState.operands.ref
+    } else {
+      expectedOperands = expectedResult
+    }
+    const operands = state.operands.ref
+    expect(operands.length).toBeGreaterThanOrEqual(expectedOperands.length)
+    expect(operands.slice(0, expectedOperands.length)).toStrictEqual(expectedOperands)
   }
   if (cleanBeforeCheckingForLeaks !== undefined) {
     waitForCycles(state.parse(cleanBeforeCheckingForLeaks))

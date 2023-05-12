@@ -1,10 +1,10 @@
 import { State } from '../state/index'
 import { ValueType } from '../index'
-import { checkOperands, spliceOperands } from './operands'
 import { ShareableObject } from '../objects/ShareableObject'
 
 export function * finallyOp (state: State): Generator {
-  const [procFinally, proc] = checkOperands(state, ValueType.proc, ValueType.proc)
+  const { operands } = state
+  const [procFinally, proc] = operands.check(ValueType.proc, ValueType.proc)
   ShareableObject.addRef([proc, procFinally])
   let released = false
   const release = (): void => {
@@ -14,7 +14,7 @@ export function * finallyOp (state: State): Generator {
     }
   }
   try {
-    spliceOperands(state, 2)
+    operands.splice(2)
     yield * state.eval(proc)
   } finally {
     try {

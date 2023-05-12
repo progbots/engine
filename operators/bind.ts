@@ -2,10 +2,9 @@ import { ValueType } from '../index'
 import { Undefined } from '../errors/index'
 import { ArrayLike } from '../objects/Array'
 import { State } from '../state/index'
-import { checkOperands } from './operands'
 
-export function * bind (state: State): Generator {
-  const [proc] = checkOperands(state, ValueType.proc)
+export function * bind ({ operands, dictionaries }: State): Generator {
+  const [proc] = operands.check(ValueType.proc)
   const procs: ArrayLike[] = [proc.data as unknown as ArrayLike]
   for (const procArray of procs) {
     for (let index = 0; index < procArray.ref.length; ++index) {
@@ -13,7 +12,7 @@ export function * bind (state: State): Generator {
       if (value.type === ValueType.call) {
         yield // bind cycle
         try {
-          const resolvedValue = state.lookup(value.data as string)
+          const resolvedValue = dictionaries.lookup(value.data as string)
           // TODO: some operators can be replaced with values (true, false, mark...)
           procArray.set(index, {
             ...value, // propagate debug infos

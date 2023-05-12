@@ -1,18 +1,16 @@
+import { RangeCheck } from '../errors/index'
 import { ValueType } from '../index'
 import { State } from '../state/index'
-import { checkOperands, spliceOperands } from './operands'
-import { ShareableObject } from '../objects/ShareableObject'
 
-export function * roll (state: State): Generator {
-  const [steps, size] = checkOperands(state, ValueType.integer, ValueType.integer).map(value => value.data as number)
-  const values = state.operandsRef.slice(2, 2 + size).reverse()
-  ShareableObject.addRef(values)
-  try {
-    spliceOperands(state, 2 + size)
-    for (let index = 0; index < size; ++index) {
-      state.push(values[(size + index - steps) % size])
-    }
-  } finally {
-    ShareableObject.release(values)
+export function * roll ({ operands }: State): Generator {
+  const [steps, size] = operands.check(ValueType.integer, ValueType.integer).map(value => value.data as number)
+  if (size <= 0) {
+    throw new RangeCheck()
   }
+  const values = operands.ref.slice(2, 2 + size).reverse()
+  const rolledValues = [...values, ...values]
+  const from = (size - steps) % size
+  operands.splice(2 + size,
+    // Stryker disable next-line ArithmeticOperator: replacing + with - leads to equivalent result
+    rolledValues.slice(from, from + size))
 }

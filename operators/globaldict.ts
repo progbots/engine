@@ -1,9 +1,9 @@
 import { ValueType } from '../index'
 import { State } from '../state/index'
 
-export function * globaldict (state: State): Generator {
-  state.push({
+export function * globaldict ({ operands, dictionaries }: State): Generator {
+  operands.push({
     type: ValueType.dict,
-    data: state.globaldict
+    data: dictionaries.globaldict
   })
 }
