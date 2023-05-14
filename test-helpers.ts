@@ -10,6 +10,7 @@ interface TestDescription {
   error?: Function // Subclass of InternalError
   expect?: Value[] | string | ((state: State, exceptionCaught?: Error) => void)
   host?: Record<string, OperatorFunction>
+  keepDebugInfo?: boolean
   cleanBeforeCheckingForLeaks?: string
 }
 
@@ -33,6 +34,7 @@ function executeTest (test: TestDescription): void {
     error: expectedErrorClass,
     expect: expectedResult,
     host,
+    keepDebugInfo,
     cleanBeforeCheckingForLeaks
   } = test
   let hostDictionary: IDictionary | undefined
@@ -55,13 +57,14 @@ function executeTest (test: TestDescription): void {
     }
   }
   const state = new State({
-    hostDictionary
+    hostDictionary,
+    keepDebugInfo
   })
   const initialMemory = state.usedMemory
   let exceptionCaught: Error | undefined
   let cyclesCount = 0
   try {
-    cyclesCount = waitForCycles(state.parse(src))
+    cyclesCount = waitForCycles(state.parse(src, 'test-src.ps'))
   } catch (e) {
     exceptionCaught = e as Error
   }
@@ -87,9 +90,10 @@ function executeTest (test: TestDescription): void {
     let expectedOperands
     if (typeof expectedResult === 'string') {
       const expectedState = new State({
-        hostDictionary
+        hostDictionary,
+        keepDebugInfo
       })
-      waitForCycles(expectedState.parse(expectedResult))
+      waitForCycles(expectedState.parse(expectedResult, 'test-expect.ps'))
       expectedOperands = expectedState.operands.ref
     } else {
       expectedOperands = expectedResult

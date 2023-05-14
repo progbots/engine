@@ -27,6 +27,16 @@ describe('operators/close-proc (})', () => {
       src: 'mark { add } 3 4 add counttomark',
       expect: '7 2'
     },
+    'keeps debug info from the opening bracket': {
+      src: '{ }',
+      keepDebugInfo: true,
+      expect: ({ operands }: State) => {
+        const { type, sourceFile, sourcePos } = operands.ref[0]
+        expect(type).toStrictEqual(ValueType.proc)
+        expect(sourceFile).toStrictEqual('test-src.ps')
+        expect(sourcePos).toStrictEqual(0)
+      }
+    },
     'fails with UnmatchedMark if the stack does not contain a mark': {
       src: '3 4 }',
       error: UnmatchedMark

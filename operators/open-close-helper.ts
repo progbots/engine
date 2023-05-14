@@ -3,7 +3,7 @@ import { ArrayLike } from '../objects/Array'
 import { State } from '../state/index'
 
 export function openWithMark ({ operands, calls }: State): void {
-  const openInstruction = calls.ref[1] // TODO: add a test to validate
+  const openInstruction = calls.ref[1]
   operands.push({
     ...openInstruction, // propagate debug infos
     type: ValueType.mark,

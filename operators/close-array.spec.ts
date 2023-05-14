@@ -24,6 +24,16 @@ describe('operators/close-array (])', () => {
       src: '1 2 [ 3 4 add ] aload',
       expect: '1 2 7'
     },
+    'keeps debug info from the opening bracket': {
+      src: '[ ]',
+      keepDebugInfo: true,
+      expect: ({ operands }: State) => {
+        const { type, sourceFile, sourcePos } = operands.ref[0]
+        expect(type).toStrictEqual(ValueType.array)
+        expect(sourceFile).toStrictEqual('test-src.ps')
+        expect(sourcePos).toStrictEqual(0)
+      }
+    },
     'fails with UnmatchedMark if the stack does not contain a mark': {
       src: '3 4 ]',
       error: UnmatchedMark
