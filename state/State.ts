@@ -147,8 +147,8 @@ export class State implements IState {
     } else if (value.type === ValueType.operator) {
       yield * this.evalOperator(value)
     } else {
-      yield // execution cycle
       this.operands.push(value)
+      yield // execution cycle
     }
   }
 
