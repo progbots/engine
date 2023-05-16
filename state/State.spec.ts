@@ -1,7 +1,8 @@
-import { State } from './index'
+import { InternalValue, State } from './index'
 import { ValueType } from '../index'
 import { InternalError } from '../errors/InternalError'
 import { waitForCycles } from '../test-helpers'
+import { renderCallStack } from './callstack'
 
 describe('state/State', () => {
   describe('protection against concurrent execution', () => {
@@ -42,47 +43,124 @@ describe('state/State', () => {
       expect(state.calls.length).toStrictEqual(0)
     })
 
-    it('stacks integer value', () => {
-      expect(waitForCycles(state.parse('1'))).toStrictEqual(3)
-      expect(state.operands.ref).toStrictEqual([{
-        type: ValueType.integer,
-        data: 1
-      }])
-    })
-
-    it('considers the first item as the last pushed', () => {
-      expect(waitForCycles(state.parse('1 2'))).toStrictEqual(5)
-      const [first, second] = state.operands.ref
-      expect(first).toStrictEqual({
-        type: ValueType.integer,
-        data: 2
+    describe('general', () => {
+      it('stacks integer value', () => {
+        expect(waitForCycles(state.parse('1'))).toStrictEqual(3)
+        expect(state.operands.ref).toStrictEqual([{
+          type: ValueType.integer,
+          data: 1
+        }])
       })
-      expect(second).toStrictEqual({
-        type: ValueType.integer,
-        data: 1
+
+      it('considers the first item as the last pushed', () => {
+        expect(waitForCycles(state.parse('1 2'))).toStrictEqual(5)
+        const [first, second] = state.operands.ref
+        expect(first).toStrictEqual({
+          type: ValueType.integer,
+          data: 2
+        })
+        expect(second).toStrictEqual({
+          type: ValueType.integer,
+          data: 1
+        })
+      })
+
+      it('resolves and call an operator', () => {
+        expect(waitForCycles(state.parse('1 2 add'))).toStrictEqual(8)
+        expect(state.operands.ref).toStrictEqual([{
+          type: ValueType.integer,
+          data: 3
+        }])
+      })
+
+      it('allows proc definition and execution', () => {
+        expect(waitForCycles(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(25)
+        expect(state.operands.ref).toStrictEqual([{
+          type: ValueType.integer,
+          data: 5
+        }])
+      })
+
+      it('controls call execution (defining)', () => {
+        waitForCycles(state.parse('"test" { { 1 } } def test', 'test.ps'))
+        expect(state.operands.ref.length).toStrictEqual(1)
+        expect(state.operands.ref[0].type).toStrictEqual(ValueType.proc)
       })
     })
 
-    it('resolves and call an operator', () => {
-      expect(waitForCycles(state.parse('1 2 add'))).toStrictEqual(8)
-      expect(state.operands.ref).toStrictEqual([{
-        type: ValueType.integer,
-        data: 3
-      }])
-    })
+    describe.only('step by step debugging', () => {
+      interface DebugStep {
+        label: string
+        operands?: InternalValue[]
+        callstack?: string
+      }
 
-    it('allows proc definition and execution', () => {
-      expect(waitForCycles(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(25)
-      expect(state.operands.ref).toStrictEqual([{
-        type: ValueType.integer,
-        data: 5
-      }])
-    })
+      interface DebugScenario {
+        label: string
+        src: string
+        steps: DebugStep[]
+      }
 
-    it('controls call execution (defining)', () => {
-      waitForCycles(state.parse('"test" { { 1 } } def test', 'test.ps'))
-      expect(state.operands.ref.length).toStrictEqual(1)
-      expect(state.operands.ref[0].type).toStrictEqual(ValueType.proc)
+      function test (scenario: DebugScenario): void {
+        describe(scenario.label, () => {
+          let state: State
+          let run: Generator
+          let done: boolean = false
+
+          beforeAll(() => {
+            state = new State()
+            run = state.parse(scenario.src)
+          })
+
+          afterEach(() => {
+            const result = run.next()
+            done = result.done ?? false
+          })
+
+          it('starts empty', () => {
+            expect(done).toStrictEqual(false)
+            expect(state.operands.ref).toStrictEqual([])
+            expect(renderCallStack(state.calls)).toStrictEqual('')
+          })
+
+          scenario.steps.forEach(step => {
+            it(`goes to step: ${step.label}`, () => {
+              expect(done).toStrictEqual(false)
+              if (step.operands !== undefined) {
+                expect(state.operands.ref).toStrictEqual(step.operands)
+              }
+              if (step.callstack !== undefined) {
+                expect(renderCallStack(state.calls)).toStrictEqual(step.callstack)
+              }
+            })
+          })
+
+          it('ends', () => {
+            expect(done).toStrictEqual(true)
+          })
+        })
+      }
+
+      test({
+        label: 'operand push',
+        src: '1',
+        steps: [{
+          label: 'parsing',
+          operands: [],
+          callstack: '"1"'
+        }, {
+          label: 'parsed 1',
+          operands: [],
+          callstack: '"»1«"'
+        }, {
+          label: 'stacked 1',
+          operands: [{
+            type: ValueType.integer,
+            data: 1
+          }],
+          callstack: '"»1«"'
+        }]
+      })
     })
   })
 
