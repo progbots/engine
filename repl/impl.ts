@@ -23,6 +23,20 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
   })
   let replIndex = 0
 
+  function operands (): void {
+    replHost.output(`${cyan}operands: ${yellow}${state.operands.length}`)
+    forEach(state.operands, (value, formattedIndex) => {
+      let debugInfo
+      const { sourceFile, sourcePos } = value as InternalValue
+      if (sourceFile === undefined || sourcePos === undefined) {
+        debugInfo = ''
+      } else {
+        debugInfo = ` ${blue}@${sourceFile}(${sourcePos.toString()})`
+      }
+      replHost.output(`${formattedIndex} ${formatters[value.type](value)}${debugInfo}`)
+    })
+  }
+
   while (true) {
     const src = await replHost.getInput()
     try {
@@ -42,17 +56,7 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
           forEach(state.dictionaries, (value, formattedIndex) => {
             replHost.output(`${formattedIndex} ${formatters[value.type](value)}`)
           })
-          replHost.output(`${cyan}operands: ${yellow}${state.operands.length}`)
-          forEach(state.operands, (value, formattedIndex) => {
-            let debugInfo
-            const { sourceFile, sourcePos } = value as InternalValue
-            if (sourceFile === undefined || sourcePos === undefined) {
-              debugInfo = ''
-            } else {
-              debugInfo = ` ${blue}@${sourceFile}(${sourcePos.toString()})`
-            }
-            replHost.output(`${formattedIndex} ${formatters[value.type](value)}${debugInfo}`)
-          })
+          operands()
         } else if (value === $debug) {
           debugging = true
         } else if (value === $load) {
@@ -64,7 +68,7 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
           }
         }
 
-        if (debugging) {
+        while (debugging) {
           replHost.output(renderCallStack(state.calls)
             .replace(/».*«/g, (match: string): string => `${yellow}${match}${white}`)
             .replace(/@.*\n/g, (match: string): string => `${blue}${match}${white}`)
@@ -76,13 +80,17 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
             absolute: true,
             lastOperandsCount,
             lastUsedMemory,
-            concat: `${cyan}, ${yellow}c${cyan}ontinue, ${yellow}q${cyan}uit`
+            concat: `${cyan}, ${yellow}o${cyan}perands, ${yellow}c${cyan}ontinue, ${yellow}q${cyan}uit`
           }))
           lastOperandsCount = state.operands.length
           lastUsedMemory = state.usedMemory
           const step = await replHost.getChar()
-          if (step === 'q') {
+          if (step === 'o') {
+            operands()
+          } else if (step === 'q') {
             debugging = false
+          } else {
+            break
           }
         }
 
