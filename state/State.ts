@@ -113,6 +113,7 @@ export class State implements IState {
   private * evalCall (value: InternalValue): Generator {
     yield * this.wrapCall(value, function * (this: State): Generator {
       yield * this.eval(this._dictionaries.lookup(value.data as string))
+      yield // execution cycle
     })
   }
 

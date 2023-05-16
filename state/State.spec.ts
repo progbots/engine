@@ -33,17 +33,17 @@ describe('state/State', () => {
   })
 
   describe('execution (and cycles) management', () => {
-    let state: State
-
-    beforeEach(() => {
-      state = new State()
-    })
-
-    afterEach(() => {
-      expect(state.calls.length).toStrictEqual(0)
-    })
-
     describe('general', () => {
+      let state: State
+
+      beforeEach(() => {
+        state = new State()
+      })
+
+      afterEach(() => {
+        expect(state.calls.length).toStrictEqual(0)
+      })
+
       it('stacks integer value', () => {
         expect(waitForCycles(state.parse('1'))).toStrictEqual(3)
         expect(state.operands.ref).toStrictEqual([{
@@ -159,6 +159,60 @@ describe('state/State', () => {
             data: 1
           }],
           callstack: '"»1«"'
+        }]
+      })
+
+      test({
+        label: 'operator call',
+        src: '1 2 add',
+        steps: [{
+          label: 'parsing',
+          operands: [],
+          callstack: '"1 2 add"'
+        }, {
+          label: 'parsed 1',
+          operands: [],
+          callstack: '"»1« 2 add"'
+        }, {
+          label: 'stacked 1',
+          operands: [{
+            type: ValueType.integer,
+            data: 1
+          }],
+          callstack: '"»1« 2 add"'
+        }, {
+          label: 'parsed 2',
+          operands: [{
+            type: ValueType.integer,
+            data: 1
+          }],
+          callstack: '"1 »2« add"'
+        }, {
+          label: 'stacked 2',
+          operands: [{
+            type: ValueType.integer,
+            data: 2
+          }, {
+            type: ValueType.integer,
+            data: 1
+          }],
+          callstack: '"1 »2« add"'
+        }, {
+          label: 'parsed add',
+          callstack: '"1 2 »add«"'
+        }, {
+          label: 'lookup for add',
+          callstack: 'add\n"1 2 »add«"'
+        }, {
+          label: 'resolved add',
+          callstack: '-add-\nadd\n"1 2 »add«"'
+        }, {
+          label: 'evaluated -add-',
+          operands: [{
+            type: ValueType.integer,
+            data: 3
+          }],
+          callstack: 'add\n"1 2 »add«"'
         }]
       })
     })
