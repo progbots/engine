@@ -1,21 +1,65 @@
 # Understanding the engine call stack
 
 The [`IState`][interfaces] interface exposes the `calls` member which returns an [`IArray`][interfaces].
-It is similar to the `operands` stack but it must be interpreted in a different way.
+It looks similar to the [operand stack][operand stack] but represents the **call stack** and must be interpreted in a different way.
 
-Depending on the [`ValueType`][interfaces], each call stack item indicates what the engine is currently processing. Sometimes, a call stack item must be associated with the next one.
+Depending on the [`ValueType`][interfaces], each item indicates what the engine is currently processing.
+Often, this item must be associated with the previous one ([`ValueType.integer`][interfaces]) to refine interpretation.
+
+> Should we expose the callstack renderer ?
 
 ## `ValueType.string`
 
-This kind of call stack item represents a call to the `parser`. It is generally preceded by a `ValueType.integer` indicating which offset of the string is currently being processed.
+This item type represents a call to [`IState.parse`][interfaces].
+When preceeded by a [`ValueType.integer`][interfaces], it indicates which offset of the parsed string is currently being processed *(if not, it means the parsing just started)*.
 
-## `ValueType.proc`
+For instance :
+```json
+[{
+  "type": "integertype",
+  "data": 2
+}, {
+  "type": "stringtype",
+  "data": "1 2 add"
+}]
+```
 
-This kind of call stack item is added whenever the engine is evaluated a procedure. It is generally preceded by a `ValueType.integer` indicating which item in the procedure is currently being processed.
+represents the following call stack :
+```text
+"1 »2« add"
+```
+
+**NOTE** : when the currently parsed item is a simple value type ([`ValueType.integer`][interfaces], [`ValueType.string`][interfaces]), the value is pushed directly to the [operand stack][operand stack] without any additional call item.
 
 ## `ValueType.call`
 
-Represents a lookup of a name in dictionaries. As a next step, it is preceded by the retrieved value.
+This item type represents the lookup of a name in the [dictionary stack][dictionary stack]. This execution step is important because when the name cannot be resolved, the engine will throw the [`Undefined` error][errors] and the missing name is documented in the call stack.
+
+From an execution point of view, the engine executes a cycle *before* doing the lookup
+As a next step, it is preceded by the retrieved value.
+
+
+## `ValueType.proc`
+
+This kind of item is present when the engine is evaluating a procedure. It is generally preceded by a `ValueType.integer` indicating which item *(0-based)* in the procedure is currently being processed *(if not, it means the procedure has just been resolved)*.
+
+For instance :
+```json
+[{
+  "type": "integertype",
+  "data": 1
+}, {
+  "type": "proctype",
+  "data": {}
+}]
+```
+
+represents the following stack :
+```text
+{ 1 »2« add }
+```
+
+
 
 ## `ValueType.operator`
 
@@ -23,3 +67,6 @@ Represents the execution of an operator. If the operator includes several steps 
 
 [interfaces]: https://github.com/progbots/engine/blob/main/index.ts
 [operators]: https://github.com/progbots/engine/blob/main/docs/operators/README.md
+[operand stack]: https://github.com/progbots/engine/blob/main/docs/README.md
+[dictionary stack]: https://github.com/progbots/engine/blob/main/docs/README.md
+[errors]: https://github.com/progbots/engine/blob/main/docs/errors.md
