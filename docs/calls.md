@@ -1,17 +1,17 @@
 # Understanding the engine call stack
 
-The [`IState`][interfaces] interface exposes the `calls` member which returns an [`IArray`][interfaces].
+The [`IState`][interfaces] interface exposes the `calls` member returning an [`IArray`][interfaces].
 It looks similar to the [operand stack][operand stack] but represents the **call stack** and must be interpreted in a different way.
 
-Depending on the [`ValueType`][interfaces], each item indicates what the engine is currently processing.
-Often, this item must be associated with the previous one ([`ValueType.integer`][interfaces]) to refine interpretation.
+Depending on the [`ValueType`][interfaces], each element indicates what the engine is currently processing.
+Often, this element must be associated with the previous one ([`ValueType.integer`][interfaces]) to refine interpretation.
 
 > Should we expose the callstack renderer ?
 
 ## `ValueType.string`
 
 This item type represents a call to [`IState.parse`][interfaces].
-When preceeded by a [`ValueType.integer`][interfaces], it indicates which offset of the parsed string is currently being processed *(if not, it means the parsing just started)*.
+When preceded by a [`ValueType.integer`][interfaces], it indicates which offset of the parsed string is currently being processed *(if not, it means the parsing just started)*.
 
 For instance :
 ```json
@@ -33,11 +33,56 @@ represents the following call stack :
 
 ## `ValueType.call`
 
-This item type represents the lookup of a name in the [dictionary stack][dictionary stack]. This execution step is important because when the name cannot be resolved, the engine will throw the [`Undefined` error][errors] and the missing name is documented in the call stack.
+This item type represents the lookup of a name in the [dictionary stack][dictionary stack].
+It is an important step because when the name cannot be resolved, the engine will throw the [`Undefined` error][errors] and the faulty name is documented in the call stack.
 
 From an execution point of view, the engine executes a cycle *before* doing the lookup
 As a next step, it is preceded by the retrieved value.
 
+
+For instance :
+```json
+[{
+  "type": "calltype",
+  "data": "add"
+}, {
+  "type": "integertype",
+  "data": 4
+}, {
+  "type": "stringtype",
+  "data": "1 2 add"
+}]
+```
+
+represents the following call stack :
+```text
+add
+"1 2 »add«"
+```
+
+For instance :
+```json
+[{
+  "type": "operatortypr",
+  "data": {}
+}, {
+  "type": "calltype",
+  "data": "add"
+}, {
+  "type": "integertype",
+  "data": 4
+}, {
+  "type": "stringtype",
+  "data": "1 2 add"
+}]
+```
+
+represents the following call stack :
+```text
+-add-
+add
+"1 2 »add«"
+```
 
 ## `ValueType.proc`
 
