@@ -35,6 +35,24 @@ export interface Value {
   | IDictionary // dict
 }
 
+export const EngineSignalPrefix = 'engine-signal:'
+
+export enum EngineSignal {
+  beforeParse = `${EngineSignalPrefix}before-parse`,
+  tokenParsed = `${EngineSignalPrefix}token-parsed`,
+  afterParse = `${EngineSignalPrefix}after-parse`,
+  beforeCall = `${EngineSignalPrefix}before-call`,
+  afterCall = `${EngineSignalPrefix}after-call`,
+  beforeOperator = `${EngineSignalPrefix}before-operator`,
+  afterOperator = `${EngineSignalPrefix}after-operator`,
+  beforeProc = `${EngineSignalPrefix}before-proc`,
+  beforeProcItem = `${EngineSignalPrefix}before-proc-item`,
+  afterProcItem = `${EngineSignalPrefix}after-proc-item`,
+  afterProc = `${EngineSignalPrefix}after-proc`,
+  beforeOperand = `${EngineSignalPrefix}before-operand`,
+  afterOperand = `${EngineSignalPrefix}after-operand`
+}
+
 export interface IState {
   readonly usedMemory: number
   readonly totalMemory: number

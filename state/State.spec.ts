@@ -1,5 +1,5 @@
 import { InternalValue, State } from './index'
-import { ValueType } from '../index'
+import { EngineSignal, ValueType } from '../index'
 import { InternalError } from '../errors/InternalError'
 import { waitForCycles } from '../test-helpers'
 import { renderCallStack } from './callstack'
@@ -45,7 +45,7 @@ describe('state/State', () => {
       })
 
       it('stacks integer value', () => {
-        expect(waitForCycles(state.parse('1'))).toStrictEqual(3)
+        expect(waitForCycles(state.parse('1'))).toStrictEqual(5)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 1
@@ -53,7 +53,7 @@ describe('state/State', () => {
       })
 
       it('considers the first item as the last pushed', () => {
-        expect(waitForCycles(state.parse('1 2'))).toStrictEqual(5)
+        expect(waitForCycles(state.parse('1 2'))).toStrictEqual(8)
         const [first, second] = state.operands.ref
         expect(first).toStrictEqual({
           type: ValueType.integer,
@@ -66,7 +66,7 @@ describe('state/State', () => {
       })
 
       it('resolves and call an operator', () => {
-        expect(waitForCycles(state.parse('1 2 add'))).toStrictEqual(8)
+        expect(waitForCycles(state.parse('1 2 add'))).toStrictEqual(13)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 3
@@ -74,7 +74,7 @@ describe('state/State', () => {
       })
 
       it('allows proc definition and execution', () => {
-        expect(waitForCycles(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(25)
+        expect(waitForCycles(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(48)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 5
@@ -88,9 +88,10 @@ describe('state/State', () => {
       })
     })
 
-    describe.only('step by step debugging', () => {
+    describe('step by step debugging', () => {
       interface DebugStep {
         label: string
+        signal?: string
         operands?: InternalValue[]
         callstack?: string
       }
@@ -105,6 +106,7 @@ describe('state/State', () => {
         describe(scenario.label, () => {
           let state: State
           let run: Generator
+          let value: any
           let done: boolean = false
 
           beforeAll(() => {
@@ -114,6 +116,7 @@ describe('state/State', () => {
 
           afterEach(() => {
             const result = run.next()
+            value = result.value
             done = result.done ?? false
           })
 
@@ -126,6 +129,9 @@ describe('state/State', () => {
           scenario.steps.forEach(step => {
             it(`goes to step: ${step.label}`, () => {
               expect(done).toStrictEqual(false)
+              if (step.signal !== undefined) {
+                expect(value).toStrictEqual(step.signal)
+              }
               if (step.operands !== undefined) {
                 expect(state.operands.ref).toStrictEqual(step.operands)
               }
@@ -145,20 +151,36 @@ describe('state/State', () => {
         label: 'operand push',
         src: '1',
         steps: [{
-          label: 'parsing',
+          label: 'start parsing',
+          signal: EngineSignal.beforeParse,
           operands: [],
           callstack: '"1"'
         }, {
           label: 'parsed 1',
+          signal: EngineSignal.tokenParsed,
           operands: [],
           callstack: '"»1«"'
         }, {
-          label: 'stacked 1',
+          label: 'before pushing 1',
+          signal: EngineSignal.beforeOperand,
+          operands: [],
+          callstack: '"»1«"'
+        }, {
+          label: 'after pushing 1',
+          signal: EngineSignal.afterOperand,
           operands: [{
             type: ValueType.integer,
             data: 1
           }],
           callstack: '"»1«"'
+        }, {
+          label: 'end parsing',
+          signal: EngineSignal.afterParse,
+          operands: [{
+            type: ValueType.integer,
+            data: 1
+          }],
+          callstack: '"1"'
         }]
       })
 
@@ -166,15 +188,23 @@ describe('state/State', () => {
         label: 'operator call',
         src: '1 2 add',
         steps: [{
-          label: 'parsing',
+          label: 'start parsing',
+          signal: EngineSignal.beforeParse,
           operands: [],
           callstack: '"1 2 add"'
         }, {
           label: 'parsed 1',
+          signal: EngineSignal.tokenParsed,
           operands: [],
           callstack: '"»1« 2 add"'
         }, {
-          label: 'stacked 1',
+          label: 'before pushing 1',
+          signal: EngineSignal.beforeOperand,
+          operands: [],
+          callstack: '"»1« 2 add"'
+        }, {
+          label: 'after pushin 1',
+          signal: EngineSignal.afterOperand,
           operands: [{
             type: ValueType.integer,
             data: 1
@@ -182,13 +212,19 @@ describe('state/State', () => {
           callstack: '"»1« 2 add"'
         }, {
           label: 'parsed 2',
+          signal: EngineSignal.tokenParsed,
+          callstack: '"1 »2« add"'
+        }, {
+          label: 'before pushing 2',
+          signal: EngineSignal.beforeOperand,
           operands: [{
             type: ValueType.integer,
             data: 1
           }],
           callstack: '"1 »2« add"'
         }, {
-          label: 'stacked 2',
+          label: 'after pushing 2',
+          signal: EngineSignal.afterOperand,
           operands: [{
             type: ValueType.integer,
             data: 2
@@ -199,20 +235,36 @@ describe('state/State', () => {
           callstack: '"1 »2« add"'
         }, {
           label: 'parsed add',
+          signal: EngineSignal.tokenParsed,
           callstack: '"1 2 »add«"'
         }, {
-          label: 'lookup for add',
+          label: 'before lookup for add',
+          signal: EngineSignal.beforeCall,
           callstack: 'add\n"1 2 »add«"'
         }, {
-          label: 'resolved add',
+          label: 'before calling the -add- operator',
+          signal: EngineSignal.beforeOperator,
           callstack: '-add-\nadd\n"1 2 »add«"'
         }, {
           label: 'evaluated -add-',
+          signal: EngineSignal.afterOperator,
           operands: [{
             type: ValueType.integer,
             data: 3
           }],
+          callstack: '-add-\nadd\n"1 2 »add«"'
+        }, {
+          label: 'after lookup for add',
+          signal: EngineSignal.afterCall,
           callstack: 'add\n"1 2 »add«"'
+        }, {
+          label: 'end parsing',
+          signal: EngineSignal.afterParse,
+          operands: [{
+            type: ValueType.integer,
+            data: 3
+          }],
+          callstack: '"1 2 add"'
         }]
       })
     })

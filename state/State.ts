@@ -1,4 +1,4 @@
-import { ValueType, IArray, IState, StateFactorySettings } from '../index'
+import { ValueType, IArray, IState, StateFactorySettings, EngineSignal } from '../index'
 import { Break, BusyParsing, InvalidBreak } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
 import { DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
@@ -95,49 +95,65 @@ export class State implements IState {
     throw error
   }
 
-  private * wrapCall (value: InternalValue, call: () => Generator): Generator {
+  private * wrapStep (
+    value: InternalValue,
+    signals: {
+      before: EngineSignal
+      after: EngineSignal
+    },
+    step: () => Generator
+  ): Generator {
     this._calls.push(value)
-    yield // execution cycle
+    yield signals.before
     try {
-      yield * call.apply(this)
+      yield * step.apply(this)
     } catch (e) {
       if (e instanceof InternalError) {
         e.callstack = renderCallStack(this.calls)
       }
       throw e
     } finally {
+      yield signals.after
       this._calls.pop()
     }
   }
 
   private * evalCall (value: InternalValue): Generator {
-    yield * this.wrapCall(value, function * (this: State): Generator {
+    yield * this.wrapStep(value, {
+      before: EngineSignal.beforeCall,
+      after: EngineSignal.afterCall
+    }, function * (this: State): Generator {
       yield * this.eval(this._dictionaries.lookup(value.data as string))
-      yield // execution cycle
     })
   }
 
   private * evalOperator (value: InternalValue): Generator {
-    yield * this.wrapCall(value, function * (this: State): Generator {
+    yield * this.wrapStep(value, {
+      before: EngineSignal.beforeOperator,
+      after: EngineSignal.afterOperator
+    }, function * (this: State): Generator {
       const operator = value.data as OperatorFunction
       yield * operator(this)
     })
   }
 
   private * evalProc (value: InternalValue): Generator {
-    yield * this.wrapCall(value, function * (this: State): Generator {
+    yield * this.wrapStep(value, {
+      before: EngineSignal.beforeProc,
+      after: EngineSignal.afterProc
+    }, function * (this: State): Generator {
       const proc = value.data as IArray
       const { length } = proc
       for (let index = 0; index < length; ++index) {
-        this._calls.push({
+        yield * this.wrapStep({
           type: ValueType.integer,
           data: index
-        })
-        try {
+        }, {
+          before: EngineSignal.beforeProcItem,
+          after: EngineSignal.afterProcItem
+        }, function * (this: State): Generator {
           yield * this.evalWithoutProc(proc.at(index))
-        } finally {
-          this._calls.pop()
-        }
+        })
       }
     })
   }
@@ -148,8 +164,9 @@ export class State implements IState {
     } else if (value.type === ValueType.operator) {
       yield * this.evalOperator(value)
     } else {
+      yield EngineSignal.beforeOperand
       this.operands.push(value)
-      yield // execution cycle
+      yield EngineSignal.afterOperand
     }
   }
 
@@ -172,12 +189,15 @@ export class State implements IState {
   }
 
   * innerParse (source: string, sourceFile?: string): Generator {
-    yield * this.wrapCall({
+    yield * this.wrapStep({
       type: ValueType.string,
       data: source,
       untracked: true, // because external
       sourceFile,
       sourcePos: 0
+    }, {
+      before: EngineSignal.beforeParse,
+      after: EngineSignal.afterParse
     }, function * (this: State): Generator {
       const parser = parse(source, sourceFile)
       for (const parsedValue of parser) {
@@ -186,7 +206,7 @@ export class State implements IState {
           data: parsedValue.sourcePos as number
         })
         try {
-          yield // parse cycle
+          yield EngineSignal.tokenParsed
           let value
           if (this._keepDebugInfo) {
             value = parsedValue

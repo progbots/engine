@@ -69,6 +69,9 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
         }
 
         while (debugging) {
+          if (typeof value === 'string') {
+            replHost.output(`${blue}${value}`)
+          }
           replHost.output(renderCallStack(state.calls)
             .replace(/».*«/g, (match: string): string => `${yellow}${match}${white}`)
             .replace(/@.*\n/g, (match: string): string => `${blue}${match}${white}`)
