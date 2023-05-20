@@ -86,6 +86,22 @@ describe('state/State', () => {
         expect(state.operands.ref.length).toStrictEqual(1)
         expect(state.operands.ref[0].type).toStrictEqual(ValueType.proc)
       })
+
+      it('controls call execution (call on proc)', () => {
+        waitForCycles(state.parse('"one" { 1 } def "test" { one } def test', 'test.ps'))
+        expect(state.operands.ref).toStrictEqual([{
+          type: ValueType.integer,
+          data: 1
+        }])
+      })
+
+      it('controls call execution (call on bound proc)', () => {
+        waitForCycles(state.parse('"one" { 1 } def "test" { one } bind def test', 'test.ps'))
+        expect(state.operands.ref).toStrictEqual([{
+          type: ValueType.integer,
+          data: 1
+        }])
+      })
     })
 
     describe('step by step debugging', () => {
