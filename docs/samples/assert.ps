@@ -18,22 +18,22 @@
     "expected" exch def
     "actual" exch def
 
-    "error" dict
-      "type" "assert_fail" set
+    "_error" dict
+      "name" "assert_eq_fail" set
       "expected" expected set
       "actual" actual set
     def
 
     actual type expected type neq
     {
-      error
+      _error
         "message" "Not the same type" set
       throw
     } if
 
     actual expected neq
     {
-      error
+      _error
         "message" "Not equal" set
       throw
     } if
