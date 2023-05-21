@@ -137,7 +137,7 @@ export class State implements IState {
     })
   }
 
-  private * evalProc (value: InternalValue): Generator {
+  public * evalBlockOrProc (value: InternalValue): Generator {
     yield * this.wrapStep(value, {
       before: EngineSignal.beforeProc,
       after: EngineSignal.afterProc
@@ -152,7 +152,7 @@ export class State implements IState {
           before: EngineSignal.beforeProcItem,
           after: EngineSignal.afterProcItem
         }, function * (this: State): Generator {
-          yield * this.evalWithoutProc(proc.at(index))
+          yield * this.eval(proc.at(index))
         })
       }
     })
@@ -170,15 +170,15 @@ export class State implements IState {
     }
   }
 
-  * eval (value: InternalValue): Generator {
-    if (value.type === ValueType.proc) { // } && this._noCall === 0) {
-      yield * this.evalProc(value)
+  private * eval (value: InternalValue): Generator {
+    if (value.type === ValueType.proc) {
+      yield * this.evalBlockOrProc(value)
     } else {
       yield * this.evalWithoutProc(value)
     }
   }
 
-  * outerParse (source: string, sourceFile?: string): Generator {
+  private * outerParse (source: string, sourceFile?: string): Generator {
     try {
       yield * this.innerParse(source, sourceFile)
     } catch (e) {
@@ -188,7 +188,7 @@ export class State implements IState {
     }
   }
 
-  * innerParse (source: string, sourceFile?: string): Generator {
+  public * innerParse (source: string, sourceFile?: string): Generator {
     yield * this.wrapStep({
       type: ValueType.string,
       data: source,

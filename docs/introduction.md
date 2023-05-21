@@ -37,7 +37,8 @@ Some other types exist but they are not directly 'exposed' :
 * mark *(marktype)* : a marker on the operand stack that relates to some specific operators (`cleartomark`, `counttomark`, `]`...)
 * array *(arraytype)* : an array of values
 * dict *(dicttype)* : a dictionary that associates a string key to a value of any type
-* proc *(proctype)* : can be compared to an executable array, this is typically a block of code (surrounded by `{` and `}`)
+* block *(blocktype)* : a block of code (surrounded by `{` and `}`)
+* proc *(proctype)* : an executable block of code
 
 When a call is made, the corresponding implementation is searched through the dictionary stack, the first matching result is evaluated. If no value is found, the `Undefined` error is thrown.
 

@@ -3,7 +3,7 @@ import { ValueType } from '../index'
 
 // test-for open-close-helper.ts
 
-describe('operators/open-proc ({)', () => {
+describe('operators/open-block ({)', () => {
   executeTests({
     'adds a mark': {
       src: '{',
@@ -30,7 +30,7 @@ describe('operators/open-proc ({)', () => {
         type: ValueType.call,
         data: 'sub'
       }, {
-        type: ValueType.proc,
+        type: ValueType.block,
         data: expect.anything() // Not relevant here
       }, {
         type: ValueType.call,

@@ -99,8 +99,8 @@ describe('state/parser', () => {
     }])
   })
 
-  describe('array and proc', () => {
-    it('separates array and proc symbols', () => {
+  describe('array and block', () => {
+    it('separates array and block symbols', () => {
       const block = [...parse('[][[]]]{{}{}}')].map(value => value.data as string)
       expect(block).toStrictEqual([
         '[', ']', '[', '[', ']', ']', ']', '{', '{', '}', '{', '}', '}'
@@ -114,7 +114,7 @@ describe('state/parser', () => {
       ])
     })
 
-    it('separates proc symbols from the names', () => {
+    it('separates block symbols from the names', () => {
       const block = [...parse('{abc} abc{')].map(value => value.data as string)
       expect(block).toStrictEqual([
         '{', 'abc', '}', 'abc', '{'

@@ -3,11 +3,11 @@ import { executeTests } from '../test-helpers'
 
 describe('operators/ifelse', () => {
   executeTests({
-    'evaluates if proc if true': {
+    'evaluates if block if true': {
       src: '0 true { 42 } { -1 } ifelse',
       expect: '0 42'
     },
-    'evaluates else proc if true': {
+    'evaluates else block if true': {
       src: '0 false { -1 } { 42 } ifelse',
       expect: '0 42'
     },

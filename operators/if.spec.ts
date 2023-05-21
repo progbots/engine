@@ -3,11 +3,11 @@ import { executeTests } from '../test-helpers'
 
 describe('operators/if', () => {
   executeTests({
-    'evaluates proc if true': {
+    'evaluates block if true': {
       src: '0 true { 42 } if',
       expect: '0 42'
     },
-    'does not evaluate proc if false': {
+    'does not evaluate block if false': {
       src: '0 false { 42 } if',
       expect: '0'
     },
@@ -19,11 +19,11 @@ describe('operators/if', () => {
       src: '{ 42 } if',
       error: StackUnderflow
     },
-    'fails with TypeCheck if boolean is there but not the proc': {
+    'fails with TypeCheck if boolean is there but not the block': {
       src: 'true "test" if',
       error: TypeCheck
     },
-    'fails with TypeCheck if proc is there but not the boolean': {
+    'fails with TypeCheck if block is there but not the boolean': {
       src: '1 { 42 } if',
       error: TypeCheck
     }

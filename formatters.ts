@@ -1,6 +1,18 @@
 import { IArray, IDictionary, IOperator, Value, ValueType } from './index'
 import { HostDictionary, SystemDictionary } from './objects/dictionaries/index'
 
+function codeFormatter (opening: string, closing: string, value: Value): string {
+  const output = [opening]
+  const array: IArray = value.data as IArray
+  const { length } = array
+  for (let index = 0; index < length; ++index) {
+    const item = array.at(index)
+    output.push(formatters[item.type](item))
+  }
+  output.push(closing)
+  return output.join(' ')
+}
+
 export const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',
   [ValueType.integer]: (value: Value): string => (value.data as number).toString(),
@@ -29,15 +41,6 @@ export const formatters: Record<ValueType, (value: Value) => string> = {
     }
     return `--dictionary(${dict.names.length.toString()})--`
   },
-  [ValueType.proc]: (value: Value): string => {
-    const output = ['{']
-    const array: IArray = value.data as IArray
-    const { length } = array
-    for (let index = 0; index < length; ++index) {
-      const item = array.at(index)
-      output.push(formatters[item.type](item))
-    }
-    output.push('}')
-    return output.join(' ')
-  }
+  [ValueType.block]: codeFormatter.bind(null, '{', '}'),
+  [ValueType.proc]: codeFormatter.bind(null, '(', ')')
 }

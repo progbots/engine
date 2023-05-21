@@ -11,7 +11,7 @@ export function openWithMark ({ operands, calls }: State): void {
   })
 }
 
-export function closeToMark (state: State, type: ValueType.array | ValueType.proc): void {
+export function closeToMark (state: State, type: ValueType.array | ValueType.block): void {
   const { operands } = state
   const markPos = operands.findMarkPos()
   const mark = operands.ref[markPos]

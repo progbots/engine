@@ -18,7 +18,7 @@ describe('operators/catch', () => {
       src: '{ 1 undefined 2 } { begin type name end } catch',
       expect: '1 "system" "Undefined"'
     },
-    'enables to throw an error in the catch proc': {
+    'enables to throw an error in the catch block': {
       src: '{ 1 stackunderflow 2 } { "name" get 3 undefined 4 } catch',
       error: Undefined,
       expect: '1 "StackUnderflow" 3'
@@ -33,11 +33,11 @@ describe('operators/catch', () => {
       error: Fail,
       expect: '1'
     },
-    'fails with StackUnderflow on a stack with only one proc': {
+    'fails with StackUnderflow on a stack with only one block': {
       src: '{ } catch',
       error: StackUnderflow
     },
-    'fails with TypeCheck if the operands are not proc': [{
+    'fails with TypeCheck if the operands are not block': [{
       src: '{ } "not_a_proc" catch',
       error: TypeCheck
     }, {

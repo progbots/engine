@@ -12,22 +12,27 @@
     dict
       "type" "it" set
       "name" 4 -1 roll set
-      "proc" 3 -1 roll set
+      "block" 3 -1 roll set
       
     content exch apush
 
   } bind def
 
   {
+    debug
     check_name_and_proc
 
     dict begin % stack describe dictionary
     {
       "type" "describe" def
+      undefined
+
       "name" 3 -1 roll def
       "content" [] def
 
-      true exch if % execute proc
+      undefined
+
+      true exch if % execute block
     }
     {
       end % unstack describe dictionary
@@ -40,5 +45,9 @@
   {
     end % unstack context dictionary
   } finally
+
+} bind def
+
+"run_all_tests" {
 
 } bind def

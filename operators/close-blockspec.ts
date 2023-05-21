@@ -5,9 +5,9 @@ import { State } from '../state/index'
 
 // test-for open-close-helper.ts
 
-describe('operators/close-proc (})', () => {
+describe('operators/close-block (})', () => {
   executeTests({
-    'creates a proc': {
+    'creates a block': {
       host: {
         addCall: function * ({ operands }: State): Generator {
           operands.push({
@@ -19,7 +19,7 @@ describe('operators/close-proc (})', () => {
       src: '{ 3 4 add } aload',
       expect: '3 4 addCall'
     },
-    'handles proc inside proc': {
+    'handles block inside block': {
       src: 'true { false { 1 } { 2 } ifelse } if',
       expect: '2'
     },
@@ -32,7 +32,7 @@ describe('operators/close-proc (})', () => {
       keepDebugInfo: true,
       expect: ({ operands }: State) => {
         const { type, sourceFile, sourcePos } = operands.ref[0]
-        expect(type).toStrictEqual(ValueType.proc)
+        expect(type).toStrictEqual(ValueType.block)
         expect(sourceFile).toStrictEqual('test-src.ps')
         expect(sourcePos).toStrictEqual(0)
       }

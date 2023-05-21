@@ -4,21 +4,21 @@ import { ShareableObject } from '../objects/ShareableObject'
 
 export function * finallyOp (state: State): Generator {
   const { operands } = state
-  const [procFinally, proc] = operands.check(ValueType.proc, ValueType.proc)
-  ShareableObject.addRef([proc, procFinally])
+  const [blockFinally, block] = operands.check(ValueType.block, ValueType.block)
+  ShareableObject.addRef([block, blockFinally])
   let released = false
   const release = (): void => {
     if (!released) {
-      ShareableObject.release([proc, procFinally])
+      ShareableObject.release([block, blockFinally])
       released = true
     }
   }
   try {
     operands.splice(2)
-    yield * state.eval(proc)
+    yield * state.evalBlockOrProc(block)
   } finally {
     try {
-      yield * state.eval(procFinally)
+      yield * state.evalBlockOrProc(blockFinally)
     } finally {
       release()
     }

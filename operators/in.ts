@@ -20,6 +20,8 @@ const implementations: Record<string, (container: InternalValue, value: Internal
     return iDict.names.includes(name)
   },
 
+  [ValueType.block]: arrayLikeImpl,
+
   [ValueType.proc]: arrayLikeImpl
 }
 

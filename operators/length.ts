@@ -21,6 +21,8 @@ const sizers: Record<string, (container: InternalValue) => number> = {
     return iDict.names.length
   },
 
+  [ValueType.block]: arrayLikeLength,
+
   [ValueType.proc]: arrayLikeLength
 }
 

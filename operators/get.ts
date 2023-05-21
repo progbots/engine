@@ -43,6 +43,8 @@ const getters: Record<string, (container: InternalValue, index: InternalValue) =
     return value
   },
 
+  [ValueType.block]: arrayLikeGetter,
+
   [ValueType.proc]: arrayLikeGetter
 }
 

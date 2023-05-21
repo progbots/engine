@@ -20,8 +20,12 @@ describe('operators/get', () => {
         data: add
       }]
     },
-    'gets item of a proc': {
+    'gets item of a block': {
       src: '{ 1 2 } 0 get',
+      expect: '1'
+    },
+    'gets item of a proc': {
+      src: 'dict begin "test" { 1 2 } def currentdict "test" get 0 get end',
       expect: '1'
     },
     'fails with StackUnderflow on empty stack': {
@@ -32,7 +36,7 @@ describe('operators/get', () => {
       src: '0 get',
       error: StackUnderflow
     },
-    'fails with TypeCheck if container is not an array, a string, a dict or a proc': {
+    'fails with TypeCheck if container is not an array, a string, a dict, a block or a proc': {
       src: 'mark "whatever" get',
       error: TypeCheck
     },
@@ -66,13 +70,23 @@ describe('operators/get', () => {
       src: 'systemdict "wontfind" get',
       error: Undefined
     },
-    'fails with TypeCheck if container is a proc but index is not an integer': {
+    'fails with TypeCheck if container is a block but index is not an integer': {
       src: '{ } "name" get',
       error: TypeCheck
     },
-    'fails with RangeCheck if container is a proc and index is out of range': {
+    'fails with RangeCheck if container is a block and index is out of range': {
       src: '{ } 1 get',
       error: RangeCheck
+    },
+    'fails with TypeCheck if container is a proc but index is not an integer': {
+      src: 'dict begin "test" { } def currentdict "test" get "name" get',
+      error: TypeCheck,
+      cleanBeforeCheckingForLeaks: 'clear end'
+    },
+    'fails with RangeCheck if container is a proc and index is out of range': {
+      src: 'dict begin "test" { } def currentdict "test" get 1 get',
+      error: RangeCheck,
+      cleanBeforeCheckingForLeaks: 'clear end'
     }
   })
 })

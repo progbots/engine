@@ -133,7 +133,7 @@ describe('state/MemoryTracker', () => {
   })
 
   describe('shareable object management', () => {
-    const types = [ValueType.array, ValueType.dict, ValueType.proc]
+    const types = [ValueType.array, ValueType.dict, ValueType.block, ValueType.proc]
 
     types.forEach(type => {
       it(`increments reference count on addValueRef (${type})`, () => {

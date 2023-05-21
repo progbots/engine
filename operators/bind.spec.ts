@@ -5,7 +5,7 @@ import { executeTests } from '../test-helpers'
 
 describe('operators/bind', () => {
   executeTests({
-    'replaces proc calls with their callees': {
+    'replaces block calls with their callees': {
       src: '{ true [ 42 ] "unchanged" } bind aload',
       expect: `systemdict "true" get
                systemdict "[" get
@@ -14,7 +14,7 @@ describe('operators/bind', () => {
                "unchanged"
               `
     },
-    'replaces proc recursively': {
+    'replaces block recursively': {
       src: `{ { true } { false } ifelse } bind aload
             3 1 roll aload
             3 1 roll aload
@@ -33,8 +33,8 @@ describe('operators/bind', () => {
       host: {
         asro: function * ({ operands }: State): Generator {
           const value = operands.ref[0]
-          const proc = value.data as unknown as ArrayLike
-          proc.set = function (index: number, value: InternalValue): void {
+          const block = value.data as unknown as ArrayLike
+          block.set = function (index: number, value: InternalValue): void {
             throw new InvalidAccess()
           }
         }
@@ -46,7 +46,7 @@ describe('operators/bind', () => {
       src: 'bind',
       error: StackUnderflow
     },
-    'fails with TypeCheck if the parameter is not a proc': {
+    'fails with TypeCheck if the parameter is not a block': {
       src: '0 bind',
       error: TypeCheck
     }

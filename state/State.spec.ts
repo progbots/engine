@@ -84,7 +84,7 @@ describe('state/State', () => {
       it('controls call execution (defining)', () => {
         waitForCycles(state.parse('"test" { { 1 } } def test', 'test.ps'))
         expect(state.operands.ref.length).toStrictEqual(1)
-        expect(state.operands.ref[0].type).toStrictEqual(ValueType.proc)
+        expect(state.operands.ref[0].type).toStrictEqual(ValueType.block)
       })
 
       it('controls call execution (call on proc)', () => {

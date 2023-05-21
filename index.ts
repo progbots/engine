@@ -7,6 +7,7 @@ export enum ValueType {
   mark = 'marktype',
   array = 'arraytype',
   dict = 'dicttype',
+  block = 'blocktype',
   proc = 'proctype'
 }
 

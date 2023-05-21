@@ -5,7 +5,7 @@ import { ArrayLike } from '../objects/Array'
 
 export function * aload ({ operands }: State): Generator {
   const [{ type, data }] = operands.check(null)
-  if (![ValueType.array, ValueType.proc].includes(type)) {
+  if (![ValueType.array, ValueType.block, ValueType.proc].includes(type)) {
     throw new TypeCheck()
   }
   const array = data as unknown as ArrayLike

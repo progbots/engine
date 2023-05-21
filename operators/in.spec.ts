@@ -17,7 +17,7 @@ describe('operators/get', () => {
       src: 'systemdict "aadd" in',
       expect: 'false'
     }],
-    'checks item of a proc': [{
+    'checks item of a block': [{
       src: '{ 1 2 add } 2 in',
       expect: 'true'
     }, {
@@ -30,6 +30,19 @@ describe('operators/get', () => {
       src: '{ 1 2 add } "add" in',
       expect: 'false'
     }],
+    'checks item of a proc': [{
+      src: 'dict begin "test" { 1 2 add } def currentdict "test" get 2 in end',
+      expect: 'true'
+    }, {
+      src: 'dict begin "test" { 1 2 add } def currentdict "test" get 3 in end',
+      expect: 'false'
+    }, {
+      src: 'dict begin "test" { 1 2 "add" } def currentdict "test" get "add" in end',
+      expect: 'true'
+    }, {
+      src: 'dict begin "test" { 1 2 add } def currentdict "test" get "add" in end',
+      expect: 'false'
+    }],
     'fails with StackUnderflow on insufficient stack': [{
       src: 'in',
       error: StackUnderflow
@@ -37,7 +50,7 @@ describe('operators/get', () => {
       src: '1 in',
       error: StackUnderflow
     }],
-    'fails with TypeCheck if container is not an array, a dict or a proc': {
+    'fails with TypeCheck if container is not an array, a dict, a block or a proc': {
       src: 'mark 1 in',
       error: TypeCheck
     },

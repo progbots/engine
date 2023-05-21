@@ -3,7 +3,7 @@ import { executeTests } from '../test-helpers'
 
 describe('operators/finally', () => {
   executeTests({
-    'always execute the finally proc': {
+    'always execute the finally block': {
       src: '{ 1 2 } { 3 } finally',
       expect: '1 2 3'
     },
@@ -21,11 +21,11 @@ describe('operators/finally', () => {
       src: 'finally',
       error: StackUnderflow
     },
-    'fails with StackUnderflow on a stack with only one proc': {
+    'fails with StackUnderflow on a stack with only one block': {
       src: '{ } finally',
       error: StackUnderflow
     },
-    'fails with TypeCheck if the operands are not proc': [{
+    'fails with TypeCheck if the operands are not block': [{
       src: '{ } "not_a_proc" finally',
       error: TypeCheck
     }, {

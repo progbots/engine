@@ -4,14 +4,15 @@
 | `aload` | array ⇒ ... any | dumps the content of the array on the [operand stack][operand stack] |
 | `apush` | array any ⇒ ∅ | pushes the value into the array |
 | `begin` | dict ⇒ ∅ | adds the dictionary to the top of the [dictionary stack][dictionary stack] |
-| `bind` | proc ⇒ proc | replace proc calls with their actual implementation |
-| `catch` | proc:safe proc:caught ⇒ ∅ | executes proc:safe and, if any exception occurs, executes proc:caught after adding the exception descriptor on the operand stack |
+| `bind` | block ⇒ block | replace block calls with their actual implementation |
+| `catch` | block:safe block:caught ⇒ ∅ | executes block:safe and, if any exception occurs, executes block:caught after adding the exception descriptor on the operand stack |
 | `clear` | ... ⇒ ∅ | clears the [operand stack][operand stack] |
 | `cleartomark` | mark ... ⇒ ∅ | clears the [operand stack][operand stack] up to the first mark |
 | `count` | ∅ ⇒ integer | returns the number of items in the [operand stack][operand stack] |
 | `counttomark` | mark ... ⇒ mark ... integer | returns the number of items in the [operand stack][operand stack] up to the first mark |
 | `currentdict` | ∅ ⇒ dict | returns the current dictionary, the one on the top of the [dictionary stack][dictionary stack] |
-| `def` | string any ⇒ ∅ | sets the value in the current dictionary, the one on the top of the [dictionary stack][dictionary stack] |
+| `def` | string any ⇒ ∅ | defines a value in the current dictionary, the one on the top of the [dictionary stack][dictionary stack] |
+| | string block ⇒ ∅ | defines a **procedure** in the current dictionary, the one on the top of the [dictionary stack][dictionary stack] |
 | `dict` | ∅ ⇒ dict | creates a new dictionary |
 | `dictstack` | ∅ ⇒ array&lt;dict&gt; | returns the content of the [dictionary stack][dictionary stack] |
 | `dup` | any:1 ⇒ any:1 any:1 | duplicate the current operandm the one on the top of the [operand stack][operand stack] |
@@ -19,25 +20,25 @@
 | `eq` | any:1 any:0 ⇒ boolean | returns true if the two items are [strictly equal][strict comparison] |
 | `exch` | any:1 any:0 ⇒ any:0 any:1 | swaps the top two items of the [operand stack][operand stack] |
 | `false` | ∅ ⇒ boolean | false |
-| `finally` | proc:safe proc:finally ⇒ ∅ | executes proc:safe and, even if an exception occurs, executes proc:finally |
+| `finally` | block:safe block:finally ⇒ ∅ | executes block:safe and, even if an exception occurs, executes block:finally |
 | `get` | string integer:pos ⇒ integer | returns the character code at position pos _(0-based)_ in the string |
 |  | array integer:pos ⇒ any | returns the item at position pos _(0-based)_ in the array |
 |  | dict string:name ⇒ any | returns the value associated to the name in the dictionary |
-|  | proc integer:pos ⇒ any | returns the item at position pos _(0-based)_ in the proc |
+|  | block integer:pos ⇒ any | returns the item at position pos _(0-based)_ in the block |
 | `globaldict` | ∅ ⇒ dict | returns the **global** dictionary from the [dictionary stack][dictionary stack] |
 | `gt`  | integer:a integer:b ⇒ integer:a&gt;b | compares two integers |
 | `gte`  | integer:a integer:b ⇒ integer:a&gt;=b | compares two integers |
-| `if` | boolean proc ⇒ ∅ | executes the proc if the boolean is true |
-| `ifelse` | boolean proc:if proc:else ⇒ ∅ | depending on the boolean value, executes either the proc:if or the proc:else |
+| `if` | boolean block ⇒ ∅ | executes the block if the boolean is true |
+| `ifelse` | boolean block:if block:else ⇒ ∅ | depending on the boolean value, executes either the block:if or the block:else |
 | `in` | array any:value ⇒ boolean | check if the value exists in the array |
 |  | dict string:name ⇒ boolean | check if the name exists in the dictionary |
-|  | proc any:value ⇒ boolean | check if the value exists in the proc |
+|  | block any:value ⇒ boolean | check if the value exists in the block |
 | `index` | integer ⇒ any | get an item from the [operand stack][operand stack] based on its index (0-based) |
 | `length` | string ⇒ integer | returns the length of the string|
 |  | array ⇒ integer | returns the number of values in the array |
 |  | dict ⇒ integer | returns the number of values in the dictionary |
-|  | proc ⇒ integer | returns the number of values in the proc |
-| `loop`  | proc ⇒ ∅ | executes the proc repeatedely (must use `break` to stop the loop) |
+|  | block ⇒ integer | returns the number of values in the block |
+| `loop`  | block ⇒ ∅ | executes the block repeatedely (must use `break` to stop the loop) |
 | `lt`  | integer:a integer:b ⇒ integer:a&lt;b | compares two integers |
 | `lte`  | integer:a integer:b ⇒ integer:a&lt;=b | compares two integers |
 | `mark`  | ∅ ⇒ mark | mark |

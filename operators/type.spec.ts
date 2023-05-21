@@ -35,8 +35,12 @@ describe('operators/type', () => {
       src: 'systemdict type',
       expect: '"dicttype"'
     },
-    'gives type of a proc': {
+    'gives type of a block': {
       src: '{ } type',
+      expect: '"blocktype"'
+    },
+    'gives type of a proc': {
+      src: 'dict begin "test" { } def currentdict "test" get type end',
       expect: '"proctype"'
     },
     'fails with StackUnderflow on empty stack': {

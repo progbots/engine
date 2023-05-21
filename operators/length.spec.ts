@@ -24,11 +24,18 @@ describe('operators/length', () => {
       src: 'dict "test" 42 set length',
       expect: '1'
     }],
-    'returns the length of a proc': [{
+    'returns the length of a block': [{
       src: '{ } length',
       expect: '0'
     }, {
       src: '{ 4 6 add } length',
+      expect: '3'
+    }],
+    'returns the length of a proc': [{
+      src: 'dict begin "test" { } def currentdict "test" get length end',
+      expect: '0'
+    }, {
+      src: 'dict begin "test" { 4 6 add } def currentdict "test" get length end',
       expect: '3'
     }],
     'fails with StackUnderflow on empty stack': {

@@ -4,16 +4,16 @@ import { ShareableObject } from '../objects/ShareableObject'
 
 export function * ifelse (state: State): Generator {
   const { operands } = state
-  const [procElse, procIf, condition] = operands.check(ValueType.proc, ValueType.proc, ValueType.boolean)
-  ShareableObject.addRef([procIf, procElse])
+  const [blockElse, blockIf, condition] = operands.check(ValueType.block, ValueType.block, ValueType.boolean)
+  ShareableObject.addRef([blockIf, blockElse])
   try {
     operands.splice(3)
     if (condition.data as boolean) {
-      yield * state.eval(procIf)
+      yield * state.evalBlockOrProc(blockIf)
     } else {
-      yield * state.eval(procElse)
+      yield * state.evalBlockOrProc(blockElse)
     }
   } finally {
-    ShareableObject.release([procIf, procElse])
+    ShareableObject.release([blockIf, blockElse])
   }
 }

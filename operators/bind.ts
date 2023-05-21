@@ -4,9 +4,9 @@ import { ArrayLike } from '../objects/Array'
 import { State } from '../state/index'
 
 export function * bind ({ operands, dictionaries }: State): Generator {
-  const [proc] = operands.check(ValueType.proc)
-  const procs: ArrayLike[] = [proc.data as unknown as ArrayLike]
-  for (const procArray of procs) {
+  const [block] = operands.check(ValueType.block)
+  const blocks: ArrayLike[] = [block.data as unknown as ArrayLike]
+  for (const procArray of blocks) {
     for (let index = 0; index < procArray.ref.length; ++index) {
       const value = procArray.at(index)
       if (value.type === ValueType.call) {
@@ -23,8 +23,8 @@ export function * bind ({ operands, dictionaries }: State): Generator {
             throw e
           }
         }
-      } else if (value.type === ValueType.proc) {
-        procs.push(value.data as unknown as ArrayLike)
+      } else if (value.type === ValueType.block) {
+        blocks.push(value.data as unknown as ArrayLike)
       }
     }
   }

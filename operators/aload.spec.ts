@@ -7,8 +7,12 @@ describe('operators/aload', () => {
       src: '[1 2 3] aload',
       expect: '1 2 3'
     },
-    'pushes all the element of the proc': {
+    'pushes all the element of the block': {
       src: '{ 1 2 "add" } aload',
+      expect: '1 2 "add"'
+    },
+    'pushes all the element of the proc': {
+      src: 'dict begin "test" { 1 2 "add" } def currentdict "test" get aload end',
       expect: '1 2 "add"'
     },
     'fails with StackUnderflow on an empty stack': {

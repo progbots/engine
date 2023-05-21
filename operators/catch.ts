@@ -5,11 +5,11 @@ import { InternalError } from '../errors/InternalError'
 
 export function * catchOp (state: State): Generator {
   const { operands } = state
-  const [procCatch, proc] = operands.check(ValueType.proc, ValueType.proc)
-  ShareableObject.addRef([proc, procCatch])
+  const [blockCatch, block] = operands.check(ValueType.block, ValueType.block)
+  ShareableObject.addRef([block, blockCatch])
   try {
     operands.splice(2)
-    yield * state.eval(proc)
+    yield * state.evalBlockOrProc(block)
   } catch (e) {
     if (e instanceof InternalError) {
       operands.push({
@@ -17,13 +17,13 @@ export function * catchOp (state: State): Generator {
         data: e.dictionary
       })
       e.release()
-      yield * state.eval(procCatch)
+      yield * state.evalBlockOrProc(blockCatch)
     } else {
       // Any other error is incompatible with the engine
       throw e
     }
   } finally {
-    ShareableObject.release([proc, procCatch])
+    ShareableObject.release([block, blockCatch])
   }
 }
 

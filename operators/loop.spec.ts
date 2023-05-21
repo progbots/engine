@@ -15,7 +15,7 @@ describe('operators/loop', () => {
       src: 'loop',
       error: StackUnderflow
     },
-    'fails with TypeCheck if proc is not used': {
+    'fails with TypeCheck if block is not used': {
       src: '1 loop',
       error: TypeCheck
     }

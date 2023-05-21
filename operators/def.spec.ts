@@ -7,6 +7,10 @@ describe('operators/def', () => {
       src: 'dict begin "test" 42 def test end',
       expect: '42'
     },
+    'sets a procedure on the top dictionary': {
+      src: 'dict begin "test" { 1 2 add } def test end',
+      expect: '3'
+    },
     'fails with StackUnderflow on empty stack': {
       src: 'def',
       error: StackUnderflow

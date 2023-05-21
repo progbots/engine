@@ -5,19 +5,19 @@ import { State } from '../state/index'
 
 export function * loop (state: State): Generator {
   const { operands } = state
-  const [proc] = operands.check(ValueType.proc)
-  ShareableObject.addRef(proc)
+  const [block] = operands.check(ValueType.block)
+  ShareableObject.addRef(block)
   try {
     operands.pop()
     // Stryker disable next-line all: will obviously lead to a timeout
     while (true) {
-      yield * state.eval(proc)
+      yield * state.evalBlockOrProc(block)
     }
   } catch (e) {
     if (!(e instanceof Break)) {
       throw e
     }
   } finally {
-    ShareableObject.release(proc)
+    ShareableObject.release(block)
   }
 }
