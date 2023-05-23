@@ -17,6 +17,22 @@ function stringify (text: string): string {
   )
 }
 
+function codeRenderer (value: Value, step: number | undefined): string {
+  const output = ['{']
+  const array: IArray = value.data as IArray
+  const { length } = array
+  for (let index = 0; index < length; ++index) {
+    const item = array.at(index)
+    if (step === index) {
+      output.push(BEFORE_CURRENT + formatters[item.type](item) + AFTER_CURRENT)
+    } else {
+      output.push(formatters[item.type](item))
+    }
+  }
+  output.push('}')
+  return output.join(' ')
+}
+
 const renderers: Record<ValueType, (value: Value, step: number | undefined) => string> = {
   [ValueType.boolean]: unexpected,
   [ValueType.integer]: unexpected,
@@ -46,22 +62,8 @@ const renderers: Record<ValueType, (value: Value, step: number | undefined) => s
   [ValueType.mark]: unexpected,
   [ValueType.array]: unexpected,
   [ValueType.dict]: unexpected,
-  [ValueType.block]: unexpected,
-  [ValueType.proc]: (value: Value, step: number | undefined): string => {
-    const output = ['{']
-    const array: IArray = value.data as IArray
-    const { length } = array
-    for (let index = 0; index < length; ++index) {
-      const item = array.at(index)
-      if (step === index) {
-        output.push(BEFORE_CURRENT + formatters[item.type](item) + AFTER_CURRENT)
-      } else {
-        output.push(formatters[item.type](item))
-      }
-    }
-    output.push('}')
-    return output.join(' ')
-  }
+  [ValueType.block]: codeRenderer,
+  [ValueType.proc]: codeRenderer
 }
 
 export function renderCallStack (calls: IArray): string {
