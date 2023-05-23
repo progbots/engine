@@ -78,14 +78,34 @@ describe('errors/Custom', () => {
       custom = new Custom(dict)
     })
 
-    it('enables the modification of the dictionary', () => {
-      custom.def('test', {
-        type: ValueType.string,
-        data: 'test'
+    it('gives access to the dictionary', () => {
+      expect(custom.dictionary).toStrictEqual(dict)
+    })
+
+    describe('IWritableDictionary', () => {
+      it('list the existing names', () => {
+        expect(custom.names).toStrictEqual([
+          'name',
+          'message'
+        ])
       })
-      expect(dict.lookup('test')).toStrictEqual({
-        type: ValueType.string,
-        data: 'test'
+
+      it('enables lookup', () => {
+        expect(custom.lookup('name')).toStrictEqual({
+          type: ValueType.string,
+          data: 'name'
+        })
+      })
+
+      it('enables the modification of the dictionary', () => {
+        custom.def('test', {
+          type: ValueType.string,
+          data: 'test'
+        })
+        expect(dict.lookup('test')).toStrictEqual({
+          type: ValueType.string,
+          data: 'test'
+        })
       })
     })
 
