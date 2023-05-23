@@ -84,6 +84,12 @@ describe('errors/InternalError', () => {
       expect(callstack).toContain('InternalError.spec.ts')
     })
 
+    it('always return a string', () => {
+      const error = new InternalError('test')
+      error.stack = undefined
+      expect(error.callstack).toStrictEqual('')
+    })
+
     it('offers a setter', () => {
       const error = new InternalError('test')
       error.callstack = 'abc'
