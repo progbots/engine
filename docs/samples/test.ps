@@ -1,13 +1,29 @@
 "describe" {
+  % Store all tests in one dictionary
+  {
+    _allTests
+  }
+  {
+    dup "name" get "Undefined" eq
+    {
+      pop "_allTests" dict def
+    }
+    {
+      throw
+    }
+    ifelse
+  }
+  catch
+
   dict begin % stack a context dictionary
 
-  "check_name_and_proc" {
-    dup type "proctype" neq { typecheck } if
-    1 index type "string" neq { typecheck } if
+  "check_name_and_block" {
+    dup type "blocktype" neq { typecheck } if
+    1 index type "stringtype" neq { typecheck } if
   } bind def
 
   "it" {
-    check_name_and_proc
+    check_name_and_block
 
     dict
       "type" "it" set
@@ -19,18 +35,13 @@
   } bind def
 
   {
-    debug
-    check_name_and_proc
+    check_name_and_block
 
     dict begin % stack describe dictionary
     {
       "type" "describe" def
-      undefined
-
       "name" 3 -1 roll def
       "content" [] def
-
-      undefined
 
       true exch if % execute block
     }
