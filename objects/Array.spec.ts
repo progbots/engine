@@ -1,7 +1,7 @@
 import { ArrayLike } from './Array'
 import { MemoryTracker } from '../state/MemoryTracker'
 import { ValueType } from '../index'
-import { RangeCheck } from '../errors/index'
+import { Internal, RangeCheck } from '../errors/index'
 
 describe('objects/Array', () => {
   let tracker: MemoryTracker
@@ -52,6 +52,11 @@ describe('objects/Array', () => {
       type: ValueType.integer,
       data: 1
     })
+  })
+
+  it('fails shift on empty array', () => {
+    const emptyArray = new ArrayLike(tracker)
+    expect(() => emptyArray.shift()).toThrowError(Internal)
   })
 
   it('implements unshift', () => {
