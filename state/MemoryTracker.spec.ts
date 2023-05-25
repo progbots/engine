@@ -1,4 +1,4 @@
-import { IArray, ValueType } from '../index'
+import { IArray, Value, ValueType } from '../index'
 import { VMError } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
 import { MemoryTracker } from './MemoryTracker'
@@ -21,7 +21,7 @@ describe('state/MemoryTracker', () => {
 
   describe('integer data type', () => {
     let integerValueSize: number
-    const integer = {
+    const integer: Value = {
       type: ValueType.integer,
       data: 1
     }
@@ -53,7 +53,7 @@ describe('state/MemoryTracker', () => {
 
   describe('string management', () => {
     describe('small strings', () => {
-      const string = {
+      const string: Value = {
         type: ValueType.string,
         data: 'small'
       }
@@ -81,7 +81,7 @@ describe('state/MemoryTracker', () => {
     })
 
     describe('reference counts big strings', () => {
-      const value = {
+      const value: Value = {
         type: ValueType.string,
         data: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef')
       }
@@ -136,42 +136,44 @@ describe('state/MemoryTracker', () => {
     const types = [ValueType.array, ValueType.dict, ValueType.block, ValueType.proc]
 
     types.forEach(type => {
-      it(`increments reference count on addValueRef (${type})`, () => {
-        const object = new MyObject()
-        const tracker = new MemoryTracker()
-        tracker.addValueRef({
-          type,
-          data: object as unknown as IArray
-        })
-        expect(object.refCount).toStrictEqual(2)
-      })
+      describe(type, () => {
+        let object: MyObject
+        let tracker: MemoryTracker
+        let value: Value
 
-      it(`decrements reference count on releaseValue (${type})`, () => {
-        const object = new MyObject()
-        const tracker = new MemoryTracker()
-        tracker.releaseValue({
-          type,
-          data: object as unknown as IArray
+        beforeEach(() => {
+          object = new MyObject()
+          tracker = new MemoryTracker()
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          value = {
+            type,
+            data: object as unknown as IArray
+          } as Value
         })
-        expect(object.refCount).toStrictEqual(0)
-        expect(object.disposeCalled).toStrictEqual(1)
-      })
 
-      it(`ignores if untracked (${type})`, () => {
-        const object = new MyObject()
-        const tracker = new MemoryTracker()
-        tracker.addValueRef({
-          type,
-          data: object as unknown as IArray,
-          untracked: true
+        it('increments reference count on addValueRef', () => {
+          tracker.addValueRef(value)
+          expect(object.refCount).toStrictEqual(2)
         })
-        expect(object.refCount).toStrictEqual(1)
-        tracker.releaseValue({
-          type,
-          data: object as unknown as IArray,
-          untracked: true
+
+        it('decrements reference count on releaseValue', () => {
+          tracker.releaseValue(value)
+          expect(object.refCount).toStrictEqual(0)
+          expect(object.disposeCalled).toStrictEqual(1)
         })
-        expect(object.refCount).toStrictEqual(1)
+
+        it('ignores if untracked', () => {
+          tracker.addValueRef({
+            ...value,
+            untracked: true
+          })
+          expect(object.refCount).toStrictEqual(1)
+          tracker.releaseValue({
+            ...value,
+            untracked: true
+          })
+          expect(object.refCount).toStrictEqual(1)
+        })
       })
     })
   })

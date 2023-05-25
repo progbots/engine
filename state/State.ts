@@ -159,7 +159,7 @@ export class State implements IState {
   }
 
   private * evalWithoutProc (value: InternalValue): Generator {
-    if (value.type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data as string))) {
+    if (value.type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data))) {
       yield * this.evalCall(value)
     } else if (value.type === ValueType.operator) {
       yield * this.evalOperator(value)
@@ -207,12 +207,11 @@ export class State implements IState {
         })
         try {
           yield EngineSignal.tokenParsed
-          let value
-          if (this._keepDebugInfo) {
-            value = parsedValue
-          } else {
-            const { type, data } = parsedValue
-            value = { type, data }
+          const value: InternalValue = { ...parsedValue }
+          if (!this._keepDebugInfo) {
+            delete value.source
+            delete value.sourcePos
+            delete value.sourceFile
           }
           yield * this.eval(value)
         } finally {

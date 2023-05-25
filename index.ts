@@ -25,15 +25,27 @@ export interface IDictionary {
   lookup: (name: string) => Value | null
 }
 
-export interface Value {
-  readonly type: ValueType
-  readonly data: null // mark
-  | boolean // boolean
-  | number // integer
-  | string // string, call
-  | IOperator // operator
-  | IArray // array, proc
-  | IDictionary // dict
+export type Value = {
+  readonly type: ValueType.boolean
+  readonly data: boolean
+} | {
+  readonly type: ValueType.integer
+  readonly data: number
+} | {
+  readonly type: ValueType.string | ValueType.call
+  readonly data: string
+} | {
+  readonly type: ValueType.operator
+  readonly data: IOperator
+} | {
+  readonly type: ValueType.mark
+  readonly data: null
+} | {
+  readonly type: ValueType.array | ValueType.block | ValueType.proc
+  readonly data: IArray
+} | {
+  readonly type: ValueType.dict
+  readonly data: IDictionary
 }
 
 export const EngineSignalPrefix = 'engine-signal:'

@@ -6,7 +6,7 @@ export interface OperatorFunction {
   name: string
 }
 
-export interface InternalValue extends Value {
+export type InternalValue = Value & {
   untracked?: boolean // Disable memory tracking for the value
   source?: string // Source code
   sourcePos?: number // Position in the source code
