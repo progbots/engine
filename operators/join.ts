@@ -1,6 +1,5 @@
 import { ValueType } from '../index'
-import { Break, TypeCheck } from '../errors/index'
-import { ShareableObject } from '../objects/ShareableObject'
+import { TypeCheck } from '../errors/index'
 import { State } from '../state/index'
 import { ArrayLike } from '../objects/Array'
 

@@ -16,8 +16,8 @@ describe('operators/join', () => {
       error: TypeCheck
     },
     'fails with TypeCheck if not a string array': {
-        src: '[ 1 ] join',
-        error: TypeCheck
-      }
+      src: '[ 1 ] join',
+      error: TypeCheck
+    }
   })
 })
