@@ -73,7 +73,7 @@ export function renderCallStack (calls: IArray): string {
   for (let index = 0; index < length; ++index) {
     const value = calls.at(index) as InternalValue
     if (value.type === ValueType.integer) {
-      step = value.data as number
+      step = value.data
       continue
     }
     let debugInfo = ''
