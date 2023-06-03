@@ -6,13 +6,15 @@ import { exit } from './exit'
 import { load } from './load'
 import { state } from './state'
 import { error } from './error'
+import { print } from './print'
 
 const hostMethods: Record<string, OperatorFunction> = {
   debug,
   exit,
   load,
   state,
-  error
+  error,
+  print
 }
 
 export const hostDictionary = {
