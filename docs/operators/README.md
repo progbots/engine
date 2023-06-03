@@ -34,6 +34,7 @@
 |  | dict string:name ⇒ boolean | check if the name exists in the dictionary |
 |  | block any:value ⇒ boolean | check if the value exists in the block |
 | `index` | integer ⇒ any | get an item from the [operand stack][operand stack] based on its index (0-based) |
+| `join` | array:ofStrings => string | join all strings of the array to form a single string |
 | `length` | string ⇒ integer | returns the length of the string|
 |  | array ⇒ integer | returns the number of values in the array |
 |  | dict ⇒ integer | returns the number of values in the dictionary |
