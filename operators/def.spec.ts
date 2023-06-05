@@ -1,5 +1,6 @@
 import { StackUnderflow, TypeCheck } from '../errors/index'
-import { executeTests } from '../test-helpers'
+import { State } from '../state/index'
+import { executeTests, SOURCE_FILE } from '../test-helpers'
 
 describe('operators/def', () => {
   executeTests({
@@ -10,6 +11,16 @@ describe('operators/def', () => {
     'sets a procedure on the top dictionary': {
       src: 'dict begin "test" { 1 2 add } def test end',
       expect: '3'
+    },
+    'keeps debug information on proc': {
+      keepDebugInfo: true,
+      src: 'dict begin "test" { 1 } def currentdict "test" get end',
+      expect: ({ operands }: State) => {
+        const [testProc] = operands.ref
+        expect(testProc.sourceFile).toStrictEqual(SOURCE_FILE)
+        expect(testProc.sourcePos).not.toBeUndefined()
+        expect(testProc.sourcePos).not.toStrictEqual(0)
+      }
     },
     'fails with StackUnderflow on empty stack': {
       src: 'def',

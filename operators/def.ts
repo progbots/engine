@@ -9,8 +9,8 @@ export function * def ({ operands, dictionaries }: State): Generator {
   checkIWritableDictionary(topDict)
   if (value.type === ValueType.block) {
     topDict.def(name.data as string, {
-      type: ValueType.proc,
-      data: value.data
+      ...value,
+      type: ValueType.proc
     })
   } else {
     topDict.def(name.data as string, value)
