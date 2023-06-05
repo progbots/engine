@@ -18,11 +18,11 @@
     "expected" exch def
     "actual" exch def
 
-    "_error" dict
-      "name" "assert_eq_fail" set
-      "expected" expected set
-      "actual" actual set
-    def
+    "_error" mark
+      "name" "assert_eq_fail"
+      "expected" expected
+      "actual" actual
+    dicttomark def
 
     actual type expected type neq
     {
