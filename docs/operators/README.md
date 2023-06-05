@@ -15,6 +15,7 @@
 | | string block ⇒ ∅ | defines a **procedure** in the current dictionary, the one on the top of the [dictionary stack][dictionary stack] |
 | `dict` | ∅ ⇒ dict | creates a new dictionary |
 | `dictstack` | ∅ ⇒ array&lt;dict&gt; | returns the content of the [dictionary stack][dictionary stack] |
+| `dicttomark` | mark key:0 value:0 ... key:N value:N ⇒ dict | creates a new dictionary filled with key/value pairs found until the mark |
 | `dup` | any:1 ⇒ any:1 any:1 | duplicate the current operandm the one on the top of the [operand stack][operand stack] |
 | `end` | ∅ ⇒ ∅ | removes the current dictionary from the top of the [dictionary stack][dictionary stack] |
 | `eq` | any:1 any:0 ⇒ boolean | returns true if the two items are [strictly equal][strict comparison] |
