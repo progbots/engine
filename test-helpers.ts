@@ -14,6 +14,8 @@ interface TestDescription {
   cleanBeforeCheckingForLeaks?: string
 }
 
+export const SOURCE_FILE = 'test-src.ps'
+
 export function waitForCycles (iterator: Generator): number {
   let count = 0
   let { done } = iterator.next()
@@ -64,7 +66,7 @@ function executeTest (test: TestDescription): void {
   let exceptionCaught: Error | undefined
   let cyclesCount = 0
   try {
-    cyclesCount = waitForCycles(state.parse(src, 'test-src.ps'))
+    cyclesCount = waitForCycles(state.parse(src, SOURCE_FILE))
   } catch (e) {
     exceptionCaught = e as Error
   }
