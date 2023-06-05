@@ -1,13 +1,27 @@
 "describe" {
-  % Store all tests in one dictionary
   {
-    % Check if it exists
-    _allTests
+    globaldict "_tests" get
+    type "dicttype" neq
+    {
+      mark
+        "name" "describe_fail"
+        "message" "_tests is not a dictionary"
+      dicttomark
+      throw
+    }
+    if
   }
   {
     dup "name" get "Undefined" eq
     {
-      pop "_allTests" dict def
+      pop
+      globaldict
+      "_tests"
+      mark
+        "content" []
+        "stack" []
+      dicttomark
+      set
     }
     {
       throw
@@ -23,15 +37,25 @@
     1 index type "stringtype" neq { typecheck } if
   } bind def
 
+  "get_current_content" {
+    globaldict "_tests" get
+    "stack" get
+    dup length 1 sub get
+    "content" get
+  }
+
   "it" {
     check_name_and_block
 
-    dict
-      "type" "it" set
-      "name" 4 -1 roll set
-      "block" 3 -1 roll set
-      
-    content exch apush
+    get_current_content
+
+    mark
+      "type" "it"
+      "name" 4 -1 roll
+      "block" 5 -1 roll
+    dicttomark
+
+    apush
 
   } bind def
 
@@ -40,9 +64,15 @@
 
     dict begin % stack describe dictionary
     {
-      "type" "describe" def
-      "name" 3 -1 roll def
-      "content" [] def
+      get_current_content
+
+      mark
+        "type" "describe"
+        "name" 4 -1 roll
+        "content" []
+      dicttomark
+
+      apush
 
       true exch if % execute block
     }
