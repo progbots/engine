@@ -19,7 +19,7 @@
     "docs"
   ],
   "mutate": [
-    "./operators/*.ts",
+    "./operators/**/*.ts",
     "./state/*.ts",
     "./objects/**/*.ts",
     "./errors/*.ts",
