@@ -2,6 +2,7 @@
 |---|---|---|
 | `add` | integer:a integer:b ⇒ integer:a+b | adds two integer |
 | `aload` | array ⇒ ... any | dumps the content of the array on the [operand stack][operand stack] |
+| `apop` | array ⇒ any | pops the last value of the array |
 | `apush` | array any ⇒ ∅ | pushes the value into the array |
 | `begin` | dict ⇒ ∅ | adds the dictionary to the top of the [dictionary stack][dictionary stack] |
 | `bind` | block ⇒ block | replace block calls with their actual implementation |
