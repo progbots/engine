@@ -12,7 +12,7 @@ export function * bind ({ operands, dictionaries }: State): Generator {
       if (value.type === ValueType.call) {
         yield // bind cycle
         try {
-          const resolvedValue = dictionaries.lookup(value.data as string)
+          const resolvedValue = dictionaries.lookup(value.data)
           // TODO: some operators can be replaced with values (true, false, mark...)
           procArray.set(index, {
             ...value, // propagate debug infos

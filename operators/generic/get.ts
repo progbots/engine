@@ -7,7 +7,7 @@ function arrayLikeGetter (container: InternalValue, index: InternalValue): Inter
   if (index.type !== ValueType.integer) {
     throw new TypeCheck()
   }
-  const pos = index.data as number
+  const pos = index.data
   const array = container.data as ArrayLike
   return array.at(pos)
 }
@@ -17,7 +17,7 @@ const getters: Record<string, (container: InternalValue, index: InternalValue) =
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
     }
-    const pos = index.data as number
+    const pos = index.data
     const string = container.data as string
     if (pos < 0 || pos >= string.length) {
       throw new RangeCheck()
@@ -34,7 +34,7 @@ const getters: Record<string, (container: InternalValue, index: InternalValue) =
     if (index.type !== ValueType.string) {
       throw new TypeCheck()
     }
-    const name = index.data as string
+    const name = index.data
     const iDict = container.data as IDictionary
     const value = iDict.lookup(name)
     if (value === null) {

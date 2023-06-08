@@ -9,7 +9,7 @@ const setters: Record<string, (container: InternalValue, index: InternalValue, v
     if (index.type !== ValueType.integer || value.type !== ValueType.integer) {
       throw new TypeCheck()
     }
-    const pos = index.data as number
+    const pos = index.data
     const string = container.data as string
     if (pos < 0 || pos >= string.length) {
       throw new RangeCheck()
@@ -18,7 +18,7 @@ const setters: Record<string, (container: InternalValue, index: InternalValue, v
       type: ValueType.string,
       data: [
         string.substring(0, pos),
-        String.fromCharCode(value.data as number),
+        String.fromCharCode(value.data),
         string.substring(pos + 1)
       ].join('')
     }
@@ -28,7 +28,7 @@ const setters: Record<string, (container: InternalValue, index: InternalValue, v
     if (index.type !== ValueType.integer) {
       throw new TypeCheck()
     }
-    const pos = index.data as number
+    const pos = index.data
     const array = container.data as ArrayLike
     if (pos >= array.length) {
       throw new RangeCheck()
@@ -41,7 +41,7 @@ const setters: Record<string, (container: InternalValue, index: InternalValue, v
     if (index.type !== ValueType.string) {
       throw new TypeCheck()
     }
-    const name = index.data as string
+    const name = index.data
     const iDict = container.data as IDictionary
     checkIWritableDictionary(iDict)
     iDict.def(name, value)

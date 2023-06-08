@@ -15,7 +15,7 @@ const implementations: Record<string, (container: InternalValue, value: Internal
     if (index.type !== ValueType.string) {
       throw new TypeCheck()
     }
-    const name = index.data as string
+    const name = index.data
     const iDict = container.data as IDictionary
     return iDict.names.includes(name)
   },
