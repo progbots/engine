@@ -4,8 +4,8 @@ import { executeTests } from '../../test-helpers'
 describe('operators/array/apush', () => {
   executeTests({
     'pushes the element in the array': {
-      src: '[1 2 3] dup 4 apush aload',
-      expect: '1 2 3 4'
+      src: 'mark [1 2 3] dup 4 apush aload',
+      expect: 'mark 1 2 3 4'
     },
     'fails with StackUnderflow on insufficient stack': [{
       src: 'apush',

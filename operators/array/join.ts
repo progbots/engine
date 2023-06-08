@@ -5,12 +5,12 @@ import { ArrayLike } from '../../objects/Array'
 
 export function * join (state: State): Generator {
   const { operands } = state
-  const [array] = operands.check(ValueType.array)
-  const arrayImpl = array.data as ArrayLike
-  if (arrayImpl.some(value => value.type !== ValueType.string)) {
+  const [{ data }] = operands.check(ValueType.array)
+  const array = data as unknown as ArrayLike
+  if (array.some(value => value.type !== ValueType.string)) {
     throw new TypeCheck()
   }
-  const strings = arrayImpl.ref.map(value => value.data as string)
+  const strings = array.ref.map(value => value.data as string)
   operands.splice(1, {
     type: ValueType.string,
     data: strings.join('')
