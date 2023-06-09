@@ -43,14 +43,28 @@ export class DictionaryStack extends Stack {
     this.pop()
   }
 
-  lookup (name: string): InternalValue {
+  where (name: string): {
+    dict: IDictionary
+    value: InternalValue
+  } | null {
     for (const dictionaryValue of this._values) {
       const dictionary = dictionaryValue.data as IDictionary
       const value = dictionary.lookup(name)
       if (value !== null) {
-        return value
+        return {
+          dict: dictionary,
+          value
+        }
       }
     }
-    throw new Undefined()
+    return null
+  }
+
+  lookup (name: string): InternalValue {
+    const result = this.where(name)
+    if (result === null) {
+      throw new Undefined()
+    }
+    return result.value
   }
 }

@@ -49,6 +49,49 @@ describe('objects/stacks/Dictionary', () => {
     })
   })
 
+  describe('where', () => {
+    it('searches for a known name (from systemdict)', () => {
+      expect(stack.where('add')).toStrictEqual({
+        dict: stack.systemdict,
+        value: {
+          type: ValueType.operator,
+          data: expect.anything()
+        }
+      })
+    })
+
+    it('searches for a known name (from globaldict)', () => {
+      stack.globaldict.def('add', {
+        type: ValueType.string,
+        data: 'my_add'
+      })
+      expect(stack.where('add')).toStrictEqual({
+        dict: stack.globaldict,
+        value: {
+          type: ValueType.string,
+          data: 'my_add'
+        }
+      })
+    })
+
+    it('returns null if the name is not found in the stack', () => {
+      expect(stack.where('unknown')).toStrictEqual(null)
+    })
+
+    describe('with a host dictionary', () => {
+      it('resolves host name', () => {
+        const stackWithHost = new DictionaryStack(tracker, host)
+        expect(stackWithHost.where('hostname')).toStrictEqual({
+          dict: stackWithHost.ref.at(-1)?.data as IDictionary,
+          value: {
+            type: ValueType.string,
+            data: 'localhost'
+          }
+        })
+      })
+    })
+  })
+
   describe('lookup', () => {
     it('searches for a known name (from systemdict)', () => {
       expect(stack.lookup('add')).toStrictEqual({
@@ -73,7 +116,7 @@ describe('objects/stacks/Dictionary', () => {
     })
 
     describe('with a host dictionary', () => {
-      it('resolves host names', () => {
+      it('resolves host name', () => {
         const stackWithHost = new DictionaryStack(tracker, host)
         expect(stackWithHost.lookup('hostname')).toStrictEqual({
           type: ValueType.string,
