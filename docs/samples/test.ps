@@ -1,36 +1,12 @@
-"describe" {
+dict begin % stack a context dictionary
+{
+  "describe" where 
   {
-    globaldict "_tests" get
-    type "dicttype" neq
-    {
-      mark
-        "name" "describe_fail"
-        "message" "_tests is not a dictionary"
-      dicttomark
-      throw
-    }
-    if
-  }
-  {
-    dup "name" get "Undefined" eq
-    {
-      pop
-      globaldict
-      "_tests"
-      mark
-        "content" []
-        "stack" []
-      dicttomark
-      set
-    }
-    {
-      throw
-    }
-    ifelse
-  }
-  catch
 
-  dict begin % stack a context dictionary
+  } if
+
+  "root_content" mark "content" [] dicttomark def
+  "content_stack" [ root_content ] def
 
   "check_name_and_block" {
     dup type "blocktype" neq { typecheck } if
@@ -38,58 +14,48 @@
   } bind def
 
   "get_current_content" {
-    globaldict "_tests" get
-    "stack" get
+    content_stack
     dup length 1 sub get
     "content" get
-  }
+  } bind def
 
   "it" {
     check_name_and_block
-
     get_current_content
-
     mark
       "type" "it"
       "name" 4 -1 roll
       "block" 5 -1 roll
     dicttomark
-
     apush
-
   } bind def
 
-  {
+  globaldict "describe" {
     check_name_and_block
-
-    dict begin % stack describe dictionary
+    mark
+      "type" "describe"
+      "name" 4 -1 roll
+      "content" []
+    dicttomark
+    get_current_content 1 index apush
+    content_stack get exch apush
     {
-      get_current_content
-
-      mark
-        "type" "describe"
-        "name" 4 -1 roll
-        "content" []
-      dicttomark
-
-      apush
-
       true exch if % execute block
     }
     {
-      end % unstack describe dictionary
+      tests "stack" get apop pop
     }
     finally
+  } bind set
 
-    currentdict
 
-  } bind
-  {
-    end % unstack context dictionary
-  } finally
 
-} bind def
+  globaldict "run_all_tests" {
+    tests ""
 
-"run_all_tests" {
-
-} bind def
+  } bind set
+}
+{
+  end % unstack context dictionary
+}
+finally 
