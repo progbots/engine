@@ -1,11 +1,17 @@
-dict begin % stack a context dictionary
+"describe" where 
 {
-  "describe" where 
-  {
+  pop % already defined, assuming it is the right one
+}
+{
+  dict begin % stack a context dictionary
 
-  } if
-
-  "root_content" mark "content" [] dicttomark def
+  "root_content"
+  mark
+    "type" "root"
+    "name" "root"
+    "content" []
+  dicttomark
+  def
   "content_stack" [ root_content ] def
 
   "check_name_and_block" {
@@ -30,7 +36,8 @@ dict begin % stack a context dictionary
     apush
   } bind def
 
-  globaldict "describe" {
+  % describe
+  {
     check_name_and_block
     mark
       "type" "describe"
@@ -46,16 +53,15 @@ dict begin % stack a context dictionary
       tests "stack" get apop pop
     }
     finally
-  } bind set
+  } bind
 
+  % run_all_tests
+  {
+  } bind
 
-
-  globaldict "run_all_tests" {
-    tests ""
-
-  } bind set
-}
-{
   end % unstack context dictionary
+
+  "run_all_tests" exch def
+  "describe" exch def
 }
-finally 
+ifelse
