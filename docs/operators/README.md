@@ -57,6 +57,8 @@
 |  | string => ∅ | throws a custom exception |
 | `true` | ∅ ⇒ boolean | true |
 | `type` | any ⇒ string | returns the type of the item on top of the [operand stack][operand stack] |
+| `where` | string ⇒ dict boolean:true | detect if the name is defined in the [dictionary stack][dictionary stack] and, if found, returns the corresponding dictionary and `true` |
+|  | string ⇒ boolean:false | otherwise returns `false` |
 
 [dictionary stack]: https://github.com/progbots/engine/blob/main/docs/README.md
 [operand stack]: https://github.com/progbots/engine/blob/main/docs/README.md
