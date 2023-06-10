@@ -55,8 +55,42 @@
     finally
   } bind
 
+  "run_it" {
+
+  } bind def
+
+  "for_each_content" {
+    dup length
+    0
+    % array length index
+    {
+      dup 2 index gte { break } if
+      2 index % array
+      1 index % index
+      get % array's element
+
+      dup "type" get
+      "describe" eq
+      {
+        dup name get ["📦 " 3 -1 roll] join print
+        "content" get
+        for_each_content
+      }
+      {
+        run_it
+      }
+      ifelse
+
+      1 add % next index
+    } loop
+    pop pop pop
+  } bind def
+
   % run_all_tests
   {
+    root_content
+    "content" get
+    for_each_content
   } bind
 
   end % unstack context dictionary
