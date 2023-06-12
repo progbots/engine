@@ -1,4 +1,4 @@
-"describe" where 
+false % "describe" where 
 {
   pop % already defined, assuming it is the right one
 }
@@ -25,38 +25,45 @@
     "content" get
   } bind def
 
-  "it" {
+  % Not def to keep it as a bound block (used later)
+  currentdict "it" {
     check_name_and_block
     get_current_content
     mark
       "type" "it"
-      "name" 4 -1 roll
-      "block" 5 -1 roll
+      "name" 7 -1 roll
+      "block" 8 -1 roll
     dicttomark
     apush
-  } bind def
+  } bind set
 
   % describe
   {
     check_name_and_block
     mark
       "type" "describe"
-      "name" 4 -1 roll
+      "name" 6 -1 roll
       "content" []
     dicttomark
     get_current_content 1 index apush
-    content_stack get exch apush
+    content_stack exch apush % stack content
+
+    mark
+      "it" it % will become a proc
+    dicttomark
+    begin % stack context
     {
       true exch if % execute block
     }
     {
-      tests "stack" get apop pop
+      end % unstack context
+      content_stack apop pop % unstack content
     }
     finally
   } bind
 
   "run_it" {
-
+    pop "run_it" print
   } bind def
 
   "for_each_content" {
@@ -72,7 +79,7 @@
       dup "type" get
       "describe" eq
       {
-        dup name get ["📦 " 3 -1 roll] join print
+        dup "name" get ["📦 " 3 -1 roll] join print
         "content" get
         for_each_content
       }
