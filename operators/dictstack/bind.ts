@@ -1,14 +1,16 @@
 import { ValueType } from '../../index'
-import { TypeCheck, Undefined } from '../../errors/index'
+import { Undefined } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
 import { State } from '../../state/index'
 
 export function * bind ({ operands, dictionaries }: State): Generator {
-  const [blockOrProc] = operands.check(null)
-  if (![ValueType.block, ValueType.proc].includes(blockOrProc.type)) {
-    throw new TypeCheck()
-  }
-  const blocks: ArrayLike[] = [blockOrProc.data as unknown as ArrayLike]
+  // TODO: decide if we want to go down this rabbit hole
+  // const [blockOrProc] = operands.check(null)
+  // if (![ValueType.block, ValueType.proc].includes(blockOrProc.type)) {
+  //   throw new TypeCheck()
+  // }
+  const [block] = operands.check(ValueType.block)
+  const blocks: ArrayLike[] = [block.data as unknown as ArrayLike]
   for (const procArray of blocks) {
     for (let index = 0; index < procArray.ref.length; ++index) {
       const value = procArray.at(index)
