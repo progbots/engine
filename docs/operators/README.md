@@ -6,6 +6,7 @@
 | `apush` | array any ⇒ ∅ | pushes the value into the array |
 | `begin` | dict ⇒ ∅ | adds the dictionary to the top of the [dictionary stack][dictionary stack] |
 | `bind` | block ⇒ block | replace block calls with their actual implementation |
+| | proc ⇒ proc | replace proc calls with their actual implementation |
 | `catch` | block:safe block:caught ⇒ ∅ | executes block:safe and, if any exception occurs, executes block:caught after adding the exception descriptor on the operand stack |
 | `clear` | ... ⇒ ∅ | clears the [operand stack][operand stack] |
 | `cleartomark` | mark ... ⇒ ∅ | clears the [operand stack][operand stack] up to the first mark |

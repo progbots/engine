@@ -14,6 +14,23 @@ describe('operators/dictstack/bind', () => {
                "unchanged"
               `
     },
+    'replaces proc calls with their callees': {
+      src: `dict begin
+            "test" {
+              true [ 42 ] "unchanged"
+            } def
+            currentdict "test" get
+            bind
+            aload
+            end
+           `,
+      expect: `systemdict "true" get
+               systemdict "[" get
+               42
+               systemdict "]" get
+               "unchanged"
+              `
+    },
     'replaces block recursively': {
       src: `{ { true } { false } ifelse } bind aload
             3 1 roll aload
