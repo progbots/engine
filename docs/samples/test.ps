@@ -66,6 +66,12 @@ false % "describe" where
     pop "run_it" print
   } bind def
 
+  "run_describe" {
+    dup "name" get ["📦 " 3 -1 roll] join print
+    "content" get
+    for_each_content
+  }
+
   "for_each_content" {
     dup length
     0
@@ -79,9 +85,7 @@ false % "describe" where
       dup "type" get
       "describe" eq
       {
-        dup "name" get ["📦 " 3 -1 roll] join print
-        "content" get
-        for_each_content
+        run_describe
       }
       {
         run_it
