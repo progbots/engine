@@ -1,6 +1,6 @@
 # Let's talk about recursivity
 
-The following code sample is the implementation of the [factorial function](https://en.wikipedia.org/wiki/Factorial) with the engine :
+The following code sample is the implementation of the [factorial function](https://en.wikipedia.org/wiki/Factorial) using the engine :
 
 ```text
 "fac" {
@@ -62,3 +62,26 @@ The `bind` operator does this resolution based on the dictionary stack.
 
 Will bind everything *but* the `fac` call because it does not exist YET in the dictionary stack.
 Such a method would work in the engine, no problem.
+
+
+
+
+
+
+Obviously, like in any language, there are ways to get rid of the recursivity.
+
+The operand stack being global, you don't need variables and additional storage.
+Hence, the fac function could be written as :
+
+```text
+"fac" {
+  1 exch
+  {
+    dup 0 lte { pop break } if
+    dup 3 1 roll mul exch 1 sub
+  }
+  loop
+} def
+```
+
+(and this is way faster) => compare cycles
