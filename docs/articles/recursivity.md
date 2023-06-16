@@ -1,6 +1,11 @@
 # Let's talk about recursivity
 
-The following code sample is the implementation of the [factorial function](https://en.wikipedia.org/wiki/Factorial) using the engine :
+A typical example of recursive function is the [factorial function](https://en.wikipedia.org/wiki/Factorial), having :
+
+* `fac(n) = n * fac(n-1)` 
+* `fac(1) = 1`
+
+The following code sample is an example implementation using the engine. Documentation for operators is available [🚧 here](https://progbots.github.io/engine/operators/).
 
 ```text
 "fac" {
@@ -15,15 +20,36 @@ The following code sample is the implementation of the [factorial function](http
 } def
 ```
 
-> Factorial function
+> Factorial function recursive implementation
 
-Before the evaluation of `def`, in the operand stack, these two items are present (from bottom to top) :
+Before the evaluation of the `def` call, the operand stack contains two values (from bottom to top) :
 * the *string* `"fac"`
 * a *block* containing the body of the function. 
 
+The block itself is composed of the following values :
+
+* The *call* to `dup`
+* The *integer* `0`
+* The *call* to `lte`
+* A block with :
+  * The *call* to `pop`
+  * The *integer* `1`
+* A block with :
+  * The *call* to `dup`
+  * The *integer* `1`
+  * The *call* to `sub`
+  * The *call* to `fac`
+  * The *call* to `mul`
+* The *call* to `ifelse`
+  
+When the `def` call is evaluated, two things happens :
+* the *block* is converted to an executable block, known as a *proc* (but the content does not change)
+* the name `"fac"` is mapped to the *proc* at the top of the dictionary stack.
 
 
-When `def` is called, the *block* becomes a *proc*: an executable block,
+
+
+the *block* becomes a *proc*: an executable block,
 
 When this function is evaluated, its content is mostly composed of calls.
 For instance : `dup 1 sub fac mul` is actually composed of :
