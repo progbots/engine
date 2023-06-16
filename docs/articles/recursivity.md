@@ -1,6 +1,6 @@
 # Let's talk about recursivity
 
-Considering the factorial function, here is the implementation with the engine :
+The following code sample is the implementation of the [factorial function](https://en.wikipedia.org/wiki/Factorial) with the engine :
 
 ```text
 "fac" {
@@ -15,10 +15,14 @@ Considering the factorial function, here is the implementation with the engine :
 } def
 ```
 
-What happens behind the scene is the following :
-Before calling `def`, in the operand stack, you have two items :
+> Factorial function
+
+Before the evaluation of `def`, in the operand stack, these two items are present (from bottom to top) :
 * the *string* `"fac"`
-* a *block* containg the body of the function
+* a *block* containing the body of the function. 
+
+
+
 When `def` is called, the *block* becomes a *proc*: an executable block,
 
 When this function is evaluated, its content is mostly composed of calls.
