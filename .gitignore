@@ -107,3 +107,7 @@ dist
 .stryker-tmp/
 ./reports/
 ./dependencyExtractor/
+
+# Terminalizer
+*.yml
+*.gif
