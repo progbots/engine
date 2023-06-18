@@ -31,6 +31,10 @@ export class State implements IState {
     return this._memoryTracker.used
   }
 
+  get peakMemory (): number {
+    return this._memoryTracker.peak
+  }
+
   get totalMemory (): number {
     return this._memoryTracker.total
   }

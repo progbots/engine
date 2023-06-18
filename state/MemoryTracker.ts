@@ -24,6 +24,7 @@ export class MemoryTracker {
   public static readonly CACHABLE_STRING_LENGTH = 32
 
   private _used: number = 0
+  private _peak: number = 0
 
   private readonly _strings: string[] = []
   private readonly _stringsRefCount: number[] = []
@@ -66,6 +67,10 @@ export class MemoryTracker {
     return this._used
   }
 
+  get peak (): number {
+    return this._peak
+  }
+
   get total (): number {
     return this._total
   }
@@ -99,6 +104,7 @@ export class MemoryTracker {
     if (this._used > this._total) {
       throw new VMError()
     }
+    this._peak = Math.max(this._used, this._peak)
   }
 
   decrement (bytes: number): void {

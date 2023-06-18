@@ -41,6 +41,7 @@ describe('state/MemoryTracker', () => {
       tracker.addValueRef(integer)
       tracker.addValueRef(integer)
       expect(tracker.used).toStrictEqual(2 * integerValueSize)
+      expect(tracker.peak).toStrictEqual(2 * integerValueSize)
     })
 
     it('frees bytes', () => {
@@ -48,6 +49,7 @@ describe('state/MemoryTracker', () => {
       tracker.addValueRef(integer)
       tracker.releaseValue(integer)
       expect(tracker.used).toStrictEqual(0)
+      expect(tracker.peak).toStrictEqual(integerValueSize)
     })
   })
 
@@ -70,6 +72,7 @@ describe('state/MemoryTracker', () => {
         tracker.addValueRef(string)
         tracker.addValueRef(string)
         expect(tracker.used).toStrictEqual(2 * expectedSize)
+        expect(tracker.peak).toStrictEqual(2 * expectedSize)
       })
 
       it('frees bytes', () => {
@@ -77,6 +80,7 @@ describe('state/MemoryTracker', () => {
         tracker.addValueRef(string)
         tracker.releaseValue(string)
         expect(tracker.used).toStrictEqual(0)
+        expect(tracker.peak).toStrictEqual(expectedSize)
       })
     })
 
@@ -102,12 +106,14 @@ describe('state/MemoryTracker', () => {
       it('does not duplicate string if already reference counted', () => {
         tracker.addValueRef(value) // 2
         expect(tracker.used).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
+        expect(tracker.peak).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
       })
 
       it('does not free memory until removed the right number of times', () => {
         tracker.addValueRef(value) // 2
         tracker.releaseValue(value) // 1
         expect(tracker.used).toStrictEqual(expectedSize)
+        expect(tracker.peak).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
       })
 
       it('frees memory on last release', () => {
@@ -115,6 +121,7 @@ describe('state/MemoryTracker', () => {
         tracker.releaseValue(value) // 1
         tracker.releaseValue(value) // 0
         expect(tracker.used).toStrictEqual(initial)
+        expect(tracker.peak).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
       })
     })
 

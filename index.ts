@@ -68,6 +68,7 @@ export enum EngineSignal {
 
 export interface IState {
   readonly usedMemory: number
+  readonly peakMemory: number
   readonly totalMemory: number
 
   readonly operands: IArray
