@@ -13,7 +13,7 @@ const extract = (dict: IDictionary, name: string): string => {
   if (value === null || value.type !== ValueType.string) {
     throw new TypeCheck()
   }
-  return value.data as string
+  return value.data
 }
 
 export class Custom extends InternalError {
