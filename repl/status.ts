@@ -19,11 +19,12 @@ function scaleBytes (bytes: number): string {
 }
 
 export function memory (state: IState): string {
-  const { usedMemory: used, totalMemory: total } = state
+  const { usedMemory: used, peakMemory: peak, totalMemory: total } = state
+  const usage = scaleBytes(used) + ' (top:' + scaleBytes(peak) + ')' + blue + '/'
   if (total === Infinity) {
-    return scaleBytes(used) + blue + '/∞' + white
+    return usage + '∞' + white
   }
-  return scaleBytes(used) + blue + '/' + scaleBytes(total) + white
+  return usage + scaleBytes(total) + white
 }
 
 interface StatusOptions {
