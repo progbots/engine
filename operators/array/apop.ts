@@ -2,7 +2,7 @@ import { State } from '../../state/index'
 import { ValueType } from '../../index'
 import { ArrayLike } from '../../objects/Array'
 import { ShareableObject } from '../../objects/ShareableObject'
-import { RangeCheck } from '../../errors'
+import { RangeCheck } from '../../errors/index'
 
 export function * apop ({ operands }: State): Generator {
   const [{ data }] = operands.check(ValueType.array)
