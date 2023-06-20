@@ -1,4 +1,4 @@
-import { TypeCheck } from '../../errors'
+import { TypeCheck } from '../../errors/index'
 import { ValueType } from '../../index'
 import { InternalValue, State } from '../../state/index'
 import { Dictionary } from '../../objects/dictionaries/index'
