@@ -3,10 +3,29 @@
     <meta charset="UTF-8">
     <title>PBS Engine</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="xterm.css">
     <script src="systemjs.js"></script>
     <script src="named-register.js"></script>
     <script src="engine.js"></script>
-    <script src="index.js"></script>
+    <script src="xterm.js"></script>
+    <script src="local-echo.js"></script>
+    <!-- <script src="index.js"></script> -->
   </head>
-  <body></body>
+  <body>
+    <div id="terminal"></div>
+    <script>
+      var term = new Terminal({
+        cursorBlink: 'block'
+      })
+      term.open(document.getElementById('terminal'))
+      term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+
+      const localEcho = new LocalEchoController()
+      term.loadAddon(localEcho)
+
+      localEcho.read("~$ ")
+        .then(input => alert(`User entered: ${input}`))
+        .catch(error => alert(`Error reading: ${error}`))
+    </script>
+  </body>
 </html>
