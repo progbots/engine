@@ -8,7 +8,7 @@
     "lint": "ts-standard --fix",
     "build": "tsc --project tsconfig-build.json && terser dist/engine.js --compress --keep-fnames --mangle -o dist/engine.js",
     "start": "ts-node repl",
-    "build:doc": "npm run build && ncp ./dist/engine.js ./docs/repl/engine.js && ts-node utf8toansii.ts docs/repl/engine.js && ncp ./node_modules/systemjs/dist/s.min.js ./docs/repl/systemjs.js && ncp ./node_modules/systemjs/dist/extras/named-register.min.js ./docs/repl/named-register.js && ncp ./node_modules/xterm/lib/xterm.js ./docs/repl/xterm.js && ncp ./node_modules/xterm/css/xterm.css ./docs/repl/xterm.css && ncp ./node_modules/local-echo/dist/local-echo.js ./docs/repl/local-echo.js",
+    "build:doc": "npm run build && ncp ./dist/engine.js ./docs/repl/engine.js && ts-node utf8toansii.ts docs/repl/engine.js && ncp ./node_modules/systemjs/dist/s.min.js ./docs/repl/systemjs.js && ncp ./node_modules/systemjs/dist/extras/named-register.min.js ./docs/repl/named-register.js && ncp ./node_modules/xterm/lib/xterm.js ./docs/repl/xterm.js && ncp ./node_modules/xterm/css/xterm.css ./docs/repl/xterm.css && ncp ./node_modules/xterm-addon-fit/lib/xterm-addon-fit.js ./docs/repl/xterm-addon-fit.js && ncp ./node_modules/local-echo/dist/local-echo.js ./docs/repl/local-echo.js",
     "start:doc": "npm run build:doc && reserve",
     "mutate": "stryker run"
   },
@@ -42,7 +42,8 @@
     "ts-node": "^10.9.1",
     "ts-standard": "^12.0.2",
     "typescript": "^5.1.3",
-    "xterm": "^5.2.1"
+    "xterm": "^5.2.1",
+    "xterm-addon-fit": "^0.7.0"
   },
   "overrides": {
     "ts-standard": {
