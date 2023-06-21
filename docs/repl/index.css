@@ -3,46 +3,6 @@ body {
   white-space: pre;
   background-color: black;
   color: white;
-}
-
-input[type=text] {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  white-space: pre;
-  background-color: black;
-  color: white;
-  border: 1px solid black;
-  outline: none;
-  font-size: initial;
-}
-
-input[type=text]:focus {
-  border: 1px dashed gray;
-}
-
-.blue {
-  color: blue;
-}
-
-.cyan {
-  color: cyan;
-}
-
-.green {
-  color: green;
-}
-
-.magenta {
-  color: magenta;
-}
-
-.red {
-  color: red;
-}
-
-.white {
-  color: white;
-}
-
-.yellow {
-  color: yellow;
+  padding: 1rem;
+  margin: 1rem;
 }
