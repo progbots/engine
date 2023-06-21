@@ -37,7 +37,7 @@
     "reserve": "^1.15.2",
     "rimraff": "^0.0.1-security",
     "systemjs": "^6.14.1",
-    "terser": "^5.18.0",
+    "terser": "^5.18.1",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "ts-standard": "^12.0.2",
