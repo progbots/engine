@@ -24,9 +24,10 @@ window.addEventListener('load', async () => {
   
     getChar () {
       return new Promise(resolve => {
-        window.addEventListener('keypress', event => {
+        const disposable = term.onKey(event => {
           resolve(event.key)
-        }, { once: true })
+          disposable.dispose()
+        })
       })
     },
   
