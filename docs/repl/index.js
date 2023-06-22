@@ -1,4 +1,4 @@
-(async function () {
+window.addEventListener('load', async () => {
   const { main } = await System.import('repl/impl')
 
   /* global Terminal, FitAddon, LocalEchoController */
@@ -6,7 +6,7 @@
   var term = new Terminal({
     cursorBlink: 'block'
   })
-  term.open(document.getElementById('terminal-container'))
+  term.open(document.getElementById('xterm-container'))
   const fitAddon = new FitAddon.FitAddon()
   term.loadAddon(fitAddon)
   const localEcho = new LocalEchoController()
@@ -15,7 +15,7 @@
 
   const replHost = {
     output (text) {
-      term.write(text.replace(/([^\r])\n/g, (_, c) => `${c}\r\n`) + '\x1b[37m\r\n')
+      term.write(text.replace(/\n/g, '\r\n') + '\x1b[37m\r\n')
     },
   
     getInput () {
@@ -39,11 +39,9 @@
     }
   }
   
-  window.addEventListener('load', async () => {
-    await main(replHost, location.search.includes('debug'))
-  })
-
   window.addEventListener('resize', () => {
     fitAddon.fit()
   })
-}())
+
+  await main(replHost, location.search.includes('debug'))
+})
