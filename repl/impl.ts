@@ -83,7 +83,7 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
             absolute: true,
             lastOperandsCount,
             lastUsedMemory,
-            concat: `${cyan}, ${yellow}o${cyan}perands, ${yellow}c${cyan}ontinue, ${yellow}q${cyan}uit`
+            concat: ` ${yellow}o${cyan}perands ${yellow}c${cyan}ontinue ${yellow}q${cyan}uit`
           }))
           lastOperandsCount = state.operands.length
           lastUsedMemory = state.usedMemory

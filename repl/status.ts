@@ -62,10 +62,15 @@ export function status (state: IState, options: StatusOptions): string {
       memoryVariation = ` ${green}-${scaleBytes(lastUsedMemory - currentUsedMemory)}`
     }
   }
+  let flags = ''
+  if (!state.flags.call) {
+    flags = ` ${red}!call`
+  }
   return [
     `${cyan}${cycleLabel}${yellow}${options.cycle}`,
-    `${cyan}, operands: ${yellow}${state.operands.length}${operandsVariation}`,
-    `${cyan}, memory: ${yellow}${memory(state)}${memoryVariation}`,
+    flags,
+    `${cyan} operands: ${yellow}${state.operands.length}${operandsVariation}`,
+    `${cyan} memory: ${yellow}${memory(state)}${memoryVariation}`,
     white,
     options.concat,
     white
