@@ -8,11 +8,11 @@ describe('state/State', () => {
   describe('protection against concurrent execution', () => {
     it('maintains a parsing flag', () => {
       const state = new State()
-      expect(state.parsing).toStrictEqual(false)
+      expect(state.flags.parsing).toStrictEqual(false)
       const generator = state.parse('1 2 3')
-      expect(state.parsing).toStrictEqual(true)
+      expect(state.flags.parsing).toStrictEqual(true)
       waitForCycles(generator)
-      expect(state.parsing).toStrictEqual(false)
+      expect(state.flags.parsing).toStrictEqual(false)
     })
 
     it('fails with BusyParsing if an execution is in progress', () => {
@@ -101,6 +101,33 @@ describe('state/State', () => {
           type: ValueType.integer,
           data: 1
         }])
+      })
+    })
+
+    describe('flags.call', () => {
+      it('starts with call being enabled', () => {
+        const state = new State()
+        expect(state.flags.call).toStrictEqual(true)
+      })
+
+      it('switches to false when entering a block', () => {
+        const state = new State()
+        waitForCycles(state.parse('{'))
+        expect(state.flags.call).toStrictEqual(false)
+      })
+
+      it('switches back to true when exiting a block', () => {
+        const state = new State()
+        waitForCycles(state.parse('{ }'))
+        expect(state.flags.call).toStrictEqual(true)
+      })
+
+      it('cumulates blocks definition', () => {
+        const state = new State()
+        waitForCycles(state.parse('{ { }'))
+        expect(state.flags.call).toStrictEqual(false)
+        waitForCycles(state.parse('}'))
+        expect(state.flags.call).toStrictEqual(true)
       })
     })
 
@@ -410,6 +437,7 @@ describe('state/State', () => {
     describe('when off', () => {
       it('drops debug information', () => {
         const state = new State()
+        expect(state.flags.debug).toStrictEqual(false)
         waitForCycles(state.parse('1', 'test.ps'))
         const value = state.operands.ref[0]
         expect(value.source).toBeUndefined()
@@ -423,6 +451,7 @@ describe('state/State', () => {
         const state = new State({
           keepDebugInfo: true
         })
+        expect(state.flags.debug).toStrictEqual(true)
         waitForCycles(state.parse('1', 'test.ps'))
         const value = state.operands.ref[0]
         expect(value.source).toStrictEqual('1')

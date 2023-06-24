@@ -1,4 +1,4 @@
-import { ValueType, IArray, IState, StateFactorySettings, EngineSignal } from '../index'
+import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags } from '../index'
 import { Break, BusyParsing, InvalidBreak } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
 import { DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
@@ -51,10 +51,6 @@ export class State implements IState {
     return this._calls
   }
 
-  get parsing (): boolean {
-    return this._parsing
-  }
-
   parse (source: string, sourceFile?: string): Generator {
     if (this._parsing) {
       this.wrapError(new BusyParsing())
@@ -69,8 +65,12 @@ export class State implements IState {
     return this._memoryTracker
   }
 
-  get keepDebugInfo (): boolean {
-    return this._keepDebugInfo
+  get flags (): IStateFlags {
+    return {
+      debug: this._keepDebugInfo,
+      parsing: this._parsing,
+      call: this._noCall === 0
+    }
   }
 
   preventCall (): void {

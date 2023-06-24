@@ -66,16 +66,23 @@ export enum EngineSignal {
   afterOperand = `${EngineSignalPrefix}after-operand`
 }
 
+export interface IStateFlags {
+  readonly debug: boolean
+  readonly parsing: boolean
+  readonly call: boolean
+}
+
 export interface IState {
   readonly usedMemory: number
   readonly peakMemory: number
   readonly totalMemory: number
 
+  readonly flags: IStateFlags
+
   readonly operands: IArray
   readonly dictionaries: IArray
   readonly calls: IArray
 
-  readonly parsing: boolean
   parse: (value: string, sourceFile?: string) => Generator
 }
 
