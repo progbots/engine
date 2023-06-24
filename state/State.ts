@@ -1,4 +1,4 @@
-import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags } from '../index'
+import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags, IStateMemory } from '../index'
 import { Break, BusyParsing, InvalidBreak } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
 import { DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
@@ -27,16 +27,16 @@ export class State implements IState {
 
   // region IState
 
-  get usedMemory (): number {
-    return this._memoryTracker.used
+  get memory (): IStateMemory {
+    return this._memoryTracker
   }
 
-  get peakMemory (): number {
-    return this._memoryTracker.peak
-  }
-
-  get totalMemory (): number {
-    return this._memoryTracker.total
+  get flags (): IStateFlags {
+    return {
+      debug: this._keepDebugInfo,
+      parsing: this._parsing,
+      call: this._noCall === 0
+    }
   }
 
   get operands (): OperandStack {
@@ -63,14 +63,6 @@ export class State implements IState {
 
   get memoryTracker (): MemoryTracker {
     return this._memoryTracker
-  }
-
-  get flags (): IStateFlags {
-    return {
-      debug: this._keepDebugInfo,
-      parsing: this._parsing,
-      call: this._noCall === 0
-    }
   }
 
   preventCall (): void {

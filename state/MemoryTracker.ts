@@ -1,4 +1,4 @@
-import { Value, ValueType } from '../index'
+import { IStateMemory, Value, ValueType } from '../index'
 import { InternalValue } from './index'
 import { VMError } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
@@ -16,7 +16,7 @@ function isString (value: Value): boolean {
   ].includes(value.type)
 }
 
-export class MemoryTracker {
+export class MemoryTracker implements IStateMemory {
   public static readonly POINTER_SIZE = 4
   public static readonly INTEGER_SIZE = 4
   public static readonly VALUE_TYPE_SIZE = 1

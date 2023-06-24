@@ -318,7 +318,7 @@ describe('state/State', () => {
 
     beforeAll(() => {
       const state = new State()
-      const used = state.usedMemory
+      const used = state.memory.used
       initialMemoryUsed = used
     })
 
@@ -332,7 +332,7 @@ describe('state/State', () => {
         type: ValueType.integer,
         data: 1
       })
-      const used = state.usedMemory
+      const used = state.memory.used
       expect(used).toBeGreaterThan(initialMemoryUsed)
     })
 
@@ -343,7 +343,7 @@ describe('state/State', () => {
         data: 1
       })
       state.operands.pop()
-      const used = state.usedMemory
+      const used = state.memory.used
       expect(used).toStrictEqual(initialMemoryUsed)
     })
 

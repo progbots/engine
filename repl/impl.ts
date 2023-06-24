@@ -41,7 +41,7 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
     const src = await replHost.getInput()
     try {
       let lastOperandsCount = state.operands.length
-      let lastUsedMemory = state.usedMemory
+      let lastUsedMemory = state.memory.used
       let cycle = 0
       let debugging = false
 
@@ -86,7 +86,7 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
             concat: ` ${yellow}o${cyan}perands ${yellow}c${cyan}ontinue ${yellow}q${cyan}uit`
           }))
           lastOperandsCount = state.operands.length
-          lastUsedMemory = state.usedMemory
+          lastUsedMemory = state.memory.used
           const step = await replHost.getChar()
           if (step === 'o') {
             operands()

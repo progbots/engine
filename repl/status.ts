@@ -19,7 +19,7 @@ function scaleBytes (bytes: number): string {
 }
 
 export function memory (state: IState): string {
-  const { usedMemory: used, peakMemory: peak, totalMemory: total } = state
+  const { used, peak, total } = state.memory
   const usage = scaleBytes(used) + ' (top:' + scaleBytes(peak) + ')' + blue + '/'
   if (total === Infinity) {
     return usage + '∞' + white
@@ -55,7 +55,7 @@ export function status (state: IState, options: StatusOptions): string {
   let memoryVariation = ''
   const { lastUsedMemory } = options
   if (lastUsedMemory !== undefined) {
-    const currentUsedMemory = state.usedMemory
+    const currentUsedMemory = state.memory.usedusedMemory
     if (currentUsedMemory > lastUsedMemory) {
       memoryVariation = ` ${red}+${scaleBytes(currentUsedMemory - lastUsedMemory)}`
     } else if (currentUsedMemory < lastUsedMemory) {

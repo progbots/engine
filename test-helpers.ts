@@ -62,7 +62,7 @@ function executeTest (test: TestDescription): void {
     hostDictionary,
     keepDebugInfo
   })
-  const initialMemory = state.usedMemory
+  const initialMemory = state.memory.used
   let exceptionCaught: Error | undefined
   let cyclesCount = 0
   try {
@@ -108,7 +108,7 @@ function executeTest (test: TestDescription): void {
     waitForCycles(state.parse(cleanBeforeCheckingForLeaks))
   }
   waitForCycles(state.parse('clear'))
-  const finalMemory = state.usedMemory
+  const finalMemory = state.memory.used
   expect(finalMemory).toStrictEqual(initialMemory)
 }
 
