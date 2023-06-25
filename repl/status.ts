@@ -55,7 +55,7 @@ export function status (state: IState, options: StatusOptions): string {
   let memoryVariation = ''
   const { lastUsedMemory } = options
   if (lastUsedMemory !== undefined) {
-    const currentUsedMemory = state.memory.usedusedMemory
+    const currentUsedMemory = state.memory.used
     if (currentUsedMemory > lastUsedMemory) {
       memoryVariation = ` ${red}+${scaleBytes(currentUsedMemory - lastUsedMemory)}`
     } else if (currentUsedMemory < lastUsedMemory) {
