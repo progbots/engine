@@ -48,7 +48,7 @@ const getters: Record<string, (container: InternalValue, index: InternalValue) =
   [ValueType.proc]: arrayLikeGetter
 }
 
-export function * get ({ operands }: State): Generator {
+export function get ({ operands }: State): void {
   const [index, container] = operands.check(null, null)
   const getter = getters[container.type]
   if (getter === undefined) {

@@ -85,7 +85,7 @@ const testCases: Record<string, TestCase> = {
   'shows operator and call': {
     calls: [{
       type: ValueType.operator,
-      data: function * test (): Generator {}
+      data: function test (): void {}
     }, {
       type: ValueType.call,
       data: 'test',
@@ -100,7 +100,7 @@ const testCases: Record<string, TestCase> = {
       data: 2
     }, {
       type: ValueType.operator,
-      data: function * test (): Generator {}
+      data: function test (): void {}
     }, {
       type: ValueType.call,
       data: 'test',

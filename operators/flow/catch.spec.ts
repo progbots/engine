@@ -25,7 +25,7 @@ describe('operators/flow/catch', () => {
     },
     'does not catch non managed exceptions': {
       host: {
-        fail: function * (state: State): Generator {
+        fail: function (state: State): void {
           throw new Fail()
         }
       },

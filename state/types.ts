@@ -2,7 +2,7 @@ import { Value } from '../index'
 import { State } from './State'
 
 export interface OperatorFunction {
-  (state: State): Generator
+  (state: State): void
   name: string
 }
 

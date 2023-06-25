@@ -4,7 +4,7 @@ import { ArrayLike } from '../../objects/Array'
 import { ShareableObject } from '../../objects/ShareableObject'
 import { RangeCheck } from '../../errors/index'
 
-export function * apop ({ operands }: State): Generator {
+export function apop ({ operands }: State): void {
   const [{ data }] = operands.check(ValueType.array)
   const array = data as unknown as ArrayLike
   const value = array.ref.at(-1)

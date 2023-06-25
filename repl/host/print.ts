@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
 import { State } from '../../state/index'
 
-export function * print (state: State): Generator {
+export function print (state: State): void {
   const [string] = state.operands.check(ValueType.string).map(value => value.data as string)
   console.log(string)
   state.operands.splice(1)

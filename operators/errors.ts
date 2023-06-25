@@ -17,7 +17,7 @@ Object.values(errorClasses).forEach((ErrorClass: Function) => {
 
   const ErrorConstructor = ErrorClass as (new () => InternalError)
 
-  const operator = function * (state: State): Generator {
+  const operator = function (state: State): void {
     throw new ErrorConstructor()
   }
 

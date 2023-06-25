@@ -25,7 +25,7 @@ const implementations: Record<string, (container: InternalValue, value: Internal
   [ValueType.proc]: arrayLikeImpl
 }
 
-export function * inOp ({ operands }: State): Generator {
+export function inOp ({ operands }: State): void {
   const [value, container] = operands.check(null, null)
   const impl = implementations[container.type]
   if (impl === undefined) {

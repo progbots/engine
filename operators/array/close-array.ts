@@ -2,7 +2,7 @@ import { State } from '../../state/index'
 import { ValueType } from '../../index'
 import { closeToMark } from '../open-close-helper'
 
-export function * closeArray (state: State): Generator {
+export function closeArray (state: State): void {
   closeToMark(state, ValueType.array)
 }
 

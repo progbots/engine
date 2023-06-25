@@ -9,7 +9,7 @@ describe('operators/flow/close-block (})', () => {
   executeTests({
     'creates a block': {
       host: {
-        addCall: function * ({ operands }: State): Generator {
+        addCall: function ({ operands }: State): void {
           operands.push({
             type: ValueType.call,
             data: 'add'

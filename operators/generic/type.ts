@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
 import { State } from '../../state/index'
 
-export function * type ({ operands }: State): Generator {
+export function type ({ operands }: State): void {
   const [{ type }] = operands.check(null)
   operands.splice(1, {
     type: ValueType.string,

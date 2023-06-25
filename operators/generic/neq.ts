@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
 import { State } from '../../state/index'
 
-export function * neq ({ operands }: State): Generator {
+export function neq ({ operands }: State): void {
   const [value1, value2] = operands.check(null, null)
   operands.splice(2, {
     type: ValueType.boolean,

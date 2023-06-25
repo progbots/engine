@@ -6,7 +6,7 @@ import { checkIWritableDictionary } from '../../objects/dictionaries/index'
 import { Custom } from '../../errors/Custom'
 import { InternalError } from '../../errors/InternalError'
 
-export function * throwOp ({ operands }: State): Generator {
+export function throwOp ({ operands }: State): void {
   const [dictValue] = operands.check(ValueType.dict)
   const dict = dictValue.data as IDictionary
   if (dict instanceof InternalError) {
