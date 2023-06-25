@@ -2,16 +2,16 @@ import { State } from '../../state/index'
 import { ValueType } from '../../index'
 import { ShareableObject } from '../../objects/ShareableObject'
 
-export function * ifelse (state: State): Generator {
+export function ifelse (state: State): void {
   const { operands } = state
   const [blockElse, blockIf, condition] = operands.check(ValueType.block, ValueType.block, ValueType.boolean)
   ShareableObject.addRef([blockIf, blockElse])
   try {
     operands.splice(3)
     if (condition.data as boolean) {
-      yield * state.evalBlockOrProc(blockIf)
+      state.queue(blockIf)
     } else {
-      yield * state.evalBlockOrProc(blockElse)
+      state.queue(blockElse)
     }
   } finally {
     ShareableObject.release([blockIf, blockElse])
