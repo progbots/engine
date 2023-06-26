@@ -6,23 +6,23 @@ export function * finallyOp (state: State): Generator {
   const { operands } = state
   const [blockFinally, block] = operands.check(ValueType.block, ValueType.block)
   ShareableObject.addRef([block, blockFinally])
-  let released = false
-  const release = (): void => {
-    if (!released) {
-      ShareableObject.release([block, blockFinally])
-      released = true
-    }
-  }
   try {
     operands.splice(2)
-    yield * state.evalBlockOrProc(block)
+    state.queue({
+      block,
+      finally: () => {
+        try {
+          state.queue({
+            block: blockFinally
+          })
+        } finally {
+          ShareableObject.release(blockFinally)
+        }
+      }
+    })
+    ShareableObject.addRef(blockFinally)
   } finally {
-    try {
-      yield * state.evalBlockOrProc(blockFinally)
-    } finally {
-      release()
-    }
-    release()
+    ShareableObject.release([block, blockFinally])
   }
 }
 
