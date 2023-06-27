@@ -1,7 +1,7 @@
 import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags, IStateMemory } from '../index'
 import { Break, BusyParsing, InvalidBreak } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
-import { DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
+import { CallStack, CallValue, DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
 import { MemoryTracker } from './MemoryTracker'
 import { InternalError } from '../errors/InternalError'
 import { renderCallStack } from './callstack'
@@ -131,6 +131,9 @@ export class State implements IState {
       const operator = value.data as OperatorFunction
       yield * operator(this)
     })
+  }
+
+  public call (value: CallValue): void {
   }
 
   public * evalBlockOrProc (value: InternalValue): Generator {
