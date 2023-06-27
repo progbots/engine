@@ -37,6 +37,10 @@ export abstract class BaseArray extends ShareableObject implements IArray {
 
   // endregion IArray
 
+  protected get memoryTracker (): MemoryTracker {
+    return this._memoryTracker
+  }
+
   protected addValueRef (value: InternalValue): void {
     this._memoryTracker.addValueRef(value)
     this._memoryTracker.increment(BaseArray.VALUE_ADDITIONAL_SIZE)

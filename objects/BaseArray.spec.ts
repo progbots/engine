@@ -17,6 +17,10 @@ class MyArray extends BaseArray {
     return value
   }
 
+  public getMemoryTracker (): MemoryTracker {
+    return this.memoryTracker
+  }
+
   public clear (): void {
     this._clear()
   }
@@ -49,6 +53,10 @@ describe('objects/BaseArray', () => {
 
   it('tracks memory used', () => {
     expect(tracker.used).not.toStrictEqual(0)
+  })
+
+  it('exposes the memory tracker', () => {
+    expect(array.getMemoryTracker()).toStrictEqual(tracker)
   })
 
   it('offers an array reference', () => {
