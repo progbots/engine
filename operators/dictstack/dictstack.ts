@@ -2,7 +2,7 @@ import { State } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 import { ValueType } from '../../index'
 
-export function dictstack (state: State): void {
+export function dictstack (state: State): undefined {
   const array = new ArrayLike(state.memoryTracker)
   const { operands, dictionaries } = state
   try {

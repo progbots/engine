@@ -1,5 +1,5 @@
 import { State } from '../../state/index'
 
-export function pop ({ operands }: State): void {
+export function pop ({ operands }: State): undefined {
   operands.pop()
 }

@@ -13,8 +13,8 @@ export function * loop (state: State): Generator {
     let continueLoop = true
     while (continueLoop) {
       yield // before loop
-      state.queue({
-        block,
+      state.call({
+        ...block,
         catch: (e: InternalError) => {
           if (!(e instanceof Break)) {
             throw e

@@ -46,7 +46,7 @@ describe('operators/flow/throw', () => {
     }],
     'fails with TypeCheck if the operand is not a writable dict': {
       host: {
-        rodict: function ({ operands }: State): void {
+        rodict: function ({ operands }: State): undefined {
           operands.push({
             type: ValueType.dict,
             data: {

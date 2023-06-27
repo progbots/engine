@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
 import { State } from '../../state/index'
 
-export function eq ({ operands }: State): void {
+export function eq ({ operands }: State): undefined {
   const [value1, value2] = operands.check(null, null)
   operands.splice(2, {
     type: ValueType.boolean,

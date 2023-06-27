@@ -49,7 +49,7 @@ describe('operators/dictstack/bind', () => {
     },
     'should not ignore errors': {
       host: {
-        asro: function ({ operands }: State): void {
+        asro: function ({ operands }: State): undefined {
           const value = operands.ref[0]
           const block = value.data as unknown as ArrayLike
           block.set = function (index: number, value: InternalValue): void {

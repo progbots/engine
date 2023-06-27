@@ -3,7 +3,7 @@ import { ValueType } from '../../index'
 import { TypeCheck } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
 
-export function aload ({ operands }: State): void {
+export function aload ({ operands }: State): undefined {
   const [{ type, data }] = operands.check(null)
   if (![ValueType.array, ValueType.block, ValueType.proc].includes(type)) {
     throw new TypeCheck()

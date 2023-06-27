@@ -3,7 +3,7 @@ import { TypeCheck } from '../../errors/index'
 import { State } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 
-export function join (state: State): void {
+export function join (state: State): undefined {
   const { operands } = state
   const [{ data }] = operands.check(ValueType.array)
   const array = data as unknown as ArrayLike

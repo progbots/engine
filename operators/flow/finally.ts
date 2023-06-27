@@ -8,13 +8,11 @@ export function * finallyOp (state: State): Generator {
   ShareableObject.addRef([block, blockFinally])
   try {
     operands.splice(2)
-    state.queue({
-      block,
+    state.call({
+      ...block,
       finally: () => {
         try {
-          state.queue({
-            block: blockFinally
-          })
+          state.call(blockFinally)
         } finally {
           ShareableObject.release(blockFinally)
         }

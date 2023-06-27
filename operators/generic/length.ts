@@ -26,7 +26,7 @@ const sizers: Record<string, (container: InternalValue) => number> = {
   [ValueType.proc]: arrayLikeLength
 }
 
-export function length ({ operands }: State): void {
+export function length ({ operands }: State): undefined {
   const [container] = operands.check(null)
   const sizer = sizers[container.type]
   if (sizer === undefined) {

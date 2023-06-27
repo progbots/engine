@@ -3,7 +3,7 @@ import { ValueType } from '../../index'
 import { InternalValue, State } from '../../state/index'
 import { Dictionary } from '../../objects/dictionaries/index'
 
-export function dicttomark (state: State): void {
+export function dicttomark (state: State): undefined {
   const { operands } = state
   const pos = operands.findMarkPos()
   if (pos % 2 !== 0) {

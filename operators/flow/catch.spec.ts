@@ -25,7 +25,7 @@ describe('operators/flow/catch', () => {
     },
     'does not catch non managed exceptions': {
       host: {
-        fail: function (state: State): void {
+        fail: function (state: State): undefined {
           throw new Fail()
         }
       },
