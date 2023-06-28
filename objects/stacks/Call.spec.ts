@@ -34,6 +34,6 @@ describe('objects/stacks/Call', () => {
       data: 'test'
     })
     expect(tracker.used).toBeGreaterThan(baseTracker.used)
-    expect(tracker.used).toStrictEqual(baseTracker.used + 2 * MemoryTracker.POINTER_SIZE)
+    expect(tracker.used).toStrictEqual(baseTracker.used + CallStack.EXTRA_SIZE)
   })
 })
