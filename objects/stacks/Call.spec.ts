@@ -1,4 +1,4 @@
-import { CallStack } from './Call'
+import { CallStack, Stack } from './index'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { ValueType } from '../../index'
 import { InternalError } from '../../errors/InternalError'
@@ -20,5 +20,20 @@ describe('objects/stacks/Call', () => {
       catch: myCatch
     })
     expect(stack.top.catch).toStrictEqual(myCatch)
+  })
+
+  it('counts extra memory for the additional values', () => {
+    const baseTracker = new MemoryTracker()
+    const baseStack = new Stack(baseTracker)
+    baseStack.push({
+      type: ValueType.string,
+      data: 'test'
+    })
+    stack.push({
+      type: ValueType.string,
+      data: 'test'
+    })
+    expect(tracker.used).toBeGreaterThan(baseTracker.used)
+    expect(tracker.used).toStrictEqual(baseTracker.used + 2 * MemoryTracker.POINTER_SIZE)
   })
 })

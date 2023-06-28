@@ -13,7 +13,7 @@ export class CallStack extends Stack {
     super.push(value as InternalValue)
   }
 
-  get top(): CallValue {
+  get top (): CallValue {
     return this.at(0) as CallValue
   }
 
