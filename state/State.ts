@@ -10,16 +10,15 @@ export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
   private readonly _dictionaries: DictionaryStack
   private readonly _operands: OperandStack
-  private readonly _calls: Stack
+  private readonly _calls: CallStack
   private readonly _keepDebugInfo: boolean = false
   private _noCall: number = 0
-  private _parsing: boolean = false
 
   constructor (settings: StateFactorySettings = {}) {
     this._memoryTracker = new MemoryTracker(settings.maxMemoryBytes)
     this._dictionaries = new DictionaryStack(this._memoryTracker, settings.hostDictionary)
     this._operands = new OperandStack(this._memoryTracker)
-    this._calls = new Stack(this._memoryTracker)
+    this._calls = new CallStack(this._memoryTracker)
     if (settings.keepDebugInfo === true) {
       this._keepDebugInfo = true
     }
@@ -34,7 +33,7 @@ export class State implements IState {
   get flags (): IStateFlags {
     return {
       debug: this._keepDebugInfo,
-      parsing: this._parsing,
+      parsing: this._calls.length > 0,
       call: this._noCall === 0
     }
   }
@@ -52,11 +51,21 @@ export class State implements IState {
   }
 
   parse (source: string, sourceFile?: string): Generator {
-    if (this._parsing) {
+    if (this._calls.length > 0) {
       this.wrapError(new BusyParsing())
     }
-    this._parsing = true
-    return this.outerParse(source, sourceFile)
+    this._calls.push({
+      type: ValueType.string,
+      data: source,
+      untracked: true, // because external
+      sourceFile,
+      sourcePos: 0,
+      signals: {
+        before: EngineSignal.beforeParse,
+        after: EngineSignal.afterParse
+      }
+    })
+    return this.run()
   }
 
   // endregion IState
@@ -89,6 +98,20 @@ export class State implements IState {
       throw ex
     }
     throw error
+  }
+
+  private * run (): Generator {
+    while (this._calls.length > 0) {
+      const { top } = this._calls
+      if (top.signals?.before) {
+        yield top.signals.before
+      }
+      
+
+      if (top.signals?.after) {
+        yield top.signals.after
+      }
+    }
   }
 
   private * wrapStep (
