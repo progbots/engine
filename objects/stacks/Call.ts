@@ -7,14 +7,13 @@ import { Stack } from './Stack'
 export type CallValue = InternalValue & {
   catch?: (e: InternalError) => void
   finally?: () => void
-  signals?: {
-    before: EngineSignal
-    after: EngineSignal
-  }
+  signalBefore?: EngineSignal
+  signalAfter?: EngineSignal
+  generator?: Generator
 }
 
 export class CallStack extends Stack {
-  public static readonly EXTRA_SIZE = 2 * MemoryTracker.POINTER_SIZE + 2
+  public static readonly EXTRA_SIZE = 3 * MemoryTracker.POINTER_SIZE + 2
 
   push (value: CallValue): void {
     super.push(value as InternalValue)
