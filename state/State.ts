@@ -1,5 +1,5 @@
 import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags, IStateMemory } from '../index'
-import { Break, BusyParsing, InvalidBreak } from '../errors/index'
+import { Break, BusyParsing, Internal, InvalidBreak } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
 import { CallStack, CallValue, DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
 import { MemoryTracker } from './MemoryTracker'
@@ -103,17 +103,55 @@ export class State implements IState {
   private * run (): Generator {
     while (this._calls.length > 0) {
       const { top } = this._calls
-      if (top.signals?.before) {
-        yield top.signals.before
-      }
-      
 
-      if (top.signals?.after) {
-        yield top.signals.after
+      if (top.signalBefore !== undefined) {
+        yield top.signalBefore
+        top.signalBefore = undefined
+      }
+
+      let next = false
+      let error: Error | undefined
+
+      const safe = (callback: () => any): any => {
+        try {
+          return callback()
+        } catch (e) {
+          if (!(e instanceof Error)) {
+            error = new Internal('Unexpected exception')
+          } else {
+            error = e
+          }
+        }
+      }
+
+      if (top.generator !== undefined) {
+        const generator = top.generator
+        const { done, value } = safe(() => generator.next())
+        yield value
+        next = done
+      } else {
+        // execute top
+      }
+
+      if (error instanceof InternalError && top.catch !== undefined) {
+        const internalError = error
+        const topCatch = top.catch
+        safe(() => topCatch(internalError))
+      }
+
+      if (next) {
+        if (top.finally !== undefined) {
+          safe(top.finally)
+        }
+        if (top.signalAfter !== undefined) {
+          yield top.signalAfter
+        }
+        this._calls.pop()
       }
     }
   }
 
+/*
   private * wrapStep (
     value: InternalValue,
     signals: {
@@ -242,4 +280,5 @@ export class State implements IState {
       }
     })
   }
+*/
 }
