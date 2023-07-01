@@ -1,4 +1,3 @@
-import { EngineSignal } from '../../index'
 import { InternalError } from '../../errors/InternalError'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { InternalValue } from '../../state/index'
@@ -7,13 +6,11 @@ import { Stack } from './Stack'
 export type CallValue = InternalValue & {
   catch?: (e: InternalError) => void
   finally?: () => void
-  signalBefore?: EngineSignal
-  signalAfter?: EngineSignal
   generator?: Generator
 }
 
 export class CallStack extends Stack {
-  public static readonly EXTRA_SIZE = 3 * MemoryTracker.POINTER_SIZE + 2
+  public static readonly EXTRA_SIZE = 3 * MemoryTracker.POINTER_SIZE
 
   push (value: CallValue): void {
     super.push(value as InternalValue)
