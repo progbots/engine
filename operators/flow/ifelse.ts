@@ -9,9 +9,9 @@ export function ifelse (state: State): undefined {
   try {
     operands.splice(3)
     if (condition.data as boolean) {
-      state.call(blockIf)
+      state.callstack.push(blockIf)
     } else {
-      state.call(blockElse)
+      state.callstack.push(blockElse)
     }
   } finally {
     ShareableObject.release([blockIf, blockElse])

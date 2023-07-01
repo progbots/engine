@@ -9,7 +9,7 @@ export function catchOp (state: State): undefined {
   ShareableObject.addRef([block, blockCatch])
   try {
     operands.splice(2)
-    state.call({
+    state.callstack.push({
       ...block,
       catch: (e: InternalError) => {
         operands.push({
@@ -17,7 +17,7 @@ export function catchOp (state: State): undefined {
           data: e.dictionary
         })
         e.release()
-        state.call(blockCatch)
+        state.callstack.push(blockCatch)
       },
       finally: () => {
         ShareableObject.release(blockCatch)

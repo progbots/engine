@@ -13,7 +13,7 @@ export function * loop (state: State): Generator {
     let continueLoop = true
     while (continueLoop) {
       yield // before loop
-      state.call({
+      state.callstack.push({
         ...block,
         catch: (e: InternalError) => {
           if (!(e instanceof Break)) {

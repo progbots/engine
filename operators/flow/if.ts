@@ -9,7 +9,7 @@ export function ifOp (state: State): undefined {
   try {
     operands.splice(2)
     if (condition.data as boolean) {
-      state.call(block)
+      state.callstack.push(block)
     }
   } finally {
     ShareableObject.release(block)
