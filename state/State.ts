@@ -1,10 +1,11 @@
 import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags, IStateMemory } from '../index'
-import { Break, BusyParsing, Internal, InvalidBreak } from '../errors/index'
+import { BusyParsing, Internal } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
 import { CallStack, CallValue, DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
 import { MemoryTracker } from './MemoryTracker'
 import { InternalError } from '../errors/InternalError'
 import { renderCallStack } from './callstack'
+import { wrapError } from './error'
 
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
@@ -52,18 +53,14 @@ export class State implements IState {
 
   parse (source: string, sourceFile?: string): Generator {
     if (this._calls.length > 0) {
-      this.wrapError(new BusyParsing())
+      wrapError(new BusyParsing())
     }
     this._calls.push({
       type: ValueType.string,
       data: source,
       untracked: true, // because external
       sourceFile,
-      sourcePos: 0,
-      signals: {
-        before: EngineSignal.beforeParse,
-        after: EngineSignal.afterParse
-      }
+      sourcePos: 0
     })
     return this.run()
   }
@@ -82,27 +79,46 @@ export class State implements IState {
     --this._noCall
   }
 
-  private wrapError (error: Error): void {
-    // No internal error should go out because memory cannot be controlled (and they are not documented)
-    if (error instanceof Break) {
-      const invalidBreak = new InvalidBreak()
-      invalidBreak.callstack = error.callstack
-      error = invalidBreak
-    }
-    // No internal error should go out because memory cannot be controlled (and they are not documented)
-    if (error instanceof InternalError) {
-      const ex = new Error(error.message)
-      ex.name = error.name
-      ex.stack = error.callstack
-      error.release()
-      throw ex
-    }
-    throw error
+  get callstack () : CallStack {
+    return this._calls
   }
 
   private * run (): Generator {
+    let error: Error | undefined
+
+    const catchError = (callback: () => any): any => {
+      try {
+        return callback()
+      } catch (e) {
+        if (!(e instanceof Error)) {
+          error = new Internal('Unexpected exception')
+        } else {
+          error = e
+          if (error instanceof InternalError) {
+            error.callstack = renderCallStack(this.calls)
+          }
+        }
+      }
+    }
+
+    const handlers: Record<ValueType, (this: State, value: CallValue) => Generator> = {
+      [ValueType.call]: function * (value: CallValue) {
+        yield EngineSignal.beforeCall
+        const resolvedValue = this._dictionaries.lookup(value.data as string)
+        this.callstack.push(resolvedValue)
+        yield EngineSignal.afterCall
+      }
+    }
+
     while (this._calls.length > 0) {
-      const { top } = this._calls
+      const [first, second] = this._calls.ref
+      let top: CallValue
+      const hasIndex = first.type === ValueType.integer
+      if (hasIndex) {
+        top = second
+      } else {
+        top = first
+      }
 
       if (top.signalBefore !== undefined) {
         yield top.signalBefore
@@ -110,25 +126,14 @@ export class State implements IState {
       }
 
       let next = false
-      let error: Error | undefined
-
-      const safe = (callback: () => any): any => {
-        try {
-          return callback()
-        } catch (e) {
-          if (!(e instanceof Error)) {
-            error = new Internal('Unexpected exception')
-          } else {
-            error = e
-          }
-        }
-      }
 
       if (top.generator !== undefined) {
         const generator = top.generator
-        const { done, value } = safe(() => generator.next())
-        yield value
-        next = done
+        const { done, value } = catchError(() => generator.next())
+        if (error === undefined) {
+          yield value
+          next = done
+        }
       } else {
         // execute top
       }
@@ -136,45 +141,29 @@ export class State implements IState {
       if (error instanceof InternalError && top.catch !== undefined) {
         const internalError = error
         const topCatch = top.catch
-        safe(() => topCatch(internalError))
+        catchError(() => topCatch(internalError))
       }
 
       if (next) {
         if (top.finally !== undefined) {
-          safe(top.finally)
+          catchError(top.finally)
         }
         if (top.signalAfter !== undefined) {
           yield top.signalAfter
         }
         this._calls.pop()
+        if (hasIndex) {
+          this._calls.pop()
+        }
       }
+    }
+
+    if (error !== undefined) {
+      wrapError(error)
     }
   }
 
 /*
-  private * wrapStep (
-    value: InternalValue,
-    signals: {
-      before: EngineSignal
-      after: EngineSignal
-    },
-    step: () => Generator
-  ): Generator {
-    this._calls.push(value)
-    yield signals.before
-    try {
-      yield * step.apply(this)
-    } catch (e) {
-      if (e instanceof InternalError) {
-        e.callstack = renderCallStack(this.calls)
-      }
-      throw e
-    } finally {
-      yield signals.after
-      this._calls.pop()
-    }
-  }
-
   private * evalCall (value: InternalValue): Generator {
     yield * this.wrapStep(value, {
       before: EngineSignal.beforeCall,
