@@ -7,6 +7,10 @@ import { InternalError } from '../errors/InternalError'
 import { renderCallStack } from './callstack'
 import { wrapError } from './error'
 
+function * runUnexpected (value: CallValue): Generator {
+  throw new Internal('Unexpected value type in callstack')
+}
+
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
   private readonly _dictionaries: DictionaryStack
@@ -14,6 +18,18 @@ export class State implements IState {
   private readonly _calls: CallStack
   private readonly _keepDebugInfo: boolean = false
   private _noCall: number = 0
+  private readonly _handlers: Record<ValueType, (this: State, value: CallValue) => Generator> = {
+    [ValueType.boolean]: runUnexpected,
+    [ValueType.integer]: runUnexpected,
+    [ValueType.string]: runUnexpected,
+    [ValueType.call]: this.runCall.bind(this),
+    [ValueType.operator]: this.runOperator.bind(this),
+    [ValueType.mark]: runUnexpected,
+    [ValueType.array]: runUnexpected,
+    [ValueType.dict]: runUnexpected,
+    [ValueType.block]: runUnexpected,
+    [ValueType.proc]: runUnexpected
+  }
 
   constructor (settings: StateFactorySettings = {}) {
     this._memoryTracker = new MemoryTracker(settings.maxMemoryBytes)
@@ -101,15 +117,6 @@ export class State implements IState {
       }
     }
 
-    const handlers: Record<ValueType, (this: State, value: CallValue) => Generator> = {
-      [ValueType.call]: function * (value: CallValue) {
-        yield EngineSignal.beforeCall
-        const resolvedValue = this._dictionaries.lookup(value.data as string)
-        this.callstack.push(resolvedValue)
-        yield EngineSignal.afterCall
-      }
-    }
-
     while (this._calls.length > 0) {
       const [first, second] = this._calls.ref
       let top: CallValue
@@ -118,11 +125,6 @@ export class State implements IState {
         top = second
       } else {
         top = first
-      }
-
-      if (top.signalBefore !== undefined) {
-        yield top.signalBefore
-        top.signalBefore = undefined
       }
 
       let next = false
@@ -163,50 +165,36 @@ export class State implements IState {
     }
   }
 
-/*
-  private * evalCall (value: InternalValue): Generator {
-    yield * this.wrapStep(value, {
-      before: EngineSignal.beforeCall,
-      after: EngineSignal.afterCall
-    }, function * (this: State): Generator {
-      yield * this.eval(this._dictionaries.lookup(value.data as string))
-    })
+  @run(ValueType.call, EngineSignal.beforeCall, EngineSignal.afterCall)
+  private * runCall (value: CallValue): Generator {
+    const resolvedValue = this._dictionaries.lookup(value.data as string)
+    this.callstack.push(resolvedValue)
   }
 
-  private * evalOperator (value: InternalValue): Generator {
-    yield * this.wrapStep(value, {
-      before: EngineSignal.beforeOperator,
-      after: EngineSignal.afterOperator
-    }, function * (this: State): Generator {
-      const operator = value.data as OperatorFunction
-      yield * operator(this)
-    })
+  @run(ValueType.operator, EngineSignal.beforeOperator, EngineSignal.afterOperator)
+  private * runOperator (value: CallValue): Generator {
+    const operator = value.data as OperatorFunction
+    const iterator = operator(this)
+    if (iterator !== undefined) {
+      yield * iterator
+    }
   }
 
-  public call (value: CallValue): void {
+  @run(ValueType.proc, EngineSignal.beforeProc, EngineSignal.afterProc)
+  @run(ValueType.block, EngineSignal.beforeProc, EngineSignal.afterProc)
+  public * runBlockOrProc (value: CallValue): Generator {
+    const proc = value.data as IArray
+    const { length } = proc
+    for (let index = 0; index < length; ++index) {
+      this.callstack.push({
+        ...proc.at(index)
+      })
+    }
   }
 
-  public * evalBlockOrProc (value: InternalValue): Generator {
-    yield * this.wrapStep(value, {
-      before: EngineSignal.beforeProc,
-      after: EngineSignal.afterProc
-    }, function * (this: State): Generator {
-      const proc = value.data as IArray
-      const { length } = proc
-      for (let index = 0; index < length; ++index) {
-        yield * this.wrapStep({
-          type: ValueType.integer,
-          data: index
-        }, {
-          before: EngineSignal.beforeProcItem,
-          after: EngineSignal.afterProcItem
-        }, function * (this: State): Generator {
-          yield * this.eval(proc.at(index))
-        })
-      }
-    })
-  }
-
+  @run(ValueType.boolean, EngineSignal.beforeOperand, EngineSignal.afterOperand)
+  @run(ValueType.boolean, EngineSignal.beforeOperand, EngineSignal.afterOperand)
+  @run(ValueType.block, EngineSignal.beforeProc, EngineSignal.afterProc)
   private * evalWithoutProc (value: InternalValue): Generator {
     if (value.type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data))) {
       yield * this.evalCall(value)
@@ -219,55 +207,26 @@ export class State implements IState {
     }
   }
 
-  private * eval (value: InternalValue): Generator {
-    if (value.type === ValueType.proc) {
-      yield * this.evalBlockOrProc(value)
-    } else {
-      yield * this.evalWithoutProc(value)
-    }
-  }
-
-  private * outerParse (source: string, sourceFile?: string): Generator {
-    try {
-      yield * this.innerParse(source, sourceFile)
-    } catch (e) {
-      this.wrapError(e as Error)
-    } finally {
-      this._parsing = false
-    }
-  }
-
-  public * innerParse (source: string, sourceFile?: string): Generator {
-    yield * this.wrapStep({
-      type: ValueType.string,
-      data: source,
-      untracked: true, // because external
-      sourceFile,
-      sourcePos: 0
-    }, {
-      before: EngineSignal.beforeParse,
-      after: EngineSignal.afterParse
-    }, function * (this: State): Generator {
-      const parser = parse(source, sourceFile)
-      for (const parsedValue of parser) {
-        this._calls.push({
-          type: ValueType.integer,
-          data: parsedValue.sourcePos as number
-        })
-        try {
-          yield EngineSignal.tokenParsed
-          const value: InternalValue = { ...parsedValue }
-          if (!this._keepDebugInfo) {
-            delete value.source
-            delete value.sourcePos
-            delete value.sourceFile
-          }
-          yield * this.eval(value)
-        } finally {
-          this._calls.pop()
+  @run(ValueType.string, EngineSignal.beforeParse, EngineSignal.afterParse)
+  public * runParse (source: string, sourceFile?: string): Generator {
+    const parser = parse(source, sourceFile)
+    for (const parsedValue of parser) {
+      this._calls.push({
+        type: ValueType.integer,
+        data: parsedValue.sourcePos as number
+      })
+      try {
+        yield EngineSignal.tokenParsed
+        const value: InternalValue = { ...parsedValue }
+        if (!this._keepDebugInfo) {
+          delete value.source
+          delete value.sourcePos
+          delete value.sourceFile
         }
+        yield * this.eval(value)
+      } finally {
+        this._calls.pop()
       }
-    })
+    }
   }
-*/
 }
