@@ -16,17 +16,19 @@ interface TestDescription {
 
 export const SOURCE_FILE = 'test-src.ps'
 
-export function waitForCycles (iterator: Generator): number {
-  let count = 0
-  let { done } = iterator.next()
-  while (done === false) {
-    ++count
-    if (count > 1000) {
+export function waitForCycles (iterator: Generator): any[] {
+  const result = []
+  while (true) {
+    const { value, done } = iterator.next()
+    result.push(value)
+    if (result.length > 1000) {
       throw new Error('Too many cycles (infinite loop ?)')
     }
-    done = iterator.next().done
+    if (done === true) {
+      break
+    }
   }
-  return count
+  return result
 }
 
 function executeTest (test: TestDescription): void {
@@ -66,7 +68,7 @@ function executeTest (test: TestDescription): void {
   let exceptionCaught: Error | undefined
   let cyclesCount = 0
   try {
-    cyclesCount = waitForCycles(state.parse(src, SOURCE_FILE))
+    cyclesCount = waitForCycles(state.parse(src, SOURCE_FILE)).length
   } catch (e) {
     exceptionCaught = e as Error
   }
