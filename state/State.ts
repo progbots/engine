@@ -7,8 +7,18 @@ import { InternalError } from '../errors/InternalError'
 import { renderCallStack } from './callstack'
 import { wrapError } from './error'
 
-function * runUnexpected (value: CallValue): Generator {
-  throw new Internal('Unexpected value type in callstack')
+interface RunHandler {
+  before: EngineSignal
+  after: EngineSignal
+  run: (this: State, value: CallValue) => Generator
+}
+
+const unexpectedHandler: RunHandler = {
+  before: EngineSignal.beforeOperand,
+  after: EngineSignal.afterOperand,
+  * run (value: CallValue): Generator {
+    throw new Internal(`Unexpected value type '${value.type}' in callstack`)
+  }
 }
 
 export class State implements IState {
@@ -18,17 +28,37 @@ export class State implements IState {
   private readonly _calls: CallStack
   private readonly _keepDebugInfo: boolean = false
   private _noCall: number = 0
-  private readonly _handlers: Record<ValueType, (this: State, value: CallValue) => Generator> = {
-    [ValueType.boolean]: runUnexpected,
-    [ValueType.integer]: runUnexpected,
-    [ValueType.string]: runUnexpected,
-    [ValueType.call]: this.runCall.bind(this),
-    [ValueType.operator]: this.runOperator.bind(this),
-    [ValueType.mark]: runUnexpected,
-    [ValueType.array]: runUnexpected,
-    [ValueType.dict]: runUnexpected,
-    [ValueType.block]: runUnexpected,
-    [ValueType.proc]: runUnexpected
+  private readonly _runHandlers: Record<ValueType, RunHandler> = {
+    [ValueType.boolean]: unexpectedHandler,
+    [ValueType.integer]: unexpectedHandler,
+    [ValueType.string]: {
+      before: EngineSignal.beforeParse,
+      after: EngineSignal.afterParse,
+      run: this.runParse
+    },
+    [ValueType.call]: {
+      before: EngineSignal.beforeCall,
+      after: EngineSignal.afterCall,
+      run: this.runCall
+    },
+    [ValueType.operator]: {
+      before: EngineSignal.beforeOperator,
+      after: EngineSignal.afterOperator,
+      run: this.runOperator
+    },
+    [ValueType.mark]: unexpectedHandler,
+    [ValueType.array]: unexpectedHandler,
+    [ValueType.dict]: unexpectedHandler,
+    [ValueType.block]: {
+      before: EngineSignal.beforeProc,
+      after: EngineSignal.afterProc,
+      run: this.runBlockOrProc
+    },
+    [ValueType.proc]: {
+      before: EngineSignal.beforeProc,
+      after: EngineSignal.afterProc,
+      run: this.runBlockOrProc
+    }
   }
 
   constructor (settings: StateFactorySettings = {}) {
@@ -95,7 +125,7 @@ export class State implements IState {
     --this._noCall
   }
 
-  get callstack () : CallStack {
+  get callstack (): CallStack {
     return this._calls
   }
 
@@ -120,8 +150,7 @@ export class State implements IState {
     while (this._calls.length > 0) {
       const [first, second] = this._calls.ref
       let top: CallValue
-      const hasIndex = first.type === ValueType.integer
-      if (hasIndex) {
+      if (first.type === ValueType.integer) {
         top = second
       } else {
         top = first
@@ -137,7 +166,10 @@ export class State implements IState {
           next = done
         }
       } else {
-        // execute top
+        const handler = this._runHandlers[top.type]
+        yield handler.before
+        top.after = handler.after
+        top.generator = handler.run.call(this, top)
       }
 
       if (error instanceof InternalError && top.catch !== undefined) {
@@ -150,13 +182,13 @@ export class State implements IState {
         if (top.finally !== undefined) {
           catchError(top.finally)
         }
-        if (top.signalAfter !== undefined) {
-          yield top.signalAfter
+        if (top.after !== undefined) {
+          yield top.after
         }
-        this._calls.pop()
-        if (hasIndex) {
+        if (this._calls.top.type === ValueType.integer) {
           this._calls.pop()
         }
+        this._calls.pop()
       }
     }
 
@@ -165,13 +197,24 @@ export class State implements IState {
     }
   }
 
-  @run(ValueType.call, EngineSignal.beforeCall, EngineSignal.afterCall)
-  private * runCall (value: CallValue): Generator {
-    const resolvedValue = this._dictionaries.lookup(value.data as string)
-    this.callstack.push(resolvedValue)
+  private * triage (value: InternalValue): Generator {
+    const { type } = value
+    if ([ValueType.proc, ValueType.block, ValueType.operator].includes(type)) {
+      this._calls.push(value)
+    } else if (type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data))) {
+      this._calls.push(value)
+    } else {
+      yield EngineSignal.beforeOperand
+      this.operands.push(value)
+      yield EngineSignal.afterOperand
+    }
   }
 
-  @run(ValueType.operator, EngineSignal.beforeOperator, EngineSignal.afterOperator)
+  private * runCall (value: CallValue): Generator {
+    const resolvedValue = this._dictionaries.lookup(value.data as string)
+    yield * this.triage(resolvedValue)
+  }
+
   private * runOperator (value: CallValue): Generator {
     const operator = value.data as OperatorFunction
     const iterator = operator(this)
@@ -180,36 +223,17 @@ export class State implements IState {
     }
   }
 
-  @run(ValueType.proc, EngineSignal.beforeProc, EngineSignal.afterProc)
-  @run(ValueType.block, EngineSignal.beforeProc, EngineSignal.afterProc)
   public * runBlockOrProc (value: CallValue): Generator {
     const proc = value.data as IArray
     const { length } = proc
     for (let index = 0; index < length; ++index) {
-      this.callstack.push({
-        ...proc.at(index)
-      })
+      yield * this.triage(proc.at(index))
     }
   }
 
-  @run(ValueType.boolean, EngineSignal.beforeOperand, EngineSignal.afterOperand)
-  @run(ValueType.boolean, EngineSignal.beforeOperand, EngineSignal.afterOperand)
-  @run(ValueType.block, EngineSignal.beforeProc, EngineSignal.afterProc)
-  private * evalWithoutProc (value: InternalValue): Generator {
-    if (value.type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data))) {
-      yield * this.evalCall(value)
-    } else if (value.type === ValueType.operator) {
-      yield * this.evalOperator(value)
-    } else {
-      yield EngineSignal.beforeOperand
-      this.operands.push(value)
-      yield EngineSignal.afterOperand
-    }
-  }
-
-  @run(ValueType.string, EngineSignal.beforeParse, EngineSignal.afterParse)
-  public * runParse (source: string, sourceFile?: string): Generator {
-    const parser = parse(source, sourceFile)
+  public * runParse (value: CallValue): Generator {
+    const { data: source, sourceFile } = value
+    const parser = parse(source as string, sourceFile)
     for (const parsedValue of parser) {
       this._calls.push({
         type: ValueType.integer,
@@ -223,7 +247,7 @@ export class State implements IState {
           delete value.sourcePos
           delete value.sourceFile
         }
-        yield * this.eval(value)
+        yield * this.triage(value)
       } finally {
         this._calls.pop()
       }
