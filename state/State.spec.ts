@@ -45,7 +45,7 @@ describe('state/State', () => {
       })
 
       it('stacks integer value', () => {
-        expect(waitForCycles(state.parse('1'))).toStrictEqual(5)
+        expect(waitForCycles(state.parse('1')).length).toStrictEqual(5)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 1
@@ -53,7 +53,7 @@ describe('state/State', () => {
       })
 
       it('considers the first item as the last pushed', () => {
-        expect(waitForCycles(state.parse('1 2'))).toStrictEqual(8)
+        expect(waitForCycles(state.parse('1 2')).length).toStrictEqual(8)
         const [first, second] = state.operands.ref
         expect(first).toStrictEqual({
           type: ValueType.integer,
@@ -66,7 +66,7 @@ describe('state/State', () => {
       })
 
       it('resolves and call an operator', () => {
-        expect(waitForCycles(state.parse('1 2 add'))).toStrictEqual(13)
+        expect(waitForCycles(state.parse('1 2 add')).length).toStrictEqual(13)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 3
@@ -74,7 +74,7 @@ describe('state/State', () => {
       })
 
       it('allows proc definition and execution', () => {
-        expect(waitForCycles(state.parse('"test" { 2 3 add } def test'))).toStrictEqual(48)
+        expect(waitForCycles(state.parse('"test" { 2 3 add } def test')).length).toStrictEqual(48)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 5
