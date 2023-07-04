@@ -30,6 +30,7 @@ describe('objects/BaseArray', () => {
   let tracker: MemoryTracker
   let array: MyArray
   let dict: Dictionary
+  let initialSize: number
 
   beforeEach(() => {
     tracker = new MemoryTracker()
@@ -49,6 +50,7 @@ describe('objects/BaseArray', () => {
     })
     dict.release()
     expect(dict.refCount).toStrictEqual(1)
+    initialSize = tracker.used
   })
 
   it('tracks memory used', () => {
@@ -70,6 +72,62 @@ describe('objects/BaseArray', () => {
       type: ValueType.dict,
       data: expect.anything()
     }])
+  })
+
+  describe('splice', () => {
+    it('removes a value from the array', () => {
+      array.splice(1)
+      expect(array.ref).toStrictEqual([{
+        type: ValueType.integer,
+        data: 1
+      }, {
+        type: ValueType.dict,
+        data: expect.anything()
+      }])
+      expect(tracker.used).toBeLessThan(initialSize)
+      expect(tracker.peak).toStrictEqual(initialSize)
+    })
+
+    it('injects a value in the array', () => {
+      array.splice(1, 0, {
+        type: ValueType.string,
+        data: 'def'
+      })
+      expect(array.ref).toStrictEqual([{
+        type: ValueType.integer,
+        data: 1
+      }, {
+        type: ValueType.string,
+        data: 'def'
+      }, {
+        type: ValueType.string,
+        data: 'abc'
+      }, {
+        type: ValueType.dict,
+        data: expect.anything()
+      }])
+      expect(tracker.used).toBeGreaterThan(initialSize)
+      expect(tracker.peak).toBeGreaterThan(initialSize)
+    })
+
+    it('replaces a value in the array', () => {
+      array.splice(1, 1, {
+        type: ValueType.string,
+        data: 'def'
+      })
+      expect(array.ref).toStrictEqual([{
+        type: ValueType.integer,
+        data: 1
+      }, {
+        type: ValueType.string,
+        data: 'def'
+      }, {
+        type: ValueType.dict,
+        data: expect.anything()
+      }])
+      expect(tracker.used).toStrictEqual(initialSize)
+      expect(tracker.peak).toBeGreaterThan(initialSize)
+    })
   })
 
   describe('IArray', () => {
