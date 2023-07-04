@@ -63,7 +63,8 @@ export enum EngineSignal {
   afterProcItem = `${EngineSignalPrefix}after-proc-item`,
   afterProc = `${EngineSignalPrefix}after-proc`,
   beforeOperand = `${EngineSignalPrefix}before-operand`,
-  afterOperand = `${EngineSignalPrefix}after-operand`
+  afterOperand = `${EngineSignalPrefix}after-operand`,
+  stop = `${EngineSignalPrefix}stop`
 }
 
 export interface IStateMemory {
