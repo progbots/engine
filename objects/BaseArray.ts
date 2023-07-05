@@ -68,12 +68,6 @@ export abstract class BaseArray extends ShareableObject implements IArray {
     this.releaseValue(value)
   }
 
-  splice (start: number, deleteCount: number = 1, ...values: InternalValue[]): void {
-    values.forEach(value => this.addValueRef(value))
-    const deletedValues = this._values.splice(start, deleteCount, ...values)
-    deletedValues.forEach(value => this.releaseValue(value))
-  }
-
   get ref (): readonly InternalValue[] {
     return this._values
   }
