@@ -12,10 +12,9 @@ export function * loop (state: State): Generator {
     operands.pop()
     let continueLoop = true
     while (continueLoop) {
-      yield // before loop
-      state.callstack.push({
+      yield * state.stackForRunning({
         ...block,
-        catch: (e: InternalError) => {
+        catch: (e: InternalError): undefined => {
           if (!(e instanceof Break)) {
             throw e
           }
