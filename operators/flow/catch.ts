@@ -3,23 +3,23 @@ import { ValueType } from '../../index'
 import { ShareableObject } from '../../objects/ShareableObject'
 import { InternalError } from '../../errors/InternalError'
 
-export function catchOp (state: State): undefined {
+export function * catchOp (state: State): Generator {
   const { operands } = state
   const [blockCatch, block] = operands.check(ValueType.block, ValueType.block)
   ShareableObject.addRef([block, blockCatch])
   try {
     operands.splice(2)
-    state.callstack.push({
+    yield * state.stackForRunning({
       ...block,
-      catch: (e: InternalError) => {
+      catch: function (e: InternalError): Generator {
         operands.push({
           type: ValueType.dict,
           data: e.dictionary
         })
         e.release()
-        state.callstack.push(blockCatch)
+        return state.stackForRunning(blockCatch)
       },
-      finally: () => {
+      finally: (): undefined => {
         ShareableObject.release(blockCatch)
       }
     })
