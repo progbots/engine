@@ -40,7 +40,7 @@ const renderers: Record<ValueType, (value: Value, step: number | undefined) => s
     const text = value.data as string
     if (step !== undefined) {
       const before = text.substring(0, step)
-      const parser = parse(text.substring(step))
+      const parser = parse(text.substring(step), 'callstack')
       const { value } = parser.next()
       if (value === undefined) {
         throw new Internal(UNEXPECTED_PARSER_FAILURE)
