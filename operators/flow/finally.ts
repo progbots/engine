@@ -2,17 +2,17 @@ import { State } from '../../state/index'
 import { ValueType } from '../../index'
 import { ShareableObject } from '../../objects/ShareableObject'
 
-export function finallyOp (state: State): undefined {
+export function * finallyOp (state: State): Generator {
   const { operands } = state
   const [blockFinally, block] = operands.check(ValueType.block, ValueType.block)
   ShareableObject.addRef([block, blockFinally])
   try {
     operands.splice(2)
-    state.callstack.push({
+    yield * state.stackForRunning({
       ...block,
-      finally: () => {
+      finally: function * (): Generator {
         try {
-          state.callstack.push(blockFinally)
+          yield * state.stackForRunning(blockFinally)
         } finally {
           ShareableObject.release(blockFinally)
         }
