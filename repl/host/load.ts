@@ -8,13 +8,7 @@ export function * load (state: State): Generator {
   const sourceOrError = yield $load
   if (typeof sourceOrError === 'string') {
     operands.pop()
-    state.callstack.push({
-      type: ValueType.string,
-      data: sourceOrError,
-      untracked: true, // because external
-      sourceFile: name,
-      sourcePos: 0
-    })
+    yield * state.stackForParsing(sourceOrError, name)
   } else {
     throw sourceOrError
   }
