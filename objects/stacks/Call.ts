@@ -5,8 +5,8 @@ import { InternalValue } from '../../state/index'
 import { Stack } from './Stack'
 
 export type CallValue = InternalValue & {
-  catch?: (e: InternalError) => void
-  finally?: () => void
+  catch?: (e: InternalError) => undefined | Generator
+  finally?: () => undefined | Generator
   generator?: Generator
   after?: EngineSignal
 }
