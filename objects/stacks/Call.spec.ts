@@ -13,7 +13,7 @@ describe('objects/stacks/Call', () => {
   })
 
   it('enables the use of extended values', () => {
-    const myCatch = (e: InternalError): void => {}
+    const myCatch = (e: InternalError): undefined => {}
     stack.push({
       type: ValueType.string,
       data: 'test',
