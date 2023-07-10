@@ -2,6 +2,7 @@ import { ValueType } from '../index'
 import { InternalValue } from './index'
 
 type ParsedValue = InternalValue & {
+  data: string | number
   sourceFile: string
   sourcePos: number
 }
