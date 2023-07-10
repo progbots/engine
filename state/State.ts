@@ -1,4 +1,4 @@
-import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags, IStateMemory } from '../index'
+import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags, IStateMemory, EngineSignalType } from '../index'
 import { BusyParsing, Internal } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
 import { CallStack, CallValue, DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
@@ -7,19 +7,10 @@ import { InternalError } from '../errors/InternalError'
 import { renderCallStack } from './callstack'
 import { wrapError } from './error'
 
-interface RunHandler {
-  before: EngineSignal
-  after: EngineSignal
-  run: (this: State, value: CallValue) => Generator
-}
+const UNEXPECTED_EXCEPTION = 'Unexpected exception'
+const UNEXPECTED_CALLSTACK_TYPE = 'Unexpected call stack typ'
 
-const unexpectedHandler: RunHandler = {
-  before: EngineSignal.beforeOperand,
-  after: EngineSignal.afterOperand,
-  * run (value: CallValue): Generator {
-    throw new Internal(`Unexpected value type '${value.type}' in callstack`)
-  }
-}
+const callHandlers: { [key in ValueType]?: (this: State, value: CallValue) => Generator } = {}
 
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
@@ -28,38 +19,6 @@ export class State implements IState {
   private readonly _calls: CallStack
   private readonly _keepDebugInfo: boolean = false
   private _noCall: number = 0
-  private readonly _runHandlers: Record<ValueType, RunHandler> = {
-    [ValueType.boolean]: unexpectedHandler,
-    [ValueType.integer]: unexpectedHandler,
-    [ValueType.string]: {
-      before: EngineSignal.beforeParse,
-      after: EngineSignal.afterParse,
-      run: this.runParse
-    },
-    [ValueType.call]: {
-      before: EngineSignal.beforeCall,
-      after: EngineSignal.afterCall,
-      run: this.runCall
-    },
-    [ValueType.operator]: {
-      before: EngineSignal.beforeOperator,
-      after: EngineSignal.afterOperator,
-      run: this.runOperator
-    },
-    [ValueType.mark]: unexpectedHandler,
-    [ValueType.array]: unexpectedHandler,
-    [ValueType.dict]: unexpectedHandler,
-    [ValueType.block]: {
-      before: EngineSignal.beforeProc,
-      after: EngineSignal.afterProc,
-      run: this.runBlockOrProc
-    },
-    [ValueType.proc]: {
-      before: EngineSignal.beforeProc,
-      after: EngineSignal.afterProc,
-      run: this.runBlockOrProc
-    }
-  }
 
   constructor (settings: StateFactorySettings = {}) {
     this._memoryTracker = new MemoryTracker(settings.maxMemoryBytes)
@@ -69,6 +28,12 @@ export class State implements IState {
     if (settings.keepDebugInfo === true) {
       this._keepDebugInfo = true
     }
+
+    callHandlers[ValueType.string] = State.prototype.runParse
+    callHandlers[ValueType.call] = State.prototype.runCall
+    callHandlers[ValueType.operator] = State.prototype.runOperator
+    callHandlers[ValueType.block] = State.prototype.runBlockOrProc
+    callHandlers[ValueType.proc] = State.prototype.runBlockOrProc
   }
 
   // region IState
@@ -97,17 +62,15 @@ export class State implements IState {
     return this._calls
   }
 
-  parse (source: string, sourceFile?: string): Generator {
+  * parse (source: string, sourceFile?: string): Generator {
     if (this._calls.length > 0) {
       wrapError(new BusyParsing())
     }
-    this._calls.push({
-      type: ValueType.string,
-      data: source,
-      untracked: true, // because external
-      sourceFile,
-      sourcePos: 0
-    })
+    try {
+      yield * this.stackForParsing(source, sourceFile)
+    } catch (e) {
+      wrapError(e as Error)
+    }
     return this.run()
   }
 
@@ -125,8 +88,23 @@ export class State implements IState {
     --this._noCall
   }
 
-  get callstack (): CallStack {
-    return this._calls
+  stackForParsing (source: string, sourceFile?: string): Generator {
+    return this.stackForRunning({
+      type: ValueType.string,
+      data: source,
+      untracked: true, // because external
+      sourceFile,
+      sourcePos: 0
+    })
+  }
+
+  * stackForRunning (value: CallValue): Generator {
+    this._calls.push(value)
+    const callStackChanged: EngineSignal = {
+      type: EngineSignalType.callStackChanged,
+      debug: true
+    }
+    yield callStackChanged
   }
 
   private * run (): Generator {
@@ -137,13 +115,14 @@ export class State implements IState {
         return callback()
       } catch (e) {
         if (!(e instanceof Error)) {
-          error = new Internal('Unexpected exception')
+          error = new Internal(UNEXPECTED_EXCEPTION)
         } else {
           error = e
           if (error instanceof InternalError) {
             error.callstack = renderCallStack(this.calls)
           }
         }
+        return {}
       }
     }
 
@@ -156,39 +135,47 @@ export class State implements IState {
         top = first
       }
 
+      const cycle: EngineSignal = {
+        type: EngineSignalType.cycle,
+        debug: false
+      }
+      yield cycle
+
       let next = false
 
       if (top.generator !== undefined) {
         const generator = top.generator
-        const { done, value } = catchError(() => generator.next())
-        if (error === undefined) {
-          yield value
-          next = done
-        }
+        const { done /*, value */ } = catchError(() => generator.next())
+        // TODO: this would be yield-ed only in debug mode
+        // if (done !== true || value !== undefined) {
+        //   yield value
+        // }
+        next = done
       } else {
-        const handler = this._runHandlers[top.type]
-        yield handler.before
-        top.after = handler.after
-        top.generator = handler.run.call(this, top)
+        const handler = callHandlers[top.type]
+        if (handler === undefined) {
+          throw new Internal(UNEXPECTED_CALLSTACK_TYPE)
+        }
+        top.generator = handler.call(this, top)
       }
 
       if (error instanceof InternalError && top.catch !== undefined) {
         const internalError = error
         const topCatch = top.catch
-        catchError(() => topCatch(internalError))
+        yield * catchError(() => topCatch(internalError))
       }
 
       if (next) {
         if (top.finally !== undefined) {
-          catchError(top.finally)
-        }
-        if (top.after !== undefined) {
-          yield top.after
+          yield * catchError(top.finally)
         }
         if (this._calls.top.type === ValueType.integer) {
           this._calls.pop()
         }
         this._calls.pop()
+        yield {
+          type: EngineSignalType.callStackChanged
+        }
       }
     }
 
@@ -197,60 +184,132 @@ export class State implements IState {
     }
   }
 
-  private * triage (value: InternalValue): Generator {
+  private * pushToStack (value: InternalValue): Generator {
     const { type } = value
-    if ([ValueType.proc, ValueType.block, ValueType.operator].includes(type)) {
-      this._calls.push(value)
-    } else if (type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data))) {
-      this._calls.push(value)
+    if ([ValueType.proc, ValueType.block, ValueType.operator].includes(type) ||
+        (type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data)))
+    ) {
+      yield * this.stackForRunning(value)
     } else {
-      yield EngineSignal.beforeOperand
       this.operands.push(value)
-      yield EngineSignal.afterOperand
     }
   }
 
+  private * runParse (value: CallValue): Generator {
+    this._calls.push({
+      type: ValueType.integer,
+      data: 0
+    })
+    const { sourceFile } = value
+    const source = value.data as string
+    const beforeParse: EngineSignal = {
+      type: EngineSignalType.beforeParse,
+      debug: true,
+      source,
+      sourceFile
+    }
+    yield beforeParse
+    const parser = parse(source, sourceFile)
+    for (const parsedValue of parser) {
+      this._calls.splice(1, {
+        type: ValueType.integer,
+        data: parsedValue.sourcePos
+      })
+      const tokenParsed: EngineSignal = {
+        type: EngineSignalType.tokenParsed,
+        debug: true,
+        source,
+        sourceFile,
+        sourcePos: parsedValue.sourcePos,
+        token: parsedValue.data.toString()
+      }
+      yield tokenParsed
+      const value: InternalValue = { ...parsedValue }
+      if (!this._keepDebugInfo) {
+        delete value.source
+        delete value.sourcePos
+        delete value.sourceFile
+      }
+      yield * this.pushToStack(value)
+    }
+    const afterParse: EngineSignal = {
+      type: EngineSignalType.afterParse,
+      debug: true,
+      source,
+      sourceFile
+    }
+    yield afterParse
+  }
+
   private * runCall (value: CallValue): Generator {
+    const beforeCall: EngineSignal = {
+      type: EngineSignalType.beforeCall,
+      debug: true,
+      call: value
+    }
+    yield beforeCall
     const resolvedValue = this._dictionaries.lookup(value.data as string)
-    yield * this.triage(resolvedValue)
+    yield * this.pushToStack(resolvedValue)
+    const afterCall: EngineSignal = {
+      type: EngineSignalType.afterCall,
+      debug: true,
+      call: value
+    }
+    yield afterCall
   }
 
   private * runOperator (value: CallValue): Generator {
     const operator = value.data as OperatorFunction
+    const beforeOperator: EngineSignal = {
+      type: EngineSignalType.beforeOperator,
+      debug: true,
+      name: operator.name
+    }
+    yield beforeOperator
     const iterator = operator(this)
     if (iterator !== undefined) {
       yield * iterator
     }
+    const afterOperator: EngineSignal = {
+      type: EngineSignalType.afterOperator,
+      debug: true,
+      name: operator.name
+    }
+    yield afterOperator
   }
 
-  public * runBlockOrProc (value: CallValue): Generator {
-    const proc = value.data as IArray
-    const { length } = proc
+  private * runBlockOrProc (value: CallValue): Generator {
+    this._calls.push({
+      type: ValueType.integer,
+      data: 0
+    })
+    const blockOrProc = value.data as IArray
+    const beforeBlock: EngineSignal = {
+      type: EngineSignalType.beforeBlock,
+      debug: true,
+      block: blockOrProc
+    }
+    yield beforeBlock
+    const { length } = blockOrProc
     for (let index = 0; index < length; ++index) {
-      yield * this.triage(proc.at(index))
-    }
-  }
-
-  public * runParse (value: CallValue): Generator {
-    const { data: source, sourceFile } = value
-    const parser = parse(source as string, sourceFile)
-    for (const parsedValue of parser) {
-      this._calls.push({
+      this._calls.splice(1, {
         type: ValueType.integer,
-        data: parsedValue.sourcePos as number
+        data: index
       })
-      try {
-        yield EngineSignal.tokenParsed
-        const value: InternalValue = { ...parsedValue }
-        if (!this._keepDebugInfo) {
-          delete value.source
-          delete value.sourcePos
-          delete value.sourceFile
-        }
-        yield * this.triage(value)
-      } finally {
-        this._calls.pop()
+      const beforeBlockItem: EngineSignal = {
+        type: EngineSignalType.beforeBlockItem,
+        debug: true,
+        block: blockOrProc,
+        index
       }
+      yield beforeBlockItem
+      yield * this.pushToStack(blockOrProc.at(index))
     }
+    const afterBlock: EngineSignal = {
+      type: EngineSignalType.afterBlock,
+      debug: true,
+      block: blockOrProc
+    }
+    yield afterBlock
   }
 }
