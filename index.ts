@@ -1,3 +1,5 @@
+import { InternalValue } from './state'
+
 export enum ValueType {
   boolean = 'booleantype',
   integer = 'integertype',
@@ -50,7 +52,8 @@ export type Value = {
 
 export const EngineSignalPrefix = 'engine-signal:'
 
-export enum EngineSignal {
+export enum EngineSignalType {
+  cycle = `${EngineSignalPrefix}cycle`,
   beforeParse = `${EngineSignalPrefix}before-parse`,
   tokenParsed = `${EngineSignalPrefix}token-parsed`,
   afterParse = `${EngineSignalPrefix}after-parse`,
@@ -58,13 +61,51 @@ export enum EngineSignal {
   afterCall = `${EngineSignalPrefix}after-call`,
   beforeOperator = `${EngineSignalPrefix}before-operator`,
   afterOperator = `${EngineSignalPrefix}after-operator`,
-  beforeProc = `${EngineSignalPrefix}before-proc`,
-  beforeProcItem = `${EngineSignalPrefix}before-proc-item`,
-  afterProcItem = `${EngineSignalPrefix}after-proc-item`,
-  afterProc = `${EngineSignalPrefix}after-proc`,
-  beforeOperand = `${EngineSignalPrefix}before-operand`,
-  afterOperand = `${EngineSignalPrefix}after-operand`,
-  stop = `${EngineSignalPrefix}stop`
+  beforeBlock = `${EngineSignalPrefix}before-block`,
+  beforeBlockItem = `${EngineSignalPrefix}before-block-item`,
+  afterBlock = `${EngineSignalPrefix}after-block`,
+  callStackChanged = `${EngineSignalPrefix}call-stack-changed`
+}
+
+export type EngineSignal = {
+  type: EngineSignalType.cycle
+  debug: false
+} | {
+  type: EngineSignalType.beforeParse |
+  EngineSignalType.afterParse
+  debug: true
+  source: string
+  sourceFile?: string
+} | {
+  type: EngineSignalType.tokenParsed
+  debug: true
+  source: string
+  sourceFile?: string
+  sourcePos: number
+  token: string
+} | {
+  type: EngineSignalType.beforeCall |
+  EngineSignalType.afterCall
+  debug: true
+  call: InternalValue
+} | {
+  type: EngineSignalType.beforeOperator |
+  EngineSignalType.afterOperator
+  debug: true
+  name: string
+} | {
+  type: EngineSignalType.beforeBlock |
+  EngineSignalType.afterBlock
+  debug: true
+  block: IArray
+} | {
+  type: EngineSignalType.beforeBlockItem
+  debug: true
+  block: IArray
+  index: number
+} | {
+  type: EngineSignalType.callStackChanged
+  debug: true
 }
 
 export interface IStateMemory {
