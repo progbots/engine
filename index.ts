@@ -54,9 +54,13 @@ export const EngineSignalPrefix = 'engine-signal:'
 
 export enum EngineSignalType {
   cycle = `${EngineSignalPrefix}cycle`,
+  // debug only
   beforeParse = `${EngineSignalPrefix}before-parse`,
   tokenParsed = `${EngineSignalPrefix}token-parsed`,
   afterParse = `${EngineSignalPrefix}after-parse`,
+  // TODO see if operand-stack-changed would be enough
+  beforeOperand = `${EngineSignalPrefix}before-operand`,
+  afterOperand = `${EngineSignalPrefix}after-operand`,
   beforeCall = `${EngineSignalPrefix}before-call`,
   afterCall = `${EngineSignalPrefix}after-call`,
   beforeOperator = `${EngineSignalPrefix}before-operator`,
