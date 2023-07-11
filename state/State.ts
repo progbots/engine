@@ -12,12 +12,30 @@ const UNEXPECTED_CALLSTACK_TYPE = 'Unexpected call stack typ'
 
 const callHandlers: { [key in ValueType]?: (this: State, value: CallValue) => Generator } = {}
 
+function sourceToValue (source: string, sourceFile?: string): InternalValue {
+  return {
+    type: ValueType.string,
+    data: source,
+    untracked: true, // because external
+    sourceFile,
+    sourcePos: 0
+  }
+}
+
+function isEngineSignal (value: any): value is EngineSignal {
+  return value !== null &&
+    typeof value === 'object' &&
+    value.type in EngineSignalType &&
+    typeof value.debug === 'boolean'
+}
+
 export class State implements IState {
   private readonly _memoryTracker: MemoryTracker
   private readonly _dictionaries: DictionaryStack
   private readonly _operands: OperandStack
   private readonly _calls: CallStack
   private readonly _keepDebugInfo: boolean = false
+  private readonly _yieldDebugSignals: boolean = false
   private _noCall: number = 0
 
   constructor (settings: StateFactorySettings = {}) {
@@ -27,6 +45,9 @@ export class State implements IState {
     this._calls = new CallStack(this._memoryTracker)
     if (settings.keepDebugInfo === true) {
       this._keepDebugInfo = true
+    }
+    if (settings.yieldDebugSignals === true) {
+      this._yieldDebugSignals = true
     }
 
     callHandlers[ValueType.string] = State.prototype.runParse
@@ -44,7 +65,8 @@ export class State implements IState {
 
   get flags (): IStateFlags {
     return {
-      debug: this._keepDebugInfo,
+      keepDebugInfo: this._keepDebugInfo,
+      yieldDebugSignals: this._yieldDebugSignals,
       parsing: this._calls.length > 0,
       call: this._noCall === 0
     }
@@ -62,12 +84,12 @@ export class State implements IState {
     return this._calls
   }
 
-  * parse (source: string, sourceFile?: string): Generator {
+  parse (source: string, sourceFile?: string): Generator {
     if (this._calls.length > 0) {
       wrapError(new BusyParsing())
     }
     try {
-      yield * this.stackForParsing(source, sourceFile)
+      this._calls.push(sourceToValue(source, sourceFile))
     } catch (e) {
       wrapError(e as Error)
     }
@@ -89,13 +111,7 @@ export class State implements IState {
   }
 
   stackForParsing (source: string, sourceFile?: string): Generator {
-    return this.stackForRunning({
-      type: ValueType.string,
-      data: source,
-      untracked: true, // because external
-      sourceFile,
-      sourcePos: 0
-    })
+    return this.stackForRunning(sourceToValue(source, sourceFile))
   }
 
   * stackForRunning (value: CallValue): Generator {
@@ -145,11 +161,12 @@ export class State implements IState {
 
       if (top.generator !== undefined) {
         const generator = top.generator
-        const { done /*, value */ } = catchError(() => generator.next())
-        // TODO: this would be yield-ed only in debug mode
-        // if (done !== true || value !== undefined) {
-        //   yield value
-        // }
+        const { done, value } = catchError(() => generator.next())
+        if (done !== true || value !== undefined) {
+          if (!isEngineSignal(value) || this._yieldDebugSignals) {
+            yield value
+          }
+        }
         next = done
       } else {
         const handler = callHandlers[top.type]
@@ -173,8 +190,12 @@ export class State implements IState {
           this._calls.pop()
         }
         this._calls.pop()
-        yield {
-          type: EngineSignalType.callStackChanged
+        if (this._yieldDebugSignals) {
+          const callStackChanged: EngineSignal = {
+            type: EngineSignalType.callStackChanged,
+            debug: true
+          }
+          yield callStackChanged
         }
       }
     }
@@ -182,6 +203,12 @@ export class State implements IState {
     if (error !== undefined) {
       wrapError(error)
     }
+
+    const stop: EngineSignal = {
+      type: EngineSignalType.stop,
+      debug: false
+    }
+    return stop
   }
 
   private * pushToStack (value: InternalValue): Generator {
