@@ -53,7 +53,7 @@ describe('state/State', () => {
       })
 
       it('considers the first item as the last pushed', () => {
-        expect(waitForCycles(state.parse('1 2')).length).toStrictEqual(9)
+        expect(waitForCycles(state.parse('1 2')).length).toStrictEqual(7)
         const [first, second] = state.operands.ref
         expect(first).toStrictEqual({
           type: ValueType.integer,
@@ -65,18 +65,22 @@ describe('state/State', () => {
         })
       })
 
-      it.only('resolves and call an operator', () => {
-        const signals = waitForCycles(state.parse('1 2 add'))
-        console.log(signals)
-        expect(signals.length).toStrictEqual(13)
+      it('resolves and call an operator', () => {
+        expect(waitForCycles(state.parse('1 2 add')).length).toStrictEqual(18)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 3
         }])
       })
 
-      it('allows proc definition and execution', () => {
-        expect(waitForCycles(state.parse('"test" { 2 3 add } def test')).length).toStrictEqual(48)
+      it.only('allows proc definition and execution', () => {
+        state = new State({
+          keepDebugInfo: true,
+          yieldDebugSignals: true
+        })
+        const signals = waitForCycles(state.parse('"test" { 2 3 add } def test'))
+        console.log(signals)
+        expect(signals.length).toStrictEqual(50)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 5
@@ -439,7 +443,7 @@ describe('state/State', () => {
     describe('when off', () => {
       it('drops debug information', () => {
         const state = new State()
-        expect(state.flags.debug).toStrictEqual(false)
+        expect(state.flags.keepDebugInfo).toStrictEqual(false)
         waitForCycles(state.parse('1', 'test.ps'))
         const value = state.operands.ref[0]
         expect(value.source).toBeUndefined()
@@ -453,7 +457,7 @@ describe('state/State', () => {
         const state = new State({
           keepDebugInfo: true
         })
-        expect(state.flags.debug).toStrictEqual(true)
+        expect(state.flags.keepDebugInfo).toStrictEqual(true)
         waitForCycles(state.parse('1', 'test.ps'))
         const value = state.operands.ref[0]
         expect(value.source).toStrictEqual('1')
