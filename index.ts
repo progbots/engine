@@ -54,11 +54,12 @@ export const EngineSignalPrefix = 'engine-signal:'
 
 export enum EngineSignalType {
   cycle = `${EngineSignalPrefix}cycle`,
+  stop = `${EngineSignalPrefix}stop`,
   // debug only
   beforeParse = `${EngineSignalPrefix}before-parse`,
   tokenParsed = `${EngineSignalPrefix}token-parsed`,
   afterParse = `${EngineSignalPrefix}after-parse`,
-  // TODO see if operand-stack-changed would be enough
+  callStackChanged = `${EngineSignalPrefix}call-stack-changed`,
   beforeOperand = `${EngineSignalPrefix}before-operand`,
   afterOperand = `${EngineSignalPrefix}after-operand`,
   beforeCall = `${EngineSignalPrefix}before-call`,
@@ -68,11 +69,11 @@ export enum EngineSignalType {
   beforeBlock = `${EngineSignalPrefix}before-block`,
   beforeBlockItem = `${EngineSignalPrefix}before-block-item`,
   afterBlock = `${EngineSignalPrefix}after-block`,
-  callStackChanged = `${EngineSignalPrefix}call-stack-changed`
 }
 
 export type EngineSignal = {
-  type: EngineSignalType.cycle
+  type: EngineSignalType.cycle |
+  EngineSignalType.stop
   debug: false
 } | {
   type: EngineSignalType.beforeParse |
@@ -87,6 +88,9 @@ export type EngineSignal = {
   sourceFile?: string
   sourcePos: number
   token: string
+} | {
+  type: EngineSignalType.callStackChanged
+  debug: true
 } | {
   type: EngineSignalType.beforeCall |
   EngineSignalType.afterCall
@@ -107,9 +111,6 @@ export type EngineSignal = {
   debug: true
   block: IArray
   index: number
-} | {
-  type: EngineSignalType.callStackChanged
-  debug: true
 }
 
 export interface IStateMemory {
@@ -119,7 +120,8 @@ export interface IStateMemory {
 }
 
 export interface IStateFlags {
-  readonly debug: boolean
+  readonly keepDebugInfo: boolean
+  readonly yieldDebugSignals: boolean
   readonly parsing: boolean
   readonly call: boolean
 }
@@ -137,4 +139,5 @@ export interface StateFactorySettings {
   hostDictionary?: IDictionary
   maxMemoryBytes?: number
   keepDebugInfo?: boolean
+  yieldDebugSignals?: boolean
 }
