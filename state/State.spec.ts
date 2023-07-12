@@ -35,6 +35,7 @@ describe('state/State', () => {
   describe('execution (and cycles) management', () => {
     describe.only('general', () => {
       let state: State
+      let signals: any[]
 
       beforeEach(() => {
         state = new State()
@@ -42,10 +43,18 @@ describe('state/State', () => {
 
       afterEach(() => {
         expect(state.calls.length).toStrictEqual(0)
+        console.log(signals)
+        expect(signals.length).toBeGreaterThan(0)
+        expect(signals.filter(signal => !signal).length).toStrictEqual(0)
+        expect(signals.filter(signal => signal.debug).length).toStrictEqual(0)
+        expect(signals.at(-1)).toStrictEqual({
+          type: EngineSignalType.stop,
+          debug: false
+        })
       })
 
-      it('stacks integer value', () => {
-        expect(waitForCycles(state.parse('1')).length).toStrictEqual(6)
+      it.only('stacks integer value', () => {
+        signals = waitForCycles(state.parse('1'))
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 1
@@ -73,7 +82,7 @@ describe('state/State', () => {
         }])
       })
 
-      it.only('allows proc definition and execution', () => {
+      it('allows proc definition and execution', () => {
         state = new State({
           keepDebugInfo: true,
           yieldDebugSignals: true
