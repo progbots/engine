@@ -1,5 +1,3 @@
-import { InternalValue } from './state'
-
 export enum ValueType {
   boolean = 'booleantype',
   integer = 'integertype',
@@ -95,7 +93,7 @@ export type EngineSignal = {
   type: EngineSignalType.beforeCall |
   EngineSignalType.afterCall
   debug: true
-  call: InternalValue
+  name: string
 } | {
   type: EngineSignalType.beforeOperator |
   EngineSignalType.afterOperator
