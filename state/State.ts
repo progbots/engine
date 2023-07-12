@@ -269,18 +269,19 @@ export class State implements IState {
   }
 
   private * runCall (value: CallValue): Generator {
+    const name = value.data as string
     const beforeCall: EngineSignal = {
       type: EngineSignalType.beforeCall,
       debug: true,
-      call: value
+      name
     }
     yield beforeCall
-    const resolvedValue = this._dictionaries.lookup(value.data as string)
+    const resolvedValue = this._dictionaries.lookup(name)
     yield * this.pushToStack(resolvedValue)
     const afterCall: EngineSignal = {
       type: EngineSignalType.afterCall,
       debug: true,
-      call: value
+      name
     }
     yield afterCall
   }
