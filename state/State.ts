@@ -25,7 +25,7 @@ function sourceToValue (source: string, sourceFile?: string): InternalValue {
 function isEngineSignal (value: any): value is EngineSignal {
   return value !== null &&
     typeof value === 'object' &&
-    value.type in EngineSignalType &&
+    Object.values(EngineSignalType).includes(value.type) &&
     typeof value.debug === 'boolean'
 }
 
