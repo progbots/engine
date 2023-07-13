@@ -2,6 +2,7 @@ import { ValueType } from '../../index'
 import { Undefined } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
 import { State } from '../../state/index'
+import { extractDebugInfos } from '../debug-infos'
 
 export function * bind ({ operands, dictionaries }: State): Generator {
   // TODO: decide if we want to go down this rabbit hole
@@ -20,7 +21,7 @@ export function * bind ({ operands, dictionaries }: State): Generator {
           const resolvedValue = dictionaries.lookup(value.data)
           // TODO: some operators can be replaced with values (true, false, mark...)
           procArray.set(index, {
-            ...value, // propagate debug infos
+            ...extractDebugInfos(value),
             ...resolvedValue
           })
         } catch (e) {
