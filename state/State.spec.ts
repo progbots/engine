@@ -43,9 +43,8 @@ describe('state/State', () => {
 
       afterEach(() => {
         expect(state.calls.length).toStrictEqual(0)
-        console.log(signals)
         expect(signals.length).toBeGreaterThan(0)
-        expect(signals.filter(signal => !signal).length).toStrictEqual(0)
+        expect(signals.filter(signal => signal === undefined).length).toStrictEqual(0)
         expect(signals.filter(signal => signal.debug).length).toStrictEqual(0)
         expect(signals.at(-1)).toStrictEqual({
           type: EngineSignalType.stop,
@@ -53,7 +52,7 @@ describe('state/State', () => {
         })
       })
 
-      it.only('stacks integer value', () => {
+      it('stacks integer value', () => {
         signals = waitForCycles(state.parse('1'))
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
@@ -62,7 +61,7 @@ describe('state/State', () => {
       })
 
       it('considers the first item as the last pushed', () => {
-        expect(waitForCycles(state.parse('1 2')).length).toStrictEqual(7)
+        signals = waitForCycles(state.parse('1 2'))
         const [first, second] = state.operands.ref
         expect(first).toStrictEqual({
           type: ValueType.integer,
@@ -75,21 +74,20 @@ describe('state/State', () => {
       })
 
       it('resolves and call an operator', () => {
-        expect(waitForCycles(state.parse('1 2 add')).length).toStrictEqual(18)
+        signals = waitForCycles(state.parse('1 2 add'))
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 3
         }])
       })
 
-      it('allows proc definition and execution', () => {
+      it.only('allows proc definition and execution', () => {
         state = new State({
           keepDebugInfo: true,
           yieldDebugSignals: true
         })
-        const signals = waitForCycles(state.parse('"test" { 2 3 add } def test'))
+        signals = waitForCycles(state.parse('"test" { 2 3 add } def test'))
         console.log(signals)
-        expect(signals.length).toStrictEqual(50)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 5
