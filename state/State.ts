@@ -118,7 +118,8 @@ export class State implements IState {
     this._calls.push(value)
     const callStackChanged: EngineSignal = {
       type: EngineSignalType.callStackChanged,
-      debug: true
+      debug: true,
+      delta: 1
     }
     yield callStackChanged
   }
@@ -193,7 +194,8 @@ export class State implements IState {
         if (this._yieldDebugSignals) {
           const callStackChanged: EngineSignal = {
             type: EngineSignalType.callStackChanged,
-            debug: true
+            debug: true,
+            delta: -1
           }
           yield callStackChanged
         }
