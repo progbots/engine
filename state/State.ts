@@ -163,7 +163,7 @@ export class State implements IState {
       if (top.generator !== undefined) {
         const generator = top.generator
         const { done, value } = catchError(() => generator.next())
-        if (done !== true || value !== undefined) {
+        if (value !== undefined) {
           if (!isEngineSignal(value) || this._yieldDebugSignals) {
             yield value
           }
@@ -215,7 +215,7 @@ export class State implements IState {
 
   private * pushToStack (value: InternalValue): Generator {
     const { type } = value
-    if ([ValueType.proc, ValueType.block, ValueType.operator].includes(type) ||
+    if ([ValueType.proc, ValueType.operator].includes(type) ||
         (type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data)))
     ) {
       yield * this.stackForRunning(value)
