@@ -33,7 +33,7 @@ describe('state/State', () => {
   })
 
   describe('execution (and cycles) management', () => {
-    describe.only('general', () => {
+    describe('general', () => {
       let state: State
       let signals: any[]
 
@@ -81,7 +81,7 @@ describe('state/State', () => {
         }])
       })
 
-      it.only('allows proc definition and execution', () => {
+      it('allows proc definition and execution', () => {
         signals = waitForCycles(state.parse('"test" { 2 3 add } def test'))
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
@@ -90,13 +90,13 @@ describe('state/State', () => {
       })
 
       it('controls call execution (defining)', () => {
-        waitForCycles(state.parse('"test" { { 1 } } def test', 'test.ps'))
+        signals = waitForCycles(state.parse('"test" { { 1 } } def test', 'test.ps'))
         expect(state.operands.ref.length).toStrictEqual(1)
         expect(state.operands.ref[0].type).toStrictEqual(ValueType.block)
       })
 
       it('controls call execution (call on proc)', () => {
-        waitForCycles(state.parse('"one" { 1 } def "test" { one } def test', 'test.ps'))
+        signals = waitForCycles(state.parse('"one" { 1 } def "test" { one } def test', 'test.ps'))
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 1
@@ -104,7 +104,7 @@ describe('state/State', () => {
       })
 
       it('controls call execution (call on bound proc)', () => {
-        waitForCycles(state.parse('"one" { 1 } def "test" { one } bind def test', 'test.ps'))
+        signals = waitForCycles(state.parse('"one" { 1 } def "test" { one } bind def test', 'test.ps'))
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 1
