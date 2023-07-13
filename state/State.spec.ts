@@ -82,12 +82,7 @@ describe('state/State', () => {
       })
 
       it.only('allows proc definition and execution', () => {
-        state = new State({
-          keepDebugInfo: true,
-          yieldDebugSignals: true
-        })
         signals = waitForCycles(state.parse('"test" { 2 3 add } def test'))
-        console.log(signals)
         expect(state.operands.ref).toStrictEqual([{
           type: ValueType.integer,
           data: 5
