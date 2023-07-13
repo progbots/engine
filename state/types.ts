@@ -6,9 +6,12 @@ export interface OperatorFunction {
   name: string
 }
 
-export type InternalValue = Value & {
-  untracked?: boolean // Disable memory tracking for the value
+export interface DebugInfos {
   source?: string // Source code
   sourcePos?: number // Position in the source code
   sourceFile?: string // Source file name (if any)
+}
+
+export type InternalValue = Value & DebugInfos & {
+  untracked?: boolean // Disable memory tracking for the value
 }
