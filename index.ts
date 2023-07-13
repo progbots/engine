@@ -89,6 +89,7 @@ export type EngineSignal = {
 } | {
   type: EngineSignalType.callStackChanged
   debug: true
+  delta: 1 | -1
 } | {
   type: EngineSignalType.beforeCall |
   EngineSignalType.afterCall
