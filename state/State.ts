@@ -225,10 +225,6 @@ export class State implements IState {
   }
 
   private * runParse (value: CallValue): Generator {
-    this._calls.push({
-      type: ValueType.integer,
-      data: 0
-    })
     const { sourceFile } = value
     const source = value.data as string
     const beforeParse: EngineSignal = {
@@ -238,6 +234,10 @@ export class State implements IState {
       sourceFile
     }
     yield beforeParse
+    this._calls.push({
+      type: ValueType.integer,
+      data: 0
+    })
     const parser = parse(source, sourceFile)
     for (const parsedValue of parser) {
       this._calls.splice(1, {
