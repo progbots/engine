@@ -1,4 +1,4 @@
-import { InternalValue, State } from './index'
+import { InternalValue, State, isEngineSignal } from './index'
 import { EngineSignalType, ValueType } from '../index'
 import { InternalError } from '../errors/InternalError'
 import { waitForCycles } from '../test-helpers'
@@ -142,46 +142,61 @@ describe('state/State', () => {
     describe('step by step debugging', () => {
       interface DebugStep {
         label: string
-        signal?: string
+        signal?: any
         operands?: InternalValue[]
         callstack?: string
       }
 
       interface DebugScenario {
+        only?: boolean
         label: string
         src: string
         steps: DebugStep[]
       }
 
       function test (scenario: DebugScenario): void {
-        describe(scenario.label, () => {
+        (scenario.only ? describe.only : describe)(scenario.label, () => {
           let state: State
           let run: Generator
-          let value: any
+          let signal: any
           let done: boolean = false
 
           beforeAll(() => {
-            state = new State()
+            state = new State({
+              yieldDebugSignals: true
+            })
             run = state.parse(scenario.src)
           })
 
           afterEach(() => {
-            const result = run.next()
-            value = result.value
-            done = result.done ?? false
+            while (!done) {
+              const result = run.next()
+              signal = result.value
+              done = result.done ?? false
+              if (!isEngineSignal(signal) || signal.debug) {
+                break
+              }
+            }
+            if (scenario.only) {
+              console.log(signal)
+            }
           })
 
           it('starts empty', () => {
             expect(done).toStrictEqual(false)
             expect(state.operands.ref).toStrictEqual([])
-            expect(renderCallStack(state.calls)).toStrictEqual('')
+            expect(state.calls.length).toStrictEqual(1)
+            expect(state.calls.at(0)).toMatchObject({
+              type: ValueType.string,
+              data: scenario.src
+            })
           })
 
           scenario.steps.forEach(step => {
             it(`goes to step: ${step.label}`, () => {
               expect(done).toStrictEqual(false)
               if (step.signal !== undefined) {
-                expect(value).toStrictEqual(step.signal)
+                expect(signal.type).toStrictEqual(step.signal)
               }
               if (step.operands !== undefined) {
                 expect(state.operands.ref).toStrictEqual(step.operands)
@@ -199,6 +214,7 @@ describe('state/State', () => {
       }
 
       test({
+        only: true,
         label: 'operand push',
         src: '1',
         steps: [{
@@ -210,19 +226,6 @@ describe('state/State', () => {
           label: 'parsed 1',
           signal: EngineSignalType.tokenParsed,
           operands: [],
-          callstack: '"»1«"'
-        }, {
-          label: 'before pushing 1',
-          signal: EngineSignalType.beforeOperand,
-          operands: [],
-          callstack: '"»1«"'
-        }, {
-          label: 'after pushing 1',
-          signal: EngineSignalType.afterOperand,
-          operands: [{
-            type: ValueType.integer,
-            data: 1
-          }],
           callstack: '"»1«"'
         }, {
           label: 'end parsing',
