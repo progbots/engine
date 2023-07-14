@@ -22,7 +22,7 @@ function sourceToValue (source: string, sourceFile?: string): InternalValue {
   }
 }
 
-function isEngineSignal (value: any): value is EngineSignal {
+export function isEngineSignal (value: any): value is EngineSignal {
   return value !== null &&
     typeof value === 'object' &&
     Object.values(EngineSignalType).includes(value.type) &&
