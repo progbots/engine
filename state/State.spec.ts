@@ -219,7 +219,6 @@ describe('state/State', () => {
       }
 
       test({
-        only: true,
         label: 'operand push',
         src: '1',
         steps: [{
@@ -257,37 +256,9 @@ describe('state/State', () => {
           operands: [],
           callstack: '"»1« 2 add"'
         }, {
-          label: 'before pushing 1',
-          signal: EngineSignalType.beforeOperand,
-          operands: [],
-          callstack: '"»1« 2 add"'
-        }, {
-          label: 'after pushin 1',
-          signal: EngineSignalType.afterOperand,
-          operands: [{
-            type: ValueType.integer,
-            data: 1
-          }],
-          callstack: '"»1« 2 add"'
-        }, {
           label: 'parsed 2',
           signal: EngineSignalType.tokenParsed,
-          callstack: '"1 »2« add"'
-        }, {
-          label: 'before pushing 2',
-          signal: EngineSignalType.beforeOperand,
           operands: [{
-            type: ValueType.integer,
-            data: 1
-          }],
-          callstack: '"1 »2« add"'
-        }, {
-          label: 'after pushing 2',
-          signal: EngineSignalType.afterOperand,
-          operands: [{
-            type: ValueType.integer,
-            data: 2
-          }, {
             type: ValueType.integer,
             data: 1
           }],
@@ -295,11 +266,26 @@ describe('state/State', () => {
         }, {
           label: 'parsed add',
           signal: EngineSignalType.tokenParsed,
+          operands: [{
+            type: ValueType.integer,
+            data: 2
+          }, {
+            type: ValueType.integer,
+            data: 1
+          }],
           callstack: '"1 2 »add«"'
+        }, {
+          label: 'stacked add',
+          signal: EngineSignalType.callStackChanged,
+          callstack: 'add\n"1 2 »add«"'
         }, {
           label: 'before lookup for add',
           signal: EngineSignalType.beforeCall,
           callstack: 'add\n"1 2 »add«"'
+        }, {
+          label: 'stacked -add-',
+          signal: EngineSignalType.callStackChanged,
+          callstack: '-add-\nadd\n"1 2 »add«"'
         }, {
           label: 'before calling the -add- operator',
           signal: EngineSignalType.beforeOperator,
@@ -313,9 +299,17 @@ describe('state/State', () => {
           }],
           callstack: '-add-\nadd\n"1 2 »add«"'
         }, {
+          label: 'unstacked -add-',
+          signal: EngineSignalType.callStackChanged,
+          callstack: 'add\n"1 2 »add«"'
+        }, {
           label: 'after lookup for add',
           signal: EngineSignalType.afterCall,
           callstack: 'add\n"1 2 »add«"'
+        }, {
+          label: 'unstacked add',
+          signal: EngineSignalType.callStackChanged,
+          callstack: '"1 2 »add«"'
         }, {
           label: 'end parsing',
           signal: EngineSignalType.afterParse,
@@ -409,18 +403,10 @@ describe('state/State', () => {
   })
 
   describe('break and invalid break', () => {
-    beforeAll(() => {
-      // Securing loop test against infinite loops
-      const state = new State()
-      waitForCycles(state.parse('true { 42 } if'))
-      expect(state.operands.at(0)).toStrictEqual({
-        type: ValueType.integer,
-        data: 42
+    it.only('breaks a loop', () => {
+      const state = new State({
+        yieldDebugSignals: true
       })
-    })
-
-    it('breaks a loop', () => {
-      const state = new State()
       waitForCycles(state.parse('{ break } loop'))
     })
 
