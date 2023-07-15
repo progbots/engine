@@ -119,7 +119,7 @@ export class State implements IState {
     const callStackChanged: EngineSignal = {
       type: EngineSignalType.callStackChanged,
       debug: true,
-      delta: 1
+      delta: 'push'
     }
     yield callStackChanged
   }
@@ -195,7 +195,7 @@ export class State implements IState {
           const callStackChanged: EngineSignal = {
             type: EngineSignalType.callStackChanged,
             debug: true,
-            delta: -1
+            delta: 'pop'
           }
           yield callStackChanged
         }
@@ -261,6 +261,7 @@ export class State implements IState {
       }
       yield * this.pushToStack(value)
     }
+    this._calls.pop()
     const afterParse: EngineSignal = {
       type: EngineSignalType.afterParse,
       debug: true,
@@ -335,6 +336,7 @@ export class State implements IState {
       yield beforeBlockItem
       yield * this.pushToStack(blockOrProc.at(index))
     }
+    this._calls.pop()
     const afterBlock: EngineSignal = {
       type: EngineSignalType.afterBlock,
       debug: true,
