@@ -155,7 +155,7 @@ describe('state/State', () => {
       }
 
       function test (scenario: DebugScenario): void {
-        (scenario.only ? describe.only : describe)(scenario.label, () => {
+        (scenario.only === true ? describe.only : describe)(scenario.label, () => {
           let state: State
           let run: Generator
           let signal: any
@@ -177,7 +177,7 @@ describe('state/State', () => {
                 break
               }
             }
-            if (scenario.only) {
+            if (scenario.only === true) {
               console.log(signal)
             }
           })
@@ -205,6 +205,11 @@ describe('state/State', () => {
                 expect(renderCallStack(state.calls)).toStrictEqual(step.callstack)
               }
             })
+          })
+
+          it('unstacks parsing from call stack', () => {
+            expect(done).toStrictEqual(false)
+            expect(state.calls.length).toStrictEqual(0)
           })
 
           it('ends', () => {
