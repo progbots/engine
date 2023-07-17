@@ -1,14 +1,12 @@
-import { State } from '../../state/index'
 import { ValueType } from '../../index'
+import { setOperatorAttributes } from '../attributes'
 
-export function falseOp ({ operands }: State): undefined {
-  operands.push({
+export function falseOp (): undefined {}
+
+setOperatorAttributes(falseOp, {
+  name: 'false',
+  constant: {
     type: ValueType.boolean,
     data: false
-  })
-}
-
-Object.defineProperty(falseOp, 'name', {
-  value: 'false',
-  writable: false
+  }
 })

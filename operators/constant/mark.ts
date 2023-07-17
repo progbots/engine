@@ -1,9 +1,12 @@
-import { State } from '../../state/index'
 import { ValueType } from '../../index'
+import { setOperatorAttributes } from '../attributes'
 
-export function mark ({ operands }: State): undefined {
-  operands.push({
+export function mark (): undefined {}
+
+setOperatorAttributes(mark, {
+  name: 'mark',
+  constant: {
     type: ValueType.mark,
     data: null
-  })
-}
+  }
+})
