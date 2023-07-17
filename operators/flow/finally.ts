@@ -1,30 +1,17 @@
-import { State } from '../../state/index'
+import { InternalValue, State } from '../../state/index'
 import { ValueType } from '../../index'
-import { ShareableObject } from '../../objects/ShareableObject'
+import { setOperatorAttributes } from '../attributes'
 
-export function * finallyOp (state: State): Generator {
+export function * finallyOp (state: State, [, block]: InternalValue[]): Generator {
   const { operands } = state
-  const [blockFinally, block] = operands.check(ValueType.block, ValueType.block)
-  ShareableObject.addRef([block, blockFinally])
-  try {
-    operands.splice(2)
-    yield * state.stackForRunning({
-      ...block,
-      finally: function * (): Generator {
-        try {
-          yield * state.stackForRunning(blockFinally)
-        } finally {
-          ShareableObject.release(blockFinally)
-        }
-      }
-    })
-    ShareableObject.addRef(blockFinally)
-  } finally {
-    ShareableObject.release([block, blockFinally])
-  }
+  operands.splice(2)
+  return state.stackForRunning(block)
 }
 
-Object.defineProperty(finallyOp, 'name', {
-  value: 'finally',
-  writable: false
+setOperatorAttributes(finallyOp, {
+  name: 'finally',
+  typeCheck: [ValueType.block, ValueType.block],
+  finally (state: State, [blockFinally]: InternalValue[]): Generator {
+    return state.stackForRunning(blockFinally)
+  }
 })

@@ -1,19 +1,15 @@
-import { State } from '../../state/index'
+import { State, InternalValue } from '../../state/index'
 import { ValueType } from '../../index'
-import { ShareableObject } from '../../objects/ShareableObject'
+import { setOperatorAttributes } from '../attributes'
 
-export function * ifelse (state: State): Generator {
-  const { operands } = state
-  const [blockElse, blockIf, condition] = operands.check(ValueType.block, ValueType.block, ValueType.boolean)
-  ShareableObject.addRef([blockIf, blockElse])
-  try {
-    operands.splice(3)
-    if (condition.data as boolean) {
-      yield * state.stackForRunning(blockIf)
-    } else {
-      yield * state.stackForRunning(blockElse)
-    }
-  } finally {
-    ShareableObject.release([blockIf, blockElse])
+export function ifelse (state: State, [blockElse, blockIf, condition]: InternalValue[]): Generator {
+  state.operands.splice(3)
+  if (condition.data as boolean) {
+    return state.stackForRunning(blockIf)
   }
+  return state.stackForRunning(blockElse)
 }
+
+setOperatorAttributes(ifelse, {
+  typeCheck: [ValueType.block, ValueType.block, ValueType.boolean]
+})
