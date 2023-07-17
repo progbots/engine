@@ -4,6 +4,7 @@ import { State } from './State'
 
 export interface OperatorAttributes {
   name?: string
+  constant?: Value
   typeCheck?: (ValueType|null)[] // When specified, also ensure shareable objects remain referenced during operator lifetime (including catch & finally)
   catch?: (state: State, parameters: InternalValue[], e: InternalError) => undefined | Generator
   finally?: (state: State, parameters: InternalValue[]) => undefined | Generator
