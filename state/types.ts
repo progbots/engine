@@ -5,13 +5,18 @@ import { State } from './State'
 export interface OperatorAttributes {
   name?: string
   constant?: Value
-  typeCheck?: (ValueType|null)[] // When specified, also ensure shareable objects remain referenced during operator lifetime (including catch & finally)
-  catch?: (state: State, parameters: InternalValue[], e: InternalError) => undefined | Generator
-  finally?: (state: State, parameters: InternalValue[]) => undefined | Generator
+  // When specified, the collected values are kept valid during the operator lifetime (including catch & finally)  
+  typeCheck?: (ValueType|null)[]
+  // When specified, the method is called until the result is false
+  loop?: (state: State, parameters: InternalValue[]) => boolean
+  // When specified, any InternalError is transmitted to it
+  catch?: (state: State, parameters: InternalValue[], e: InternalError) => void
+  // When specified, triggered before unstacking the operator from call stack
+  finally?: (state: State, parameters: InternalValue[]) => void
 }
 
 export interface OperatorFunction extends OperatorAttributes {
-  (state: State, parameters: InternalValue[]): undefined | Generator
+  (state: State, parameters: InternalValue[]): void
   name: string
 }
 
