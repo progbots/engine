@@ -114,7 +114,7 @@ export class State implements IState {
     return this.stackForRunning(sourceToValue(source, sourceFile))
   }
 
-  * stackForRunning (value: CallValue): Generator {
+  * stackForRunning (value: InternalValue): Generator {
     this._calls.push(value)
     const callStackChanged: EngineSignal = {
       type: EngineSignalType.callStackChanged,
@@ -160,27 +160,33 @@ export class State implements IState {
 
       let next = false
 
-      if (top.generator !== undefined) {
-        const generator = top.generator
-        const { done, value } = catchError(() => generator.next())
-        if (value !== undefined) {
-          if (!isEngineSignal(value) || this._yieldDebugSignals) {
-            yield value
+      if (error === undefined) {
+        if (top.generator !== undefined) {
+          const generator = top.generator
+          const { done, value } = catchError(() => generator.next())
+          if (value !== undefined) {
+            if (!isEngineSignal(value) || this._yieldDebugSignals) {
+              yield value
+            }
           }
+          next = done
+        } else {
+          const handler = callHandlers[top.type]
+          if (handler === undefined) {
+            throw new Internal(UNEXPECTED_CALLSTACK_TYPE)
+          }
+          top.generator = handler.call(this, top)
         }
-        next = done
-      } else {
-        const handler = callHandlers[top.type]
-        if (handler === undefined) {
-          throw new Internal(UNEXPECTED_CALLSTACK_TYPE)
-        }
-        top.generator = handler.call(this, top)
-      }
-
-      if (error instanceof InternalError && top.catch !== undefined) {
+      } else if (error instanceof InternalError && top.catch !== undefined) {
         const internalError = error
         const topCatch = top.catch
+        // if iterator replace top.generator with it
+        // if no error comes out, ignore
+        // replace top.generator with either it
+        top.generator = handler.call(this, top)
         yield * catchError(() => topCatch(internalError))
+      } else {
+        next = true // escalate
       }
 
       if (next) {
