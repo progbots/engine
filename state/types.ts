@@ -1,8 +1,16 @@
-import { Value } from '../index'
+import { InternalError } from '../errors/InternalError'
+import { Value, ValueType } from '../index'
 import { State } from './State'
 
-export interface OperatorFunction {
-  (state: State): undefined | Generator
+export interface OperatorAttributes {
+  name?: string
+  typeCheck?: ValueType[] // When specified, also ensure shareable objects remain referenced during operator lifetime (including catch & finally)
+  catch?: (state: State, parameters: InternalValue[], e: InternalError) => undefined | Generator
+  finally?: (state: State, parameters: InternalValue[]) => undefined | Generator
+}
+
+export interface OperatorFunction extends OperatorAttributes {
+  (state: State, parameters: InternalValue[]): undefined | Generator
   name: string
 }
 
