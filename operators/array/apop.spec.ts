@@ -19,5 +19,6 @@ describe('operators/array/apop', () => {
       src: '1 apop',
       error: TypeCheck
     }
+    // TODO add a test with a shared object stored in the array
   })
 })

@@ -11,7 +11,7 @@ export function apop ({ operands }: State): undefined {
   if (value === undefined) {
     throw new RangeCheck()
   }
-  ShareableObject.addRef(value)
+  ShareableObject.addRef(value) // TODO should be released *after* slice
   array.pop()
   operands.splice(1, value)
 }
