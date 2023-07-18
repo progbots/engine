@@ -5,7 +5,7 @@ import { Stack } from './Stack'
 import { ArrayLike } from '../Array'
 import { Internal, StackUnderflow } from '../../errors/index'
 
-enum CallStep {
+export enum CallStep {
   INIT,
   RUN,
   LOOP,
