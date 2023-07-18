@@ -5,7 +5,7 @@ import { State } from './State'
 export interface OperatorAttributes {
   name?: string
   constant?: Value
-  // When specified, the collected values are kept valid during the operator lifetime (including catch & finally)  
+  // When specified, the collected values are kept valid during the operator lifetime (including catch & finally)
   typeCheck?: Array<ValueType | null>
   // When specified, the method is called until the result is false
   loop?: (state: State, parameters: InternalValue[]) => boolean
