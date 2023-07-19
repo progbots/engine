@@ -1,7 +1,7 @@
 import { CallStack, CallStep, Stack } from './index'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { IArray, ValueType } from '../../index'
-import { RangeCheck } from '../../errors/index'
+import { StackUnderflow } from '../../errors/index'
 import { ShareableObject } from '../ShareableObject'
 
 class MyObject extends ShareableObject {
@@ -36,18 +36,58 @@ describe('objects/stacks/Call', () => {
     expect(tracker.used).toStrictEqual(baseTracker.used + CallStack.EXTRA_SIZE)
   })
 
-  describe('CallStep', () => {
+  describe('CallStep specific APIs', () => {
     describe('When stack is empty', () => {
+      it('fails top', () => {
+        expect(() => stack.top).toThrow(StackUnderflow)
+      })
+
       it('fails step', () => {
-        expect(() => stack.step).toThrow(RangeCheck)
+        expect(() => stack.step).toThrow(StackUnderflow)
       })
 
       it('fails loopIndex', () => {
-        expect(() => stack.loopIndex).toThrow(RangeCheck)
+        expect(() => stack.loopIndex).toThrow(StackUnderflow)
       })
 
       it('fails parameters', () => {
-        expect(() => stack.parameters).toThrow(RangeCheck)
+        expect(() => stack.parameters).toThrow(StackUnderflow)
+      })
+    })
+
+    describe('top', () => {
+      it('gives access to the value and the state', () => {
+        stack.push({
+          type: ValueType.string,
+          data: 'test'
+        })
+        expect(stack.top).toStrictEqual({
+          type: ValueType.string,
+          data: 'test'
+        })
+      })
+
+      it('ignores any integer added to the call stack', () => {
+        stack.push({
+          type: ValueType.string,
+          data: 'test'
+        })
+        stack.push({
+          type: ValueType.integer,
+          data: 0
+        })
+        expect(stack.top).toStrictEqual({
+          type: ValueType.string,
+          data: 'test'
+        })
+      })
+
+      it('fails if only an integer is in the call stack', () => {
+        stack.push({
+          type: ValueType.integer,
+          data: 0
+        })
+        expect(() => stack.top).toThrow(StackUnderflow)
       })
     })
 

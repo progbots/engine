@@ -41,11 +41,14 @@ export class CallStack extends Stack {
     this._states.pop()
   }
 
-  get top (): {
+  private get _top (): {
     value: InternalValue
     state: CallState
   } {
     let index: number
+    if (this.length === 0) {
+      throw new StackUnderflow()
+    }
     if (this.at(0).type === ValueType.integer) {
       index = 1
     } else {
@@ -60,24 +63,28 @@ export class CallStack extends Stack {
     }
   }
 
+  get top (): InternalValue {
+    return this._top.value
+  }
+
   get step (): CallStep {
-    return this.top.state.step
+    return this._top.state.step
   }
 
   set step (value: CallStep) {
-    this.top.state.step = value
+    this._top.state.step = value
   }
 
   get loopIndex (): number {
-    return this.top.state.loopIndex
+    return this._top.state.loopIndex
   }
 
   set loopIndex (value: number) {
-    this.top.state.loopIndex = value
+    this._top.state.loopIndex = value
   }
 
   get parameters (): readonly InternalValue[] {
-    const { state } = this.top
+    const { state } = this._top
     const { parameters } = state
     if (parameters !== null) {
       return parameters.ref
@@ -86,7 +93,7 @@ export class CallStack extends Stack {
   }
 
   set parameters (values: InternalValue[]) {
-    const { state } = this.top
+    const { state } = this._top
     if (state.parameters !== null) {
       throw new Internal('Parameters are already set')
     }
