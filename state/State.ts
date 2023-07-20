@@ -110,18 +110,28 @@ export class State implements IState {
     --this._noCall
   }
 
-  stackForParsing (source: string, sourceFile?: string): Generator {
-    return this.stackForRunning(sourceToValue(source, sourceFile))
+  stackForParsing (source: string, sourceFile?: string): void {
+    this.stackForRunning(sourceToValue(source, sourceFile))
   }
 
-  * stackForRunning (value: InternalValue): Generator {
+  stackForRunning (value: InternalValue): void {
     this._calls.push(value)
+    /* TODO detect call stack change
     const callStackChanged: EngineSignal = {
       type: EngineSignalType.callStackChanged,
       debug: true,
       delta: 'push'
     }
     yield callStackChanged
+*/
+  }
+
+  pushStepParameter (value: InternalValue): void {
+
+  }
+
+  popStepParameter (): void {
+
   }
 
   private * run (): Generator {
