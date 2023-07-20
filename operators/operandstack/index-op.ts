@@ -2,7 +2,7 @@ import { State } from '../../state/index'
 import { ValueType } from '../../index'
 import { RangeCheck, StackUnderflow } from '../../errors/index'
 
-export function index ({ operands }: State): undefined {
+export function index ({ operands }: State): void {
   const [pos] = operands.check(ValueType.integer).map(value => value.data as number)
   if (pos < 0) {
     throw new RangeCheck()

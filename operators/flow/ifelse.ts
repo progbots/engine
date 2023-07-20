@@ -2,12 +2,13 @@ import { State, InternalValue } from '../../state/index'
 import { ValueType } from '../../index'
 import { setOperatorAttributes } from '../attributes'
 
-export function ifelse (state: State, [blockElse, blockIf, condition]: InternalValue[]): Generator {
+export function ifelse (state: State, [blockElse, blockIf, condition]: InternalValue[]): void {
   state.operands.splice(3)
   if (condition.data as boolean) {
-    return state.stackForRunning(blockIf)
+    state.stackForRunning(blockIf)
+  } else {
+    state.stackForRunning(blockElse)
   }
-  return state.stackForRunning(blockElse)
 }
 
 setOperatorAttributes(ifelse, {

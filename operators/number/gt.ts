@@ -1,6 +1,6 @@
 import { State } from '../../state/index'
 import { compare } from './integer'
 
-export function gt (state: State): undefined {
+export function gt (state: State): void {
   compare(state, (value1: number, value2: number) => value1 > value2)
 }

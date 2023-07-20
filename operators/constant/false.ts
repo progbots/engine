@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
 import { setOperatorAttributes } from '../attributes'
 
-export function falseOp (): undefined {}
+export function falseOp (): void {}
 
 setOperatorAttributes(falseOp, {
   name: 'false',

@@ -1,5 +1,5 @@
 import { State } from '../../state/index'
 
-export function clear ({ operands }: State): undefined {
+export function clear ({ operands }: State): void {
   operands.splice(operands.length)
 }

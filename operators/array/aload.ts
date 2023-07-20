@@ -4,7 +4,7 @@ import { TypeCheck } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
 import { setOperatorAttributes } from '../attributes'
 
-export function aload ({ operands }: State, [{ type, data }]: InternalValue[]): undefined {
+export function aload ({ operands }: State, [{ type, data }]: InternalValue[]): void {
   if (![ValueType.array, ValueType.block, ValueType.proc].includes(type)) {
     throw new TypeCheck()
   }

@@ -49,7 +49,7 @@ const setters: Record<string, (container: InternalValue, index: InternalValue, v
   }
 }
 
-export function set ({ operands }: State): undefined {
+export function set ({ operands }: State): void {
   const [value, index, container] = operands.check(null, null, null)
   const setter = setters[container.type]
   if (setter === undefined) {

@@ -3,7 +3,7 @@ import { ValueType } from '../../index'
 import { closeToMark } from '../open-close-helper'
 import { setOperatorAttributes } from '../attributes'
 
-export function closeArray (state: State): undefined {
+export function closeArray (state: State): void {
   closeToMark(state, ValueType.array)
 }
 

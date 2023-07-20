@@ -4,16 +4,17 @@ import { State, InternalValue } from '../../state/index'
 import { InternalError } from '../../errors/InternalError'
 import { setOperatorAttributes } from '../attributes'
 
-export function * loop (state: State, [block]: InternalValue[]): Generator {
+export function loop (state: State, [block]: InternalValue[]): void {
   state.operands.pop()
-  while (true) {
-    yield * state.stackForRunning(block)
-  }
 }
 
 setOperatorAttributes(loop, {
   typeCheck: [ValueType.block],
-  catch (state: State, parameters: InternalValue[], e: InternalError): undefined {
+  loop (state: State, [block]: InternalValue[]): boolean {
+    state.stackForRunning(block)
+    return true
+  },
+  catch (state: State, parameters: InternalValue[], e: InternalError): void {
     if (!(e instanceof Break)) {
       throw e
     }

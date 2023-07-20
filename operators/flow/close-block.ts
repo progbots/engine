@@ -2,7 +2,7 @@ import { State } from '../../state/index'
 import { ValueType } from '../../index'
 import { closeToMark } from '../open-close-helper'
 
-export function closeBlock (state: State): undefined {
+export function closeBlock (state: State): void {
   closeToMark(state, ValueType.block)
   state.allowCall()
 }

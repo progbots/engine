@@ -2,10 +2,10 @@ import { InternalValue, State } from '../../state/index'
 import { ValueType } from '../../index'
 import { setOperatorAttributes } from '../attributes'
 
-export function ifOp (state: State, [block, condition]: InternalValue[]): undefined | Generator {
+export function ifOp (state: State, [block, condition]: InternalValue[]): void {
   state.operands.splice(2)
   if (condition.data as boolean) {
-    return state.stackForRunning(block)
+    state.stackForRunning(block)
   }
 }
 
