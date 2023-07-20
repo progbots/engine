@@ -1,37 +1,61 @@
 import { ValueType } from '../../index'
 import { Undefined } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
-import { State } from '../../state/index'
+import { InternalValue, State } from '../../state/index'
 import { extractDebugInfos } from '../debug-infos'
+import { setOperatorAttributes } from '../attributes'
 
-export function * bind ({ operands, dictionaries }: State): Generator {
-  // TODO: decide if we want to go down this rabbit hole
-  // const [blockOrProc] = operands.check(null)
-  // if (![ValueType.block, ValueType.proc].includes(blockOrProc.type)) {
-  //   throw new TypeCheck()
-  // }
-  const [block] = operands.check(ValueType.block)
-  const blocks: ArrayLike[] = [block.data as unknown as ArrayLike]
-  for (const procArray of blocks) {
-    for (let index = 0; index < procArray.ref.length; ++index) {
-      const value = procArray.at(index)
-      if (value.type === ValueType.call) {
-        yield // bind cycle
-        try {
-          const resolvedValue = dictionaries.lookup(value.data)
-          // TODO: some operators can be replaced with values (true, false, mark...)
-          procArray.set(index, {
-            ...extractDebugInfos(value),
-            ...resolvedValue
-          })
-        } catch (e) {
-          if (!(e instanceof Undefined)) {
-            throw e
-          }
-        }
-      } else if (value.type === ValueType.block) {
-        blocks.push(value.data as unknown as ArrayLike)
-      }
-    }
-  }
+export function bind (state: State, [block]: InternalValue[]): void {
+  state.pushStepParameter(block)
+  state.pushStepParameter({
+    type: ValueType.integer,
+    data: 0
+  })
 }
+
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* because parameters contains :
+ * - at least the block being processed
+ * - for each stacked block an additional index
+ */
+setOperatorAttributes(bind, {
+  typeCheck: [ValueType.block],
+  loop (state: State, parameters: InternalValue[]): boolean {
+    const lastParameter = parameters.at(-1)
+    if (lastParameter!.type !== ValueType.integer) {
+      return false
+    }
+    let index = lastParameter!.data
+    const block = parameters.at(-2)
+    const blockArray = block!.data as ArrayLike
+    const value = blockArray.at(index)
+    if (value.type === ValueType.call) {
+      try {
+        const resolvedValue = state.dictionaries.lookup(value.data)
+        // TODO: some operators can be replaced with values (true, false, mark...)
+        blockArray.set(index, {
+          ...extractDebugInfos(value),
+          ...resolvedValue
+        })
+      } catch (e) {
+        if (!(e instanceof Undefined)) {
+          throw e
+        }
+      }
+    } else if (value.type === ValueType.block) {
+      state.pushStepParameter(value)
+      state.pushStepParameter(value)
+      return true
+    }
+    state.popStepParameter()
+    if (++index < blockArray.length) {
+      state.pushStepParameter({
+        type: ValueType.integer,
+        data: index + 1
+      })
+    } else {
+      state.popStepParameter()
+    }
+    return true
+  }
+})
