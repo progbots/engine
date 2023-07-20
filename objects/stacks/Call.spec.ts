@@ -1,7 +1,7 @@
 import { CallStack, CallStep, Stack } from './index'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { IArray, ValueType } from '../../index'
-import { StackUnderflow } from '../../errors/index'
+import { Internal, StackUnderflow } from '../../errors/index'
 import { ShareableObject } from '../ShareableObject'
 
 class MyObject extends ShareableObject {
@@ -174,6 +174,10 @@ describe('objects/stacks/Call', () => {
             type: ValueType.array,
             data: object as unknown as IArray
           }])
+        })
+
+        it('can be set only once', () => {
+          expect(() => { stack.parameters = [] }).toThrowError(Internal)
         })
 
         it('frees the values', () => {
