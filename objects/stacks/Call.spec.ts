@@ -199,6 +199,52 @@ describe('objects/stacks/Call', () => {
           expect(object.disposeCalled).toStrictEqual(1)
         })
       })
+
+      describe('push & pop', () => {
+        it('fails push when parameters are not set', () => {
+          expect(() => stack.pushParameter({
+            type: ValueType.integer,
+            data: 42
+          })).toThrowError(Internal)
+        })
+
+        it('fails pop when parameters are not set', () => {
+          expect(() => stack.popParameter()).toThrowError(Internal)
+        })
+
+        it('pushes a parameter to an existing list', () => {
+          stack.parameters = []
+          stack.pushParameter({
+            type: ValueType.integer,
+            data: 42
+          })
+          expect(stack.parameters).toStrictEqual([{
+            type: ValueType.integer,
+            data: 42
+          }])
+        })
+
+        it('pops a parameter from an existing list', () => {
+          stack.parameters = []
+          stack.pushParameter({
+            type: ValueType.integer,
+            data: 42
+          })
+          stack.popParameter()
+          expect(stack.parameters).toStrictEqual([])
+        })
+
+        it('handles memory', () => {
+          stack.parameters = []
+          stack.pushParameter({
+            type: ValueType.string,
+            data: ''.padStart(1000, '1234567980')
+          })
+          expect(tracker.used).toBeGreaterThan(1000)
+          stack.pop()
+          expect(tracker.used).toStrictEqual(initialMemoryUsed)
+        })
+      })
     })
   })
 })

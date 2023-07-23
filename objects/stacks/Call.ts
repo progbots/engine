@@ -109,6 +109,22 @@ export class CallStack extends Stack {
     state.parameters = array
   }
 
+  pushParameter (value: InternalValue): void {
+    const { state } = this._top
+    if (state.parameters === null) {
+      throw new Internal('No parameters exist')
+    }
+    state.parameters.push(value)
+  }
+
+  popParameter (): void {
+    const { state } = this._top
+    if (state.parameters === null) {
+      throw new Internal('No parameters exist')
+    }
+    state.parameters.pop()
+  }
+
   protected addValueRef (value: InternalValue): void {
     super.addValueRef(value)
     this.memoryTracker.increment(CallStack.EXTRA_SIZE)
