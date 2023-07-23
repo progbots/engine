@@ -5,18 +5,9 @@ import { Stack } from './Stack'
 import { ArrayLike } from '../Array'
 import { Internal, StackUnderflow } from '../../errors/index'
 
-export enum CallStep {
-  INIT,
-  RUN,
-  LOOP,
-  CATCH,
-  FINALLY
-}
-
 interface CallState {
-  step: CallStep
+  step: number
   parameters: null | ArrayLike
-  loopIndex: number
 }
 
 export class CallStack extends Stack {
@@ -26,13 +17,15 @@ export class CallStack extends Stack {
   push (value: InternalValue): void {
     super.push(value)
     this._states.push({
-      step: CallStep.INIT,
-      parameters: null,
-      loopIndex: -1
+      step: -1,
+      parameters: null
     })
   }
 
   pop (): void {
+    if (this.at(0).type === ValueType.integer) {
+      super.pop()
+    }
     super.pop()
     const { parameters } = this._states[0]
     if (parameters !== null) {
@@ -67,20 +60,34 @@ export class CallStack extends Stack {
     return this._top.value
   }
 
-  get step (): CallStep {
+  get step (): number {
     return this._top.state.step
   }
 
-  set step (value: CallStep) {
+  set step (value: number) {
     this._top.state.step = value
   }
 
-  get loopIndex (): number {
-    return this._top.state.loopIndex
+  get index (): number {
+    const value = this.at(0)
+    if (value.type !== ValueType.integer) {
+      return -1
+    }
+    return value.data
   }
 
-  set loopIndex (value: number) {
-    this._top.state.loopIndex = value
+  set index (value: number) {
+    if (this.at(0).type !== ValueType.integer) {
+      this.push({
+        type: ValueType.integer,
+        data: value
+      })
+    } else {
+      this.splice(1, {
+        type: ValueType.integer,
+        data: value
+      })
+    }
   }
 
   get parameters (): readonly InternalValue[] {

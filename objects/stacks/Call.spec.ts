@@ -1,4 +1,4 @@
-import { CallStack, CallStep, Stack } from './index'
+import { CallStack, Stack } from './index'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { IArray, ValueType } from '../../index'
 import { Internal, StackUnderflow } from '../../errors/index'
@@ -44,10 +44,6 @@ describe('objects/stacks/Call', () => {
 
       it('fails step', () => {
         expect(() => stack.step).toThrow(StackUnderflow)
-      })
-
-      it('fails loopIndex', () => {
-        expect(() => stack.loopIndex).toThrow(StackUnderflow)
       })
 
       it('fails parameters', () => {
@@ -99,17 +95,17 @@ describe('objects/stacks/Call', () => {
         })
       })
 
-      it('initializes with INIT', () => {
-        expect(stack.step).toStrictEqual(CallStep.INIT)
+      it('initializes with -1', () => {
+        expect(stack.step).toStrictEqual(-1)
       })
 
       it('can be changed to another value', () => {
-        stack.step = CallStep.LOOP
-        expect(stack.step).toStrictEqual(CallStep.LOOP)
+        stack.step = 42
+        expect(stack.step).toStrictEqual(42)
       })
     })
 
-    describe('loopIndex', () => {
+    describe('index', () => {
       beforeEach(() => {
         stack.push({
           type: ValueType.string,
@@ -118,12 +114,29 @@ describe('objects/stacks/Call', () => {
       })
 
       it('initializes with -1', () => {
-        expect(stack.loopIndex).toStrictEqual(-1)
+        expect(stack.index).toStrictEqual(-1)
       })
 
       it('can be changed to another value', () => {
-        stack.loopIndex = 10
-        expect(stack.loopIndex).toStrictEqual(10)
+        stack.index = 42
+        expect(stack.index).toStrictEqual(42)
+      })
+
+      it('sets the index on top of the stack', () => {
+        stack.index = 42
+        expect(stack.ref).toStrictEqual([{
+          type: ValueType.integer,
+          data: 42
+        }, {
+          type: ValueType.string,
+          data: 'test'
+        }])
+      })
+
+      it('pops the index with the value', () => {
+        stack.index = 42
+        stack.pop()
+        expect(stack.ref).toStrictEqual([])
       })
     })
 
