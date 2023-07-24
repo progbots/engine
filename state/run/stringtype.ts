@@ -1,8 +1,9 @@
-import { RunHandlerReturn } from './types'
-import { EngineSignal, EngineSignalType } from '../../index'
-import { InternalValue, State } from '../index'
+import { RunStepResult } from './types'
+import { EngineSignal, EngineSignalType, ValueType } from '../../index'
+import { InternalValue, ParsedValue, State } from '../index'
+import { parse } from '../parser'
 
-function init (this: State): RunHandlerReturn {
+function init (this: State): RunStepResult {
   const { sourceFile, data } = this.calls.top
   const source = data as string
   const beforeParse: EngineSignal = {
@@ -11,28 +12,28 @@ function init (this: State): RunHandlerReturn {
     source,
     sourceFile
   }
-  this.calls.step = parse.indexOf(start)
+  this.calls.step = stringtype.indexOf(start)
   return beforeParse
 }
 
-function start (this: State): RunHandlerReturn {
+function start (this: State): RunStepResult {
   this.calls.index = 0
   this.calls.parameters = []
   return extract.call(this)
 }
 
-function next (this: State): RunHandlerReturn {
-  const value = this.calls.parameters[0]
+function next (this: State): RunStepResult {
+  const value = this.calls.parameters[0] as ParsedValue
   this.calls.popParameter()
-  // this.calls.index += ?
+  this.calls.index = value.nextPos
   return extract.call(this)
 }
 
-function extract (this: State): RunHandlerReturn {
+function extract (this: State): RunStepResult {
   const { sourceFile, data } = this.calls.top
   const source = data as string
   const sourcePos = this.calls.index
-  const parsedValue = parseAt(source, sourceFile, sourcePos)
+  const parsedValue = parse(source, sourcePos)
   if (parsedValue === undefined) {
     const afterParse: EngineSignal = {
       type: EngineSignalType.afterParse,
@@ -43,11 +44,13 @@ function extract (this: State): RunHandlerReturn {
     this.calls.step = -1
     return afterParse
   }
-  const value: InternalValue = { ...parsedValue }
-  if (!this.flags.keepDebugInfo) {
+  const { nextPos, ...rawValue } = parsedValue
+  const value: InternalValue = { ...rawValue }
+  if (this.flags.keepDebugInfo) {
+    value.sourceFile = sourceFile
+  } else {
     delete value.source
     delete value.sourcePos
-    delete value.sourceFile
   }
   const tokenParsed: EngineSignal = {
     type: EngineSignalType.tokenParsed,
@@ -57,18 +60,22 @@ function extract (this: State): RunHandlerReturn {
     sourcePos: parsedValue.sourcePos,
     token: parsedValue.data.toString()
   }
-  this.calls.step = parse.indexOf(submit)
+  this.calls.step = stringtype.indexOf(submit)
   this.calls.pushParameter(value)
+  this.calls.pushParameter({
+    type: ValueType.integer,
+    data: nextPos
+  })
   return tokenParsed
 }
 
-function submit (this: State): RunHandlerReturn {
+function submit (this: State): RunStepResult {
   const value = this.calls.parameters[0]
-  this.calls.step = parse.indexOf(next)
+  this.calls.step = stringtype.indexOf(next)
   return value
 }
 
-export const parse = [
+export const stringtype = [
   init,
   start,
   next,
