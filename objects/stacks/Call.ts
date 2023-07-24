@@ -17,7 +17,7 @@ export class CallStack extends Stack {
   push (value: InternalValue): void {
     super.push(value)
     this._states.push({
-      step: -1,
+      step: 0,
       parameters: null
     })
   }

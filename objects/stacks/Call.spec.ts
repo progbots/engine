@@ -95,8 +95,8 @@ describe('objects/stacks/Call', () => {
         })
       })
 
-      it('initializes with -1', () => {
-        expect(stack.step).toStrictEqual(-1)
+      it('initializes with 0', () => {
+        expect(stack.step).toStrictEqual(0)
       })
 
       it('can be changed to another value', () => {
