@@ -17,13 +17,13 @@ function stringify (text: string): string {
   )
 }
 
-function codeRenderer (value: Value, step: number | undefined): string {
+function codeRenderer (value: Value, callIndex: number | undefined): string {
   const output = ['{']
   const array: IArray = value.data as IArray
   const { length } = array
   for (let index = 0; index < length; ++index) {
     const item = array.at(index)
-    if (step === index) {
+    if (callIndex === index) {
       output.push(BEFORE_CURRENT + formatters[item.type](item) + AFTER_CURRENT)
     } else {
       output.push(formatters[item.type](item))
@@ -33,29 +33,28 @@ function codeRenderer (value: Value, step: number | undefined): string {
   return output.join(' ')
 }
 
-const renderers: Record<ValueType, (value: Value, step: number | undefined) => string> = {
+const renderers: Record<ValueType, (value: Value, callIndex: number | undefined) => string> = {
   [ValueType.boolean]: unexpected,
   [ValueType.integer]: unexpected,
-  [ValueType.string]: (value: Value, step: number | undefined): string => {
+  [ValueType.string]: (value: Value, callIndex: number | undefined): string => {
     const text = value.data as string
-    if (step !== undefined) {
-      const before = text.substring(0, step)
-      const parser = parse(text.substring(step), 'callstack')
-      const { value } = parser.next()
+    if (callIndex !== undefined) {
+      const before = text.substring(0, callIndex)
+      const value = parse(text, callIndex)
       if (value === undefined) {
         throw new Internal(UNEXPECTED_PARSER_FAILURE)
       }
       const keyword = formatters[value.type](value)
-      const after = text.substring(step + keyword.length)
+      const after = text.substring(value.nextPos)
       return stringify(`${before}${BEFORE_CURRENT}${keyword}${AFTER_CURRENT}${after}`)
     }
     return stringify(text)
   },
   [ValueType.call]: (value: Value): string => formatters[value.type](value),
-  [ValueType.operator]: (value: Value, step: number | undefined): string => {
+  [ValueType.operator]: (value: Value, callIndex: number | undefined): string => {
     const base = formatters[value.type](value)
-    if (step !== undefined) {
-      return `${base}:${step}`
+    if (callIndex !== undefined) {
+      return `${base}:${callIndex}`
     }
     return base
   },
@@ -69,11 +68,11 @@ const renderers: Record<ValueType, (value: Value, step: number | undefined) => s
 export function renderCallStack (calls: IArray): string {
   const { length } = calls
   const callstack: string[] = []
-  let step: number | undefined
+  let callIndex: number | undefined
   for (let index = 0; index < length; ++index) {
     const value = calls.at(index) as InternalValue
     if (value.type === ValueType.integer) {
-      step = value.data
+      callIndex = value.data
       continue
     }
     let debugInfo = ''
@@ -81,9 +80,9 @@ export function renderCallStack (calls: IArray): string {
     if (sourceFile !== undefined && sourcePos !== undefined) {
       debugInfo = ` @${sourceFile}:${sourcePos.toString()}`
     }
-    const rendered = renderers[value.type](value, step)
+    const rendered = renderers[value.type](value, callIndex)
     callstack.push(rendered + debugInfo)
-    step = undefined
+    callIndex = undefined
   }
   return callstack.join('\n')
 }
