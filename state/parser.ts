@@ -1,42 +1,40 @@
 import { ValueType } from '../index'
 import { InternalValue } from './index'
 
-type ParsedValue = InternalValue & {
+export type ParsedValue = InternalValue & {
   data: string | number
-  sourceFile: string
   sourcePos: number
+  nextPos: number
 }
 
-let lastParseId = -1
-
-export function * parse (source: string, sourceFile: string = `parsed${++lastParseId}`): Generator<ParsedValue, void> {
+export function parse (source: string, pos: number): ParsedValue | undefined {
   const matcher = /%[^\n]*|(?:"([^"]*)")|\s|((?:-|\+)?\d+)|(\[|\]|{|}|[^[\]{}}\s]+)/g
+  matcher.lastIndex = pos
   let match = matcher.exec(source)
-  // Stryker disable next-line BlockStatement
   while (match !== null) {
     const [, string, integer, call] = match
-    const debugValue: ParsedValue = {
+    const baseValue: ParsedValue = {
       type: ValueType.integer,
       data: 0,
       source,
-      sourceFile,
-      sourcePos: match.index
+      sourcePos: match.index,
+      nextPos: match.index + match[0].length
     }
     if (string !== undefined) {
-      yield {
-        ...debugValue,
+      return {
+        ...baseValue,
         type: ValueType.string,
         data: string
       }
     } else if (integer !== undefined) {
-      yield {
-        ...debugValue,
+      return {
+        ...baseValue,
         type: ValueType.integer,
         data: parseInt(integer, 10)
       }
     } else if (call !== undefined) {
-      yield {
-        ...debugValue,
+      return {
+        ...baseValue,
         type: ValueType.call,
         data: call
       }

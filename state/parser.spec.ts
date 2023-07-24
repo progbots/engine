@@ -1,5 +1,17 @@
-import { parse } from './parser'
+import { parse, ParsedValue } from './parser'
 import { Value, ValueType } from '../index'
+
+function * parseAll (source: string): Generator<ParsedValue> {
+  let pos = 0
+  while (true) {
+    const result = parse(source, pos)
+    if (result === undefined) {
+      break
+    }
+    yield result
+    pos = result.nextPos
+  }
+}
 
 describe('state/parser', () => {
   const values: Record<string, Value> = {
@@ -68,7 +80,7 @@ describe('state/parser', () => {
   Object.keys(values).forEach(src => {
     const expected = values[src]
     it(`generates ${expected.type} ${JSON.stringify(expected.data)}`, () => {
-      const values = [...parse(src)]
+      const values = [...parseAll(src)]
       expect(values.length).toStrictEqual(1)
       const [value] = values
       expect(value.source).toStrictEqual(src)
@@ -80,42 +92,45 @@ describe('state/parser', () => {
 
   it('generates values', () => {
     const source = '1 2 add'
-    const block = [...parse(source)]
+    const block = [...parseAll(source)]
     expect(block).toStrictEqual([{
       type: ValueType.integer,
       data: 1,
       source,
-      sourcePos: 0
+      sourcePos: 0,
+      nextPos: 1
     }, {
       type: ValueType.integer,
       data: 2,
       source,
-      sourcePos: 2
+      sourcePos: 2,
+      nextPos: 3
     }, {
       type: ValueType.call,
       data: 'add',
       source,
-      sourcePos: 4
+      sourcePos: 4,
+      nextPos: 7
     }])
   })
 
   describe('array and block', () => {
     it('separates array and block symbols', () => {
-      const block = [...parse('[][[]]]{{}{}}')].map(value => value.data as string)
+      const block = [...parseAll('[][[]]]{{}{}}')].map(value => value.data as string)
       expect(block).toStrictEqual([
         '[', ']', '[', '[', ']', ']', ']', '{', '{', '}', '{', '}', '}'
       ])
     })
 
     it('separates array symbols from the names', () => {
-      const block = [...parse('[abc] abc[')].map(value => value.data as string)
+      const block = [...parseAll('[abc] abc[')].map(value => value.data as string)
       expect(block).toStrictEqual([
         '[', 'abc', ']', 'abc', '['
       ])
     })
 
     it('separates block symbols from the names', () => {
-      const block = [...parse('{abc} abc{')].map(value => value.data as string)
+      const block = [...parseAll('{abc} abc{')].map(value => value.data as string)
       expect(block).toStrictEqual([
         '{', 'abc', '}', 'abc', '{'
       ])
@@ -129,26 +144,25 @@ describe('state/parser', () => {
 \t2
 
 add`
-    const sourceFile = 'test.ps'
-    const block = [...parse(source, sourceFile)]
+    const block = [...parseAll(source)]
     expect(block).toStrictEqual([{
       type: ValueType.integer,
       data: 1,
       source,
       sourcePos: 21,
-      sourceFile
+      nextPos: 22
     }, {
       type: ValueType.integer,
       data: 2,
       source,
       sourcePos: 24,
-      sourceFile
+      nextPos: 25
     }, {
       type: ValueType.call,
       data: 'add',
       source,
       sourcePos: 27,
-      sourceFile
+      nextPos: 30
     }])
   })
 })
