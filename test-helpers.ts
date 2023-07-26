@@ -1,6 +1,9 @@
 import { IDictionary, Value, ValueType } from './index'
-import { OperatorFunction, State } from './state/index'
+import { InternalValue, OperatorFunction, State } from './state/index'
 import { InternalError } from './errors/InternalError'
+import { RunStepResult, RunSteps } from './state/run/types'
+import { MemoryTracker } from './state/MemoryTracker'
+import { CallStack } from './objects/stacks/index'
 
 interface TestDescription {
   skip?: boolean
@@ -139,4 +142,88 @@ export function executeTests (descriptions: Record<string, TestDescription | Tes
       }
     })
   })
+}
+
+interface RunTestDescription {
+  skip?: boolean
+  only?: boolean
+  before: {
+    callStack: InternalValue[]
+    step?: number
+    parameters?: InternalValue[]
+  }
+  after: {
+    result?: RunStepResult
+    step: number
+    parameters?: InternalValue[]
+  }
+}
+
+type MockState = State & {
+  runOneStep: () => RunStepResult
+}
+
+function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
+  const tracker = new MemoryTracker()
+  const callStack = new CallStack(tracker)
+  test.before.callStack.forEach(value => callStack.push(value))
+  if (test.before.step !== undefined) {
+    callStack.step = test.before.step
+  }
+  if (test.before.parameters !== undefined) {
+    callStack.parameters = test.before.parameters
+  }
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const mockState = {
+    calls: callStack,
+    flags: {
+      keepDebugInfo: true
+    },
+    runOneStep (): RunStepResult {
+      return steps[callStack.step].call(this)
+    }
+  } as MockState
+  const result = mockState.runOneStep()
+  if (test.after.result !== undefined) {
+    expect(result).toStrictEqual(test.after.result)
+  } else {
+    expect(result).toBeUndefined()
+  }
+  if (test.after.parameters !== undefined) {
+    expect(callStack.parameters).toStrictEqual(test.after.parameters)
+  }
+}
+
+export function executeRunTests (steps: RunSteps, descriptions: Record<string, RunTestDescription | RunTestDescription[]>): void {
+  Object.keys(descriptions).forEach((label: string) => {
+    const description = descriptions[label]
+    let tests: RunTestDescription[]
+    if (Array.isArray(description)) {
+      tests = description
+    } else {
+      tests = [description]
+    }
+    tests.forEach((test, index) => {
+      let testLabel
+      if (index > 0) {
+        testLabel = `${label} (${index + 1})`
+      } else {
+        testLabel = label
+      }
+      if (test.skip === true) {
+        it.skip(testLabel, executeRunTest.bind(null, steps, test))
+      } else if (test.only === true) {
+        it.only(testLabel, executeRunTest.bind(null, steps, test))
+      } else {
+        it(testLabel, executeRunTest.bind(null, steps, test))
+      }
+    })
+  })
+}
+
+export function extractRunSteps (steps: RunSteps): Record<string, number> {
+  return steps.reduce((names: Record<string, number>, stepHandler: Function, index: number): Record<string, number> => {
+    names[stepHandler.name] = index
+    return names
+  }, {})
 }
