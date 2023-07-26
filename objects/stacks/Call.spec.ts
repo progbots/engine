@@ -246,5 +246,30 @@ describe('objects/stacks/Call', () => {
         })
       })
     })
+
+    describe('stacking', () => {
+      it('gives access to parameters *after* setting the index', () => {
+        stack.push({
+          type: ValueType.string,
+          data: 'test'
+        })
+        stack.parameters = [{
+          type: ValueType.integer,
+          data: 42
+        }]
+        stack.index = 13
+        expect(stack.ref).toStrictEqual([{
+          type: ValueType.integer,
+          data: 13
+        }, {
+          type: ValueType.string,
+          data: 'test'
+        }])
+        expect(stack.parameters).toStrictEqual([{
+          type: ValueType.integer,
+          data: 42
+        }])
+      })
+    })
   })
 })

@@ -16,7 +16,7 @@ export class CallStack extends Stack {
 
   push (value: InternalValue): void {
     super.push(value)
-    this._states.push({
+    this._states.unshift({
       step: 0,
       parameters: null
     })
@@ -31,7 +31,7 @@ export class CallStack extends Stack {
     if (parameters !== null) {
       parameters.release()
     }
-    this._states.pop()
+    this._states.shift()
   }
 
   private get _top (): {
