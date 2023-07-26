@@ -9,7 +9,7 @@ describe('state/run/parse', () => {
   const sourceFile = 'test.ps'
 
   executeRunTests(stringtype, {
-    '0: init': {
+    'init -> start': {
       before: {
         callStack: [{
           type: ValueType.string,
@@ -27,8 +27,39 @@ describe('state/run/parse', () => {
         }
       }
     },
-    '1: start': {
+    'start -> submit': {
       before: {
+        callStack: [{
+          type: ValueType.string,
+          data: source,
+          sourceFile
+        }],
+        step: steps.start
+      },
+      after: {
+        step: steps.submit,
+        result: {
+          type: EngineSignalType.tokenParsed,
+          debug: true,
+          source,
+          sourceFile,
+          sourcePos: 0,
+          token: '1'
+        },
+        parameters: [{
+          type: ValueType.integer,
+          data: 1
+        }, {
+          type: ValueType.integer,
+          data: 1
+        }]
+      }
+    },
+    'start -> submit (debug)': {
+      before: {
+        flags: {
+          keepDebugInfo: true
+        },
         callStack: [{
           type: ValueType.string,
           data: source,
@@ -58,8 +89,46 @@ describe('state/run/parse', () => {
         }]
       }
     },
-    '2: next': [{
+    'next -> submit': {
       before: {
+        callStack: [{
+          type: ValueType.string,
+          data: source,
+          sourceFile
+        }],
+        step: steps.next,
+        parameters: [{
+          type: ValueType.integer,
+          data: 1
+        }, {
+          type: ValueType.integer,
+          data: 1
+        }]
+      },
+      after: {
+        step: steps.submit,
+        result: {
+          type: EngineSignalType.tokenParsed,
+          debug: true,
+          source,
+          sourceFile,
+          sourcePos: 2,
+          token: '2'
+        },
+        parameters: [{
+          type: ValueType.integer,
+          data: 2
+        }, {
+          type: ValueType.integer,
+          data: 3
+        }]
+      }
+    },
+    'next -> submit (debug)': {
+      before: {
+        flags: {
+          keepDebugInfo: true
+        },
         callStack: [{
           type: ValueType.string,
           data: source,
@@ -98,7 +167,82 @@ describe('state/run/parse', () => {
           data: 3
         }]
       }
-    }, {
+    },
+    'submit -> next': {
+      before: {
+        callStack: [{
+          type: ValueType.string,
+          data: source,
+          sourceFile
+        }],
+        step: steps.submit,
+        parameters: [{
+          type: ValueType.integer,
+          data: 2
+        }, {
+          type: ValueType.integer,
+          data: 3
+        }]
+      },
+      after: {
+        step: steps.next,
+        result: {
+          type: ValueType.integer,
+          data: 2
+        },
+        parameters: [{
+          type: ValueType.integer,
+          data: 2
+        }, {
+          type: ValueType.integer,
+          data: 3
+        }]
+      }
+    },
+    'submit -> next (debug)': {
+      before: {
+        flags: {
+          keepDebugInfo: true
+        },
+        callStack: [{
+          type: ValueType.string,
+          data: source,
+          sourceFile
+        }],
+        step: steps.submit,
+        parameters: [{
+          type: ValueType.integer,
+          data: 2,
+          source,
+          sourceFile,
+          sourcePos: 2
+        }, {
+          type: ValueType.integer,
+          data: 3
+        }]
+      },
+      after: {
+        step: steps.next,
+        result: {
+          type: ValueType.integer,
+          data: 2,
+          source,
+          sourceFile,
+          sourcePos: 2
+        },
+        parameters: [{
+          type: ValueType.integer,
+          data: 2,
+          source,
+          sourceFile,
+          sourcePos: 2
+        }, {
+          type: ValueType.integer,
+          data: 3
+        }]
+      }
+    },
+    'next -> ∅': {
       before: {
         callStack: [{
           type: ValueType.string,
@@ -126,6 +270,6 @@ describe('state/run/parse', () => {
           sourceFile
         }
       }
-    }]
+    }
   })
 })
