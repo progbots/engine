@@ -1,4 +1,4 @@
-import { IDictionary, Value, ValueType } from './index'
+import { IDictionary, IStateFlags, Value, ValueType } from './index'
 import { InternalValue, OperatorFunction, State } from './state/index'
 import { InternalError } from './errors/InternalError'
 import { RunStepResult, RunSteps } from './state/run/types'
@@ -148,6 +148,7 @@ interface RunTestDescription {
   skip?: boolean
   only?: boolean
   before: {
+    flags?: Partial<IStateFlags>
     callStack: InternalValue[]
     step?: number
     parameters?: InternalValue[]
@@ -176,9 +177,12 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const mockState = {
     calls: callStack,
-    flags: {
-      keepDebugInfo: true
-    },
+    flags: Object.assign({
+      call: true,
+      parsing: false,
+      yieldDebugSignals: false,
+      keepDebugInfo: false
+    }, test.before.flags ?? {}),
     runOneStep (): RunStepResult {
       return steps[callStack.step].call(this)
     }
