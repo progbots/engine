@@ -191,6 +191,8 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
   }
   if (test.after.parameters !== undefined) {
     expect(callStack.parameters).toStrictEqual(test.after.parameters)
+  } else {
+    expect(callStack.parameters).toStrictEqual([])
   }
 }
 
