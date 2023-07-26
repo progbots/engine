@@ -58,7 +58,7 @@ describe('state/run/parse', () => {
         }]
       }
     },
-    '2: next': {
+    '2: next': [{
       before: {
         callStack: [{
           type: ValueType.string,
@@ -98,6 +98,34 @@ describe('state/run/parse', () => {
           data: 3
         }]
       }
-    }
+    }, {
+      before: {
+        callStack: [{
+          type: ValueType.string,
+          data: source,
+          sourceFile
+        }],
+        step: steps.next,
+        parameters: [{
+          type: ValueType.call,
+          data: 'add',
+          source,
+          sourceFile,
+          sourcePos: 4
+        }, {
+          type: ValueType.integer,
+          data: 7
+        }]
+      },
+      after: {
+        step: -1,
+        result: {
+          type: EngineSignalType.afterParse,
+          debug: true,
+          source,
+          sourceFile
+        }
+      }
+    }]
   })
 })
