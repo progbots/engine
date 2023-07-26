@@ -1,7 +1,7 @@
 import { ValueType, IArray, IState, StateFactorySettings, EngineSignal, IStateFlags, IStateMemory, EngineSignalType } from '../index'
 import { BusyParsing, Internal } from '../errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
-import { CallStack, CallValue, DictionaryStack, OperandStack, Stack } from '../objects/stacks/index'
+import { CallStack, DictionaryStack, OperandStack } from '../objects/stacks/index'
 import { MemoryTracker } from './MemoryTracker'
 import { InternalError } from '../errors/InternalError'
 import { renderCallStack } from './callstack'
@@ -10,7 +10,7 @@ import { wrapError } from './error'
 const UNEXPECTED_EXCEPTION = 'Unexpected exception'
 const UNEXPECTED_CALLSTACK_TYPE = 'Unexpected call stack typ'
 
-const callHandlers: { [key in ValueType]?: (this: State, value: CallValue) => Generator } = {}
+// const callHandlers: { [key in ValueType]?: (this: State, value: CallValue) => Generator } = {}
 
 function sourceToValue (source: string, sourceFile?: string): InternalValue {
   return {
@@ -50,11 +50,11 @@ export class State implements IState {
       this._yieldDebugSignals = true
     }
 
-    callHandlers[ValueType.string] = State.prototype.runParse
-    callHandlers[ValueType.call] = State.prototype.runCall
-    callHandlers[ValueType.operator] = State.prototype.runOperator
-    callHandlers[ValueType.block] = State.prototype.runBlockOrProc
-    callHandlers[ValueType.proc] = State.prototype.runBlockOrProc
+    // callHandlers[ValueType.string] = State.prototype.runParse
+    // callHandlers[ValueType.call] = State.prototype.runCall
+    // callHandlers[ValueType.operator] = State.prototype.runOperator
+    // callHandlers[ValueType.block] = State.prototype.runBlockOrProc
+    // callHandlers[ValueType.proc] = State.prototype.runBlockOrProc
   }
 
   // region IState
@@ -80,7 +80,7 @@ export class State implements IState {
     return this._dictionaries
   }
 
-  get calls (): Stack {
+  get calls (): CallStack {
     return this._calls
   }
 
@@ -154,13 +154,7 @@ export class State implements IState {
     }
 
     while (this._calls.length > 0) {
-      const [first, second] = this._calls.ref
-      let top: CallValue
-      if (first.type === ValueType.integer) {
-        top = second
-      } else {
-        top = first
-      }
+      const { top } = this._calls
 
       const cycle: EngineSignal = {
         type: EngineSignalType.cycle,
@@ -170,39 +164,39 @@ export class State implements IState {
 
       let next = false
 
-      if (error === undefined) {
-        if (top.generator !== undefined) {
-          const generator = top.generator
-          const { done, value } = catchError(() => generator.next())
-          if (value !== undefined) {
-            if (!isEngineSignal(value) || this._yieldDebugSignals) {
-              yield value
-            }
-          }
-          next = done
-        } else {
-          const handler = callHandlers[top.type]
-          if (handler === undefined) {
-            throw new Internal(UNEXPECTED_CALLSTACK_TYPE)
-          }
-          top.generator = handler.call(this, top)
-        }
-      } else if (error instanceof InternalError && top.catch !== undefined) {
-        const internalError = error
-        const topCatch = top.catch
-        // if iterator replace top.generator with it
-        // if no error comes out, ignore
-        // replace top.generator with either it
-        top.generator = handler.call(this, top)
-        yield * catchError(() => topCatch(internalError))
-      } else {
-        next = true // escalate
-      }
+      // if (error === undefined) {
+      //   if (top.generator !== undefined) {
+      //     const generator = top.generator
+      //     const { done, value } = catchError(() => generator.next())
+      //     if (value !== undefined) {
+      //       if (!isEngineSignal(value) || this._yieldDebugSignals) {
+      //         yield value
+      //       }
+      //     }
+      //     next = done
+      //   } else {
+      //     const handler = callHandlers[top.type]
+      //     if (handler === undefined) {
+      //       throw new Internal(UNEXPECTED_CALLSTACK_TYPE)
+      //     }
+      //     top.generator = handler.call(this, top)
+      //   }
+      // } else if (error instanceof InternalError && top.catch !== undefined) {
+      //   const internalError = error
+      //   const topCatch = top.catch
+      //   // if iterator replace top.generator with it
+      //   // if no error comes out, ignore
+      //   // replace top.generator with either it
+      //   top.generator = handler.call(this, top)
+      //   yield * catchError(() => topCatch(internalError))
+      // } else {
+      //   next = true // escalate
+      // }
 
       if (next) {
-        if (top.finally !== undefined) {
-          yield * catchError(top.finally)
-        }
+        // if (top.finally !== undefined) {
+        //   yield * catchError(top.finally)
+        // }
         if (this._calls.top.type === ValueType.integer) {
           this._calls.pop()
         }
@@ -229,17 +223,17 @@ export class State implements IState {
     return stop
   }
 
-  private * pushToStack (value: InternalValue): Generator {
+  private pushToStack (value: InternalValue): void {
     const { type } = value
     if ([ValueType.proc, ValueType.operator].includes(type) ||
         (type === ValueType.call && (this._noCall === 0 || ['{', '}'].includes(value.data)))
     ) {
-      yield * this.stackForRunning(value)
+      this.stackForRunning(value)
     } else {
       this.operands.push(value)
     }
   }
-
+/*
   private * runParse (value: CallValue): Generator {
     const { sourceFile } = value
     const source = value.data as string
@@ -360,4 +354,5 @@ export class State implements IState {
     }
     yield afterBlock
   }
+*/
 }
