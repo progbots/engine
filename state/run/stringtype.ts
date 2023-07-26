@@ -1,6 +1,6 @@
 import { RunStepResult } from './types'
 import { EngineSignal, EngineSignalType, ValueType } from '../../index'
-import { InternalValue, ParsedValue, State } from '../index'
+import { InternalValue, State } from '../index'
 import { parse } from '../parser'
 
 function init (this: State): RunStepResult {
@@ -23,9 +23,10 @@ function start (this: State): RunStepResult {
 }
 
 function next (this: State): RunStepResult {
-  const value = this.calls.parameters[0] as ParsedValue
+  const [, nextPos] = this.calls.parameters
   this.calls.popParameter()
-  this.calls.index = value.nextPos
+  this.calls.popParameter()
+  this.calls.index = nextPos.data as number
   return extract.call(this)
 }
 
