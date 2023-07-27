@@ -152,12 +152,14 @@ interface RunTestDescription {
     flags?: Partial<IStateFlags>
     callStack: InternalValue[]
     step?: number
+    index?: number
     parameters?: InternalValue[]
   }
   error?: Function
   after?: {
     result?: RunStepResult
     step: number
+    index?: number
     parameters?: InternalValue[]
   }
 }
@@ -174,6 +176,9 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
   test.before.callStack.forEach(value => callStack.push(value))
   if (test.before.step !== undefined) {
     callStack.step = test.before.step
+  }
+  if (test.before.index !== undefined) {
+    callStack.index = test.before.index
   }
   if (test.before.parameters !== undefined) {
     callStack.parameters = test.before.parameters
@@ -207,6 +212,11 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
       expect(result).toStrictEqual(test.after.result)
     } else {
       expect(result).toBeUndefined()
+    }
+    if (test.after.index !== undefined) {
+      expect(callStack.index).toStrictEqual(test.after.index)
+    } else if (callStack.step !== -1) {
+      expect(callStack.index).toStrictEqual(-1)
     }
     if (test.after.parameters !== undefined) {
       expect(callStack.parameters).toStrictEqual(test.after.parameters)
