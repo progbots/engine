@@ -1,19 +1,18 @@
 import { RunStepResult } from './types'
-import { EngineSignal, EngineSignalType, ValueType } from '../../index'
+import { EngineSignalType, ValueType } from '../../index'
 import { InternalValue, State } from '../index'
 import { parse } from '../parser'
 
 function init (this: State): RunStepResult {
   const { sourceFile, data } = this.calls.top
   const source = data as string
-  const beforeParse: EngineSignal = {
+  this.calls.step = stringtype.indexOf(start)
+  return {
     type: EngineSignalType.beforeParse,
     debug: true,
     source,
     sourceFile
   }
-  this.calls.step = stringtype.indexOf(start)
-  return beforeParse
 }
 
 function start (this: State): RunStepResult {
@@ -36,14 +35,13 @@ function extract (this: State): RunStepResult {
   const sourcePos = this.calls.index
   const parsedValue = parse(source, sourcePos)
   if (parsedValue === undefined) {
-    const afterParse: EngineSignal = {
+    this.calls.step = -1
+    return {
       type: EngineSignalType.afterParse,
       debug: true,
       source,
       sourceFile
     }
-    this.calls.step = -1
-    return afterParse
   }
   const { nextPos, ...rawValue } = parsedValue
   const value: InternalValue = { ...rawValue }
@@ -53,7 +51,13 @@ function extract (this: State): RunStepResult {
     delete value.source
     delete value.sourcePos
   }
-  const tokenParsed: EngineSignal = {
+  this.calls.step = stringtype.indexOf(submit)
+  this.calls.pushParameter(value)
+  this.calls.pushParameter({
+    type: ValueType.integer,
+    data: nextPos
+  })
+  return {
     type: EngineSignalType.tokenParsed,
     debug: true,
     source,
@@ -61,13 +65,6 @@ function extract (this: State): RunStepResult {
     sourcePos: parsedValue.sourcePos,
     token: parsedValue.data.toString()
   }
-  this.calls.step = stringtype.indexOf(submit)
-  this.calls.pushParameter(value)
-  this.calls.pushParameter({
-    type: ValueType.integer,
-    data: nextPos
-  })
-  return tokenParsed
 }
 
 function submit (this: State): RunStepResult {

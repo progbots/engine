@@ -4,7 +4,7 @@ import { extractRunSteps, executeRunTests } from '../../test-helpers'
 
 const steps = extractRunSteps(stringtype)
 
-describe('state/run/parse', () => {
+describe('state/run/stringtype', () => {
   const source = '1 2 add'
   const sourceFile = 'test.ps'
 
