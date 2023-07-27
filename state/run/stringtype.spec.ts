@@ -27,7 +27,7 @@ describe('state/run/stringtype', () => {
         }
       }
     },
-    'start -> submit': {
+    'start -> stack': {
       before: {
         callStack: [{
           type: ValueType.string,
@@ -37,7 +37,7 @@ describe('state/run/stringtype', () => {
         step: steps.start
       },
       after: {
-        step: steps.submit,
+        step: steps.stack,
         result: {
           type: EngineSignalType.tokenParsed,
           debug: true,
@@ -55,7 +55,7 @@ describe('state/run/stringtype', () => {
         }]
       }
     },
-    'start -> submit (debug)': {
+    'start -> stack (debug)': {
       before: {
         flags: {
           keepDebugInfo: true
@@ -68,7 +68,7 @@ describe('state/run/stringtype', () => {
         step: steps.start
       },
       after: {
-        step: steps.submit,
+        step: steps.stack,
         result: {
           type: EngineSignalType.tokenParsed,
           debug: true,
@@ -89,7 +89,7 @@ describe('state/run/stringtype', () => {
         }]
       }
     },
-    'next -> submit': {
+    'next -> stack': {
       before: {
         callStack: [{
           type: ValueType.string,
@@ -106,7 +106,7 @@ describe('state/run/stringtype', () => {
         }]
       },
       after: {
-        step: steps.submit,
+        step: steps.stack,
         result: {
           type: EngineSignalType.tokenParsed,
           debug: true,
@@ -124,7 +124,7 @@ describe('state/run/stringtype', () => {
         }]
       }
     },
-    'next -> submit (debug)': {
+    'next -> stack (debug)': {
       before: {
         flags: {
           keepDebugInfo: true
@@ -147,7 +147,7 @@ describe('state/run/stringtype', () => {
         }]
       },
       after: {
-        step: steps.submit,
+        step: steps.stack,
         result: {
           type: EngineSignalType.tokenParsed,
           debug: true,
@@ -168,14 +168,14 @@ describe('state/run/stringtype', () => {
         }]
       }
     },
-    'submit -> next': {
+    'stack -> next': {
       before: {
         callStack: [{
           type: ValueType.string,
           data: source,
           sourceFile
         }],
-        step: steps.submit,
+        step: steps.stack,
         parameters: [{
           type: ValueType.integer,
           data: 2
@@ -199,7 +199,7 @@ describe('state/run/stringtype', () => {
         }]
       }
     },
-    'submit -> next (debug)': {
+    'stack -> next (debug)': {
       before: {
         flags: {
           keepDebugInfo: true
@@ -209,7 +209,7 @@ describe('state/run/stringtype', () => {
           data: source,
           sourceFile
         }],
-        step: steps.submit,
+        step: steps.stack,
         parameters: [{
           type: ValueType.integer,
           data: 2,

@@ -51,7 +51,7 @@ function extract (this: State): RunStepResult {
     delete value.source
     delete value.sourcePos
   }
-  this.calls.step = stringtype.indexOf(submit)
+  this.calls.step = stringtype.indexOf(stack)
   this.calls.pushParameter(value)
   this.calls.pushParameter({
     type: ValueType.integer,
@@ -67,7 +67,7 @@ function extract (this: State): RunStepResult {
   }
 }
 
-function submit (this: State): RunStepResult {
+function stack (this: State): RunStepResult {
   const value = this.calls.parameters[0]
   this.calls.step = stringtype.indexOf(next)
   return value
@@ -77,5 +77,5 @@ export const stringtype = [
   init,
   start,
   next,
-  submit
+  stack
 ]
