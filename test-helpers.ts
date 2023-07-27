@@ -3,7 +3,8 @@ import { InternalValue, OperatorFunction, State } from './state/index'
 import { InternalError } from './errors/InternalError'
 import { RunStepResult, RunSteps } from './state/run/types'
 import { MemoryTracker } from './state/MemoryTracker'
-import { CallStack } from './objects/stacks/index'
+import { CallStack, DictionaryStack } from './objects/stacks/index'
+import { SystemDictionary } from './objects/dictionaries'
 
 interface TestDescription {
   skip?: boolean
@@ -153,7 +154,8 @@ interface RunTestDescription {
     step?: number
     parameters?: InternalValue[]
   }
-  after: {
+  error?: Function
+  after?: {
     result?: RunStepResult
     step: number
     parameters?: InternalValue[]
@@ -167,6 +169,8 @@ type MockState = State & {
 function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
   const tracker = new MemoryTracker()
   const callStack = new CallStack(tracker)
+  const dictionaries = new DictionaryStack(tracker)
+  dictionaries.begin(new SystemDictionary())
   test.before.callStack.forEach(value => callStack.push(value))
   if (test.before.step !== undefined) {
     callStack.step = test.before.step
@@ -177,6 +181,7 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const mockState = {
     calls: callStack,
+    dictionaries,
     flags: Object.assign({
       call: true,
       parsing: false,
@@ -187,16 +192,27 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
       return steps[callStack.step].call(this)
     }
   } as MockState
-  const result = mockState.runOneStep()
-  if (test.after.result !== undefined) {
-    expect(result).toStrictEqual(test.after.result)
-  } else {
-    expect(result).toBeUndefined()
+  let exceptionCaught: Error | undefined
+  let result: RunStepResult
+  try {
+    result = mockState.runOneStep()
+  } catch (e) {
+    exceptionCaught = e as Error
   }
-  if (test.after.parameters !== undefined) {
-    expect(callStack.parameters).toStrictEqual(test.after.parameters)
-  } else {
-    expect(callStack.parameters).toStrictEqual([])
+  if (test.error !== undefined) {
+    expect(exceptionCaught).toBeInstanceOf(test.error)
+  } else if (test.after !== undefined) {
+    expect(exceptionCaught).toBeUndefined()
+    if (test.after.result !== undefined) {
+      expect(result).toStrictEqual(test.after.result)
+    } else {
+      expect(result).toBeUndefined()
+    }
+    if (test.after.parameters !== undefined) {
+      expect(callStack.parameters).toStrictEqual(test.after.parameters)
+    } else {
+      expect(callStack.parameters).toStrictEqual([])
+    }
   }
 }
 
