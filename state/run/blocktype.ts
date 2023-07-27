@@ -9,13 +9,13 @@ function init (this: State): RunStepResult {
   return {
     type: EngineSignalType.beforeBlock,
     debug: true,
-    block: top as unknown as IArray
+    block: top.data as IArray
   }
 }
 
 function loop (this: State): RunStepResult {
   const { top } = this.calls
-  const array = top as unknown as IArray
+  const array = top.data as IArray
   const { length } = array
   const { index } = this.calls
   if (index < length) {
@@ -38,7 +38,7 @@ function loop (this: State): RunStepResult {
 
 function stack (this: State): RunStepResult {
   const { top } = this.calls
-  const array = top as unknown as IArray
+  const array = top.data as IArray
   const { index } = this.calls
   this.calls.index = index + 1
   this.calls.step = blocktype.indexOf(loop)
