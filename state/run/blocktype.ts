@@ -40,7 +40,7 @@ function stack (this: State): RunStepResult {
   const { top } = this.calls
   const array = top.data as IArray
   const { index } = this.calls
-  this.calls.index = index + 1
+  ++this.calls.index
   this.calls.step = blocktype.indexOf(loop)
   return array.at(index)
 }
