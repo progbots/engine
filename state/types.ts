@@ -8,15 +8,15 @@ export interface OperatorAttributes {
   // When specified, the collected values are kept valid during the operator lifetime (including catch & finally)
   typeCheck?: Array<ValueType | null>
   // When specified, the method is called until the result is false
-  loop?: (state: State, parameters: InternalValue[]) => boolean
+  loop?: (state: State, parameters: readonly InternalValue[]) => boolean
   // When specified, any InternalError is transmitted to it
-  catch?: (state: State, parameters: InternalValue[], e: InternalError) => void
+  catch?: (state: State, parameters: readonly InternalValue[], e: InternalError) => void
   // When specified, triggered before unstacking the operator from call stack
-  finally?: (state: State, parameters: InternalValue[]) => void
+  finally?: (state: State, parameters: readonly InternalValue[]) => void
 }
 
 export interface OperatorFunction extends OperatorAttributes {
-  (state: State, parameters: InternalValue[]): void
+  (state: State, parameters: readonly InternalValue[]): void
   name: string
 }
 
