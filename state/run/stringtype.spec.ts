@@ -46,6 +46,7 @@ describe('state/run/stringtype', () => {
           sourcePos: 0,
           token: '1'
         },
+        index: 0,
         parameters: [{
           type: ValueType.integer,
           data: 1
@@ -77,6 +78,7 @@ describe('state/run/stringtype', () => {
           sourcePos: 0,
           token: '1'
         },
+        index: 0,
         parameters: [{
           type: ValueType.integer,
           data: 1,
@@ -115,6 +117,7 @@ describe('state/run/stringtype', () => {
           sourcePos: 2,
           token: '2'
         },
+        index: 1,
         parameters: [{
           type: ValueType.integer,
           data: 2
@@ -156,6 +159,7 @@ describe('state/run/stringtype', () => {
           sourcePos: 2,
           token: '2'
         },
+        index: 1,
         parameters: [{
           type: ValueType.integer,
           data: 2,
