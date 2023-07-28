@@ -3,8 +3,7 @@ import { EngineSignalType, ValueType } from '../../index'
 import { InternalValue, State } from '../index'
 import { parse } from '../parser'
 
-function init (this: State): RunStepResult {
-  const { sourceFile, data } = this.calls.top
+function init (this: State, { data, sourceFile }: InternalValue): RunStepResult {
   const source = data as string
   this.calls.step = stringtype.indexOf(start)
   return {
@@ -15,24 +14,22 @@ function init (this: State): RunStepResult {
   }
 }
 
-function start (this: State): RunStepResult {
+function start (this: State, top: InternalValue): RunStepResult {
   this.calls.index = 0
   this.calls.parameters = []
-  return extract.call(this)
+  return extract.call(this, top, 0)
 }
 
-function next (this: State): RunStepResult {
+function next (this: State, value: InternalValue): RunStepResult {
   const [, nextPos] = this.calls.parameters
   this.calls.popParameter()
   this.calls.popParameter()
   this.calls.index = nextPos.data as number
-  return extract.call(this)
+  return extract.call(this, value, this.calls.index)
 }
 
-function extract (this: State): RunStepResult {
-  const { sourceFile, data } = this.calls.top
+function extract (this: State, { data, sourceFile }: InternalValue, sourcePos: number): RunStepResult {
   const source = data as string
-  const sourcePos = this.calls.index
   const parsedValue = parse(source, sourcePos)
   if (parsedValue === undefined) {
     this.calls.step = RUN_STEP_END

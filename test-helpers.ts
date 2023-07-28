@@ -194,7 +194,8 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
       keepDebugInfo: false
     }, test.before.flags ?? {}),
     runOneStep (): RunStepResult {
-      return steps[callStack.step].call(this)
+      const { top, index } = this.calls
+      return steps[callStack.step].call(this, top, index)
     }
   } as MockState
   let exceptionCaught: Error | undefined

@@ -6,4 +6,4 @@ export const RUN_STEP_CATCH = -2
 export const RUN_STEP_FINALLY = -3
 
 export type RunStepResult = EngineSignal | InternalValue | undefined
-export type RunSteps = Array<(this: State) => RunStepResult>
+export type RunSteps = Array<(this: State, top: InternalValue, index: number) => RunStepResult>
