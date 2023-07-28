@@ -5,7 +5,7 @@ import { InternalValue, State } from '../../state/index'
 import { extractDebugInfos } from '../debug-infos'
 import { setOperatorAttributes } from '../attributes'
 
-export function bind (state: State, [block]: InternalValue[]): void {
+export function bind (state: State, [block]: readonly InternalValue[]): void {
   state.pushStepParameter(block)
   state.pushStepParameter({
     type: ValueType.integer,
@@ -20,7 +20,7 @@ export function bind (state: State, [block]: InternalValue[]): void {
  */
 setOperatorAttributes(bind, {
   typeCheck: [ValueType.block],
-  loop (state: State, parameters: InternalValue[]): boolean {
+  loop (state: State, parameters: readonly InternalValue[]): boolean {
     const lastParameter = parameters.at(-1)
     if (lastParameter!.type !== ValueType.integer) {
       return false

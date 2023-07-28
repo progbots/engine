@@ -3,7 +3,7 @@ import { ValueType } from '../../index'
 import { InternalError } from '../../errors/InternalError'
 import { setOperatorAttributes } from '../attributes'
 
-export function catchOp (state: State, [, block]: InternalValue[]): void {
+export function catchOp (state: State, [, block]: readonly InternalValue[]): void {
   state.operands.splice(2)
   state.stackForRunning(block)
 }
@@ -11,7 +11,7 @@ export function catchOp (state: State, [, block]: InternalValue[]): void {
 setOperatorAttributes(catchOp, {
   name: 'catch',
   typeCheck: [ValueType.block, ValueType.block],
-  catch (state: State, [blockCatch]: InternalValue[], e: InternalError): void {
+  catch (state: State, [blockCatch]: readonly InternalValue[], e: InternalError): void {
     state.operands.push({
       type: ValueType.dict,
       data: e.dictionary
