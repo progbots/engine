@@ -3,6 +3,7 @@ import { calltype } from './calltype'
 import { extractRunSteps, executeRunTests } from '../../test-helpers'
 import { add } from '../../operators/index'
 import { Undefined } from '../../errors/index'
+import { RUN_STEP_END } from './types'
 
 const steps = extractRunSteps(calltype)
 
@@ -59,7 +60,7 @@ describe('state/run/calltype', () => {
         step: steps.after
       },
       after: {
-        step: -1,
+        step: RUN_STEP_END,
         result: {
           type: EngineSignalType.afterCall,
           debug: true,

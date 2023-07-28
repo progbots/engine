@@ -1,6 +1,7 @@
 import { EngineSignalType, IArray, Value, ValueType } from '../../index'
 import { blocktype } from './blocktype'
 import { extractRunSteps, executeRunTests } from '../../test-helpers'
+import { RUN_STEP_END } from './types'
 
 const steps = extractRunSteps(blocktype)
 const array: IArray = {
@@ -80,7 +81,7 @@ describe('state/run/blocktype', () => {
         index: 2
       },
       after: {
-        step: -1,
+        step: RUN_STEP_END,
         result: {
           type: EngineSignalType.afterBlock,
           debug: true,

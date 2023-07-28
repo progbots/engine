@@ -1,4 +1,4 @@
-import { RunStepResult } from './types'
+import { RUN_STEP_END, RunStepResult } from './types'
 import { EngineSignalType, ValueType } from '../../index'
 import { InternalValue, State } from '../index'
 import { parse } from '../parser'
@@ -35,7 +35,7 @@ function extract (this: State): RunStepResult {
   const sourcePos = this.calls.index
   const parsedValue = parse(source, sourcePos)
   if (parsedValue === undefined) {
-    this.calls.step = -1
+    this.calls.step = RUN_STEP_END
     return {
       type: EngineSignalType.afterParse,
       debug: true,

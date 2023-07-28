@@ -1,4 +1,4 @@
-import { RunStepResult } from './types'
+import { RUN_STEP_END, RunStepResult } from './types'
 import { EngineSignalType } from '../../index'
 import { State } from '../index'
 
@@ -21,7 +21,7 @@ function lookup (this: State): RunStepResult {
 
 function after (this: State): RunStepResult {
   const { top } = this.calls
-  this.calls.step = -1
+  this.calls.step = RUN_STEP_END
   return {
     type: EngineSignalType.afterCall,
     debug: true,

@@ -1,6 +1,7 @@
 import { EngineSignalType, ValueType } from '../../index'
 import { stringtype } from './stringtype'
 import { extractRunSteps, executeRunTests } from '../../test-helpers'
+import { RUN_STEP_END } from './types'
 
 const steps = extractRunSteps(stringtype)
 
@@ -266,7 +267,7 @@ describe('state/run/stringtype', () => {
         }]
       },
       after: {
-        step: -1,
+        step: RUN_STEP_END,
         result: {
           type: EngineSignalType.afterParse,
           debug: true,

@@ -1,4 +1,4 @@
-import { RunStepResult } from './types'
+import { RUN_STEP_END, RunStepResult } from './types'
 import { IArray, EngineSignalType } from '../../index'
 import { State } from '../index'
 
@@ -27,7 +27,7 @@ function loop (this: State): RunStepResult {
       index
     }
   } else {
-    this.calls.step = -1
+    this.calls.step = RUN_STEP_END
     return {
       type: EngineSignalType.afterBlock,
       debug: true,
