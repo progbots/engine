@@ -13,6 +13,7 @@ interface CallState {
 export class CallStack extends Stack {
   private readonly _states: CallState[] = []
   public static readonly EXTRA_SIZE = MemoryTracker.POINTER_SIZE + MemoryTracker.INTEGER_SIZE + 1
+  public static readonly NO_INDEX = Number.MIN_SAFE_INTEGER
 
   push (value: InternalValue): void {
     super.push(value)
@@ -71,7 +72,7 @@ export class CallStack extends Stack {
   get index (): number {
     const value = this.at(0)
     if (value.type !== ValueType.integer) {
-      return -1
+      return CallStack.NO_INDEX
     }
     return value.data
   }

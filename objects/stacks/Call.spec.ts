@@ -113,8 +113,8 @@ describe('objects/stacks/Call', () => {
         })
       })
 
-      it('initializes with -1', () => {
-        expect(stack.index).toStrictEqual(-1)
+      it('initializes with NO_INDEX', () => {
+        expect(stack.index).toStrictEqual(CallStack.NO_INDEX)
       })
 
       it('can be changed to another value', () => {
