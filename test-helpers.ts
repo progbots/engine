@@ -1,7 +1,7 @@
 import { IDictionary, IStateFlags, Value, ValueType } from './index'
 import { InternalValue, OperatorFunction, State } from './state/index'
 import { InternalError } from './errors/InternalError'
-import { RunStepResult, RunSteps } from './state/run/types'
+import { RUN_STEP_END, RunStepResult, RunSteps } from './state/run/types'
 import { MemoryTracker } from './state/MemoryTracker'
 import { CallStack, DictionaryStack } from './objects/stacks/index'
 import { SystemDictionary } from './objects/dictionaries'
@@ -215,8 +215,8 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
     }
     if (test.after.index !== undefined) {
       expect(callStack.index).toStrictEqual(test.after.index)
-    } else if (callStack.step !== -1) {
-      expect(callStack.index).toStrictEqual(-1)
+    } else if (callStack.step !== RUN_STEP_END) {
+      expect(callStack.index).toStrictEqual(CallStack.NO_INDEX)
     }
     if (test.after.parameters !== undefined) {
       expect(callStack.parameters).toStrictEqual(test.after.parameters)
