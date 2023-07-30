@@ -1,12 +1,13 @@
-import { InternalValue, State } from '../../state/index'
+import { AtomicResult, InternalValue, State } from '../../state/index'
 import { ValueType } from '../../index'
 import { setOperatorAttributes } from '../attributes'
 
-export function ifOp (state: State, [block, condition]: readonly InternalValue[]): void {
+export function ifOp (state: State, [block, condition]: readonly InternalValue[]): AtomicResult {
   state.operands.splice(2)
   if (condition.data as boolean) {
-    state.stackForRunning(block)
+    return block
   }
+  return null
 }
 
 setOperatorAttributes(ifOp, {

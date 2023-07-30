@@ -1,4 +1,4 @@
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 import { ValueType, IDictionary } from '../../index'
 import { ShareableObject } from '../../objects/ShareableObject'
 import { TypeCheck } from '../../errors/index'
@@ -6,7 +6,7 @@ import { checkIWritableDictionary } from '../../objects/dictionaries/index'
 import { Custom } from '../../errors/Custom'
 import { InternalError } from '../../errors/InternalError'
 
-export function throwOp ({ operands }: State): void {
+export function throwOp ({ operands }: State): AtomicResult {
   const [dictValue] = operands.check(ValueType.dict)
   const dict = dictValue.data as IDictionary
   if (dict instanceof InternalError) {

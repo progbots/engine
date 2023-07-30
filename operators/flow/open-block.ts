@@ -1,9 +1,10 @@
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 import { openWithMark } from '../open-close-helper'
 
-export function openBlock (state: State): void {
+export function openBlock (state: State): AtomicResult {
   openWithMark(state)
   state.preventCall()
+  return null
 }
 
 Object.defineProperty(openBlock, 'name', {

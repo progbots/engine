@@ -1,9 +1,10 @@
 import { ValueType } from '../../index'
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 
-export function counttomark ({ operands }: State): void {
+export function counttomark ({ operands }: State): AtomicResult {
   operands.push({
     type: ValueType.integer,
     data: operands.findMarkPos()
   })
+  return null
 }

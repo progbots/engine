@@ -1,9 +1,10 @@
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 import { openWithMark } from '../open-close-helper'
 import { setOperatorAttributes } from '../attributes'
 
-export function openArray (state: State): void {
+export function openArray (state: State): AtomicResult {
   openWithMark(state)
+  return null
 }
 
 setOperatorAttributes(openArray, {

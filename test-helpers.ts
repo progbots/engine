@@ -1,7 +1,7 @@
 import { IDictionary, IStateFlags, Value, ValueType } from './index'
-import { InternalValue, OperatorFunction, State } from './state/index'
+import { InternalValue, AtomicResult, OperatorFunction, State } from './state/index'
 import { InternalError } from './errors/InternalError'
-import { RUN_STEP_END, RunStepResult, RunSteps } from './state/run/types'
+import { RUN_STEP_END, RunSteps } from './state/run/types'
 import { MemoryTracker } from './state/MemoryTracker'
 import { CallStack, DictionaryStack } from './objects/stacks/index'
 import { SystemDictionary } from './objects/dictionaries'
@@ -157,7 +157,7 @@ interface RunTestDescription {
   }
   error?: Function
   after?: {
-    result?: RunStepResult
+    result?: AtomicResult
     step: number
     index?: number
     parameters?: InternalValue[]
@@ -165,7 +165,7 @@ interface RunTestDescription {
 }
 
 type MockState = State & {
-  runOneStep: () => RunStepResult
+  runOneStep: () => AtomicResult
 }
 
 function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
@@ -193,13 +193,13 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
       yieldDebugSignals: false,
       keepDebugInfo: false
     }, test.before.flags ?? {}),
-    runOneStep (): RunStepResult {
+    runOneStep (): AtomicResult {
       const { top, index } = this.calls
       return steps[callStack.step].call(this, top, index)
     }
   } as MockState
   let exceptionCaught: Error | undefined
-  let result: RunStepResult
+  let result: AtomicResult = null
   try {
     result = mockState.runOneStep()
   } catch (e) {
@@ -212,7 +212,7 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
     if (test.after.result !== undefined) {
       expect(result).toStrictEqual(test.after.result)
     } else {
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     }
     if (test.after.index !== undefined) {
       expect(callStack.index).toStrictEqual(test.after.index)

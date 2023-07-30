@@ -1,16 +1,17 @@
 import { ValueType } from '../../index'
 import { Undefined } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
-import { InternalValue, State } from '../../state/index'
+import { InternalValue, AtomicResult, State } from '../../state/index'
 import { extractDebugInfos } from '../debug-infos'
 import { setOperatorAttributes } from '../attributes'
 
-export function bind (state: State, [block]: readonly InternalValue[]): void {
+export function bind (state: State, [block]: readonly InternalValue[]): AtomicResult {
   state.pushStepParameter(block)
   state.pushStepParameter({
     type: ValueType.integer,
     data: 0
   })
+  return null
 }
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -20,7 +21,7 @@ export function bind (state: State, [block]: readonly InternalValue[]): void {
  */
 setOperatorAttributes(bind, {
   typeCheck: [ValueType.block],
-  loop (state: State, parameters: readonly InternalValue[]): boolean {
+  loop (state: State, parameters: readonly InternalValue[]): AtomicResult | false {
     const lastParameter = parameters.at(-1)
     if (lastParameter!.type !== ValueType.integer) {
       return false
@@ -45,7 +46,7 @@ setOperatorAttributes(bind, {
     } else if (value.type === ValueType.block) {
       state.pushStepParameter(value)
       state.pushStepParameter(value)
-      return true
+      return null
     }
     state.popStepParameter()
     if (++index < blockArray.length) {
@@ -56,6 +57,6 @@ setOperatorAttributes(bind, {
     } else {
       state.popStepParameter()
     }
-    return true
+    return null
   }
 })

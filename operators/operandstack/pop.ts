@@ -1,5 +1,6 @@
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 
-export function pop ({ operands }: State): void {
+export function pop ({ operands }: State): AtomicResult {
   operands.pop()
+  return null
 }

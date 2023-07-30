@@ -1,6 +1,6 @@
 import { ValueType, IDictionary } from '../../index'
 import { RangeCheck, TypeCheck } from '../../errors/index'
-import { InternalValue, State } from '../../state/index'
+import { AtomicResult, InternalValue, State } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 import { checkIWritableDictionary } from '../../objects/dictionaries/index'
 
@@ -49,11 +49,12 @@ const setters: Record<string, (container: InternalValue, index: InternalValue, v
   }
 }
 
-export function set ({ operands }: State): void {
+export function set ({ operands }: State): AtomicResult {
   const [value, index, container] = operands.check(null, null, null)
   const setter = setters[container.type]
   if (setter === undefined) {
     throw new TypeCheck()
   }
   operands.splice(3, setter(container, index, value))
+  return null
 }

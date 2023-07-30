@@ -1,9 +1,9 @@
-import { RUN_STEP_END, RunStepResult } from './types'
+import { RUN_STEP_END } from './types'
 import { EngineSignalType, ValueType } from '../../index'
-import { InternalValue, State } from '../index'
+import { InternalValue, AtomicResult, State } from '../index'
 import { parse } from '../parser'
 
-function init (this: State, { data, sourceFile }: InternalValue): RunStepResult {
+function init (this: State, { data, sourceFile }: InternalValue): AtomicResult {
   const source = data as string
   this.calls.step = stringtype.indexOf(start)
   return {
@@ -14,13 +14,13 @@ function init (this: State, { data, sourceFile }: InternalValue): RunStepResult 
   }
 }
 
-function start (this: State, top: InternalValue): RunStepResult {
+function start (this: State, top: InternalValue): AtomicResult {
   this.calls.index = 0
   this.calls.parameters = []
   return extract.call(this, top, 0)
 }
 
-function next (this: State, value: InternalValue): RunStepResult {
+function next (this: State, value: InternalValue): AtomicResult {
   const [, nextPos] = this.calls.parameters
   this.calls.popParameter()
   this.calls.popParameter()
@@ -28,7 +28,7 @@ function next (this: State, value: InternalValue): RunStepResult {
   return extract.call(this, value, this.calls.index)
 }
 
-function extract (this: State, { data, sourceFile }: InternalValue, sourcePos: number): RunStepResult {
+function extract (this: State, { data, sourceFile }: InternalValue, sourcePos: number): AtomicResult {
   const source = data as string
   const parsedValue = parse(source, sourcePos)
   if (parsedValue === undefined) {
@@ -64,7 +64,7 @@ function extract (this: State, { data, sourceFile }: InternalValue, sourcePos: n
   }
 }
 
-function stack (this: State): RunStepResult {
+function stack (this: State): AtomicResult {
   const value = this.calls.parameters[0]
   this.calls.step = stringtype.indexOf(next)
   return value

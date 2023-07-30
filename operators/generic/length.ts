@@ -1,6 +1,6 @@
 import { IDictionary, ValueType } from '../../index'
 import { TypeCheck } from '../../errors/index'
-import { InternalValue, State } from '../../state/index'
+import { AtomicResult, InternalValue, State } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 
 function arrayLikeLength (container: InternalValue): number {
@@ -26,7 +26,7 @@ const sizers: Record<string, (container: InternalValue) => number> = {
   [ValueType.proc]: arrayLikeLength
 }
 
-export function length ({ operands }: State): void {
+export function length ({ operands }: State): AtomicResult {
   const [container] = operands.check(null)
   const sizer = sizers[container.type]
   if (sizer === undefined) {
@@ -36,4 +36,5 @@ export function length ({ operands }: State): void {
     type: ValueType.integer,
     data: sizer(container)
   })
+  return null
 }

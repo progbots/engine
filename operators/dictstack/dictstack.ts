@@ -1,8 +1,8 @@
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 import { ValueType } from '../../index'
 
-export function dictstack (state: State): void {
+export function dictstack (state: State): AtomicResult {
   const array = new ArrayLike(state.memoryTracker)
   const { operands, dictionaries } = state
   try {
@@ -16,4 +16,5 @@ export function dictstack (state: State): void {
   } finally {
     array.release()
   }
+  return null
 }

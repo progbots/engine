@@ -1,10 +1,10 @@
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 import { ValueType } from '../../index'
 import { ArrayLike } from '../../objects/Array'
 import { ShareableObject } from '../../objects/ShareableObject'
 import { RangeCheck } from '../../errors/index'
 
-export function apop ({ operands }: State): void {
+export function apop ({ operands }: State): AtomicResult {
   const [{ data }] = operands.check(ValueType.array)
   const array = data as unknown as ArrayLike
   const value = array.ref.at(-1)
@@ -14,4 +14,5 @@ export function apop ({ operands }: State): void {
   ShareableObject.addRef(value) // TODO should be released *after* slice
   array.pop()
   operands.splice(1, value)
+  return null
 }

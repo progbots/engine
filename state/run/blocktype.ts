@@ -1,8 +1,8 @@
-import { RUN_STEP_END, RunStepResult } from './types'
+import { RUN_STEP_END } from './types'
 import { IArray, EngineSignalType } from '../../index'
-import { InternalValue, State } from '../index'
+import { InternalValue, AtomicResult, State } from '../index'
 
-function init (this: State, { data }: InternalValue): RunStepResult {
+function init (this: State, { data }: InternalValue): AtomicResult {
   this.calls.step = blocktype.indexOf(loop)
   this.calls.index = 0
   return {
@@ -12,7 +12,7 @@ function init (this: State, { data }: InternalValue): RunStepResult {
   }
 }
 
-function loop (this: State, { data }: InternalValue, index: number): RunStepResult {
+function loop (this: State, { data }: InternalValue, index: number): AtomicResult {
   const array = data as IArray
   const { length } = array
   if (index < length) {
@@ -33,7 +33,7 @@ function loop (this: State, { data }: InternalValue, index: number): RunStepResu
   }
 }
 
-function stack (this: State, { data }: InternalValue, index: number): RunStepResult {
+function stack (this: State, { data }: InternalValue, index: number): AtomicResult {
   const array = data as IArray
   ++this.calls.index
   this.calls.step = blocktype.indexOf(loop)

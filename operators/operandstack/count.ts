@@ -1,9 +1,10 @@
 import { ValueType } from '../../index'
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 
-export function count ({ operands }: State): void {
+export function count ({ operands }: State): AtomicResult {
   operands.push({
     type: ValueType.integer,
     data: operands.length
   })
+  return null
 }

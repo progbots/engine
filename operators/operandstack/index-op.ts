@@ -1,8 +1,8 @@
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 import { ValueType } from '../../index'
 import { RangeCheck, StackUnderflow } from '../../errors/index'
 
-export function index ({ operands }: State): void {
+export function index ({ operands }: State): AtomicResult {
   const [pos] = operands.check(ValueType.integer).map(value => value.data as number)
   if (pos < 0) {
     throw new RangeCheck()
@@ -12,4 +12,5 @@ export function index ({ operands }: State): void {
     throw new StackUnderflow()
   }
   operands.splice(1, operands.ref[valuePos])
+  return null
 }

@@ -1,10 +1,10 @@
-import { State, InternalValue } from '../../state/index'
+import { State, InternalValue, AtomicResult } from '../../state/index'
 import { ValueType } from '../../index'
 import { TypeCheck } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
 import { setOperatorAttributes } from '../attributes'
 
-export function aload ({ operands }: State, [{ type, data }]: readonly InternalValue[]): void {
+export function aload ({ operands }: State, [{ type, data }]: readonly InternalValue[]): AtomicResult {
   if (![ValueType.array, ValueType.block, ValueType.proc].includes(type)) {
     throw new TypeCheck()
   }
@@ -15,6 +15,7 @@ export function aload ({ operands }: State, [{ type, data }]: readonly InternalV
     const value = array.at(index)
     operands.push(value)
   }
+  return null
 }
 
 setOperatorAttributes(aload, {

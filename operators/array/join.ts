@@ -1,9 +1,9 @@
 import { ValueType } from '../../index'
 import { TypeCheck } from '../../errors/index'
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 
-export function join (state: State): void {
+export function join (state: State): AtomicResult {
   const { operands } = state
   const [{ data }] = operands.check(ValueType.array)
   const array = data as unknown as ArrayLike
@@ -15,4 +15,5 @@ export function join (state: State): void {
     type: ValueType.string,
     data: strings.join('')
   })
+  return null
 }

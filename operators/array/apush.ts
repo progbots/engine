@@ -1,10 +1,11 @@
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 import { ValueType } from '../../index'
 import { ArrayLike } from '../../objects/Array'
 
-export function apush ({ operands }: State): void {
+export function apush ({ operands }: State): AtomicResult {
   const [value, { data }] = operands.check(null, ValueType.array)
   const array = data as unknown as ArrayLike
   array.push(value)
   operands.splice(2)
+  return null
 }

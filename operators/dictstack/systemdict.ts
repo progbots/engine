@@ -1,9 +1,10 @@
 import { ValueType } from '../../index'
-import { State } from '../../state/index'
+import { AtomicResult, State } from '../../state/index'
 
-export function systemdict ({ operands, dictionaries }: State): void {
+export function systemdict ({ operands, dictionaries }: State): AtomicResult {
   operands.push({
     type: ValueType.dict,
     data: dictionaries.systemdict
   })
+  return null
 }
