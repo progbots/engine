@@ -1,6 +1,8 @@
 import { InternalError } from '../errors/InternalError'
-import { Value, ValueType } from '../index'
+import { EngineSignal, Value, ValueType } from '../index'
 import { State } from './State'
+
+export type AtomicResult = EngineSignal | InternalValue | null
 
 export interface OperatorAttributes {
   name?: string
@@ -8,15 +10,15 @@ export interface OperatorAttributes {
   // When specified, the collected values are kept valid during the operator lifetime (including catch & finally)
   typeCheck?: Array<ValueType | null>
   // When specified, the method is called until the result is false
-  loop?: (state: State, parameters: readonly InternalValue[]) => boolean
+  loop?: (state: State, parameters: readonly InternalValue[], index: number) => AtomicResult | false
   // When specified, any InternalError is transmitted to it
-  catch?: (state: State, parameters: readonly InternalValue[], e: InternalError) => void
+  catch?: (state: State, parameters: readonly InternalValue[], e: InternalError) => AtomicResult
   // When specified, triggered before unstacking the operator from call stack
-  finally?: (state: State, parameters: readonly InternalValue[]) => void
+  finally?: (state: State, parameters: readonly InternalValue[]) => AtomicResult
 }
 
 export interface OperatorFunction extends OperatorAttributes {
-  (state: State, parameters: readonly InternalValue[]): void
+  (state: State, parameters: readonly InternalValue[]): AtomicResult
   name: string
 }
 
