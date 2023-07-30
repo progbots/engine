@@ -52,6 +52,7 @@ export const EngineSignalPrefix = 'engine-signal:'
 
 export enum EngineSignalType {
   cycle = `${EngineSignalPrefix}cycle`,
+  custom = `${EngineSignalPrefix}custom`,
   stop = `${EngineSignalPrefix}stop`,
   // debug only
   beforeParse = `${EngineSignalPrefix}before-parse`,
@@ -73,6 +74,11 @@ export type EngineSignal = {
   type: EngineSignalType.cycle |
   EngineSignalType.stop
   debug: false
+} | {
+  type: EngineSignalType.custom
+  debug: false
+  name: string | Symbol
+  parameters?: any
 } | {
   type: EngineSignalType.beforeParse |
   EngineSignalType.afterParse
