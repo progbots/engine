@@ -1,9 +1,9 @@
 import { TypeCheck } from '../../errors/index'
 import { ValueType } from '../../index'
-import { InternalValue, AtomicResult, State } from '../../state/index'
+import { InternalValue, CycleResult, State } from '../../state/index'
 import { Dictionary } from '../../objects/dictionaries/index'
 
-export function dicttomark (state: State): AtomicResult {
+export function dicttomark (state: State): CycleResult {
   const { operands } = state
   const pos = operands.findMarkPos()
   if (pos % 2 !== 0) {

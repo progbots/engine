@@ -1,6 +1,6 @@
-import { AtomicResult, State } from '../../state/index'
+import { CycleResult, State } from '../../state/index'
 
-export function end ({ dictionaries }: State): AtomicResult {
+export function end ({ dictionaries }: State): CycleResult {
   dictionaries.end()
   return null
 }

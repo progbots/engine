@@ -1,5 +1,5 @@
 import { IDictionary, IStateFlags, Value, ValueType } from './index'
-import { InternalValue, AtomicResult, OperatorFunction, State } from './state/index'
+import { InternalValue, CycleResult, OperatorFunction, State } from './state/index'
 import { InternalError } from './errors/InternalError'
 import { RUN_STEP_END, RunSteps } from './state/run/types'
 import { MemoryTracker } from './state/MemoryTracker'
@@ -157,7 +157,7 @@ interface RunTestDescription {
   }
   error?: Function
   after?: {
-    result?: AtomicResult
+    result?: CycleResult
     step: number
     index?: number
     parameters?: InternalValue[]
@@ -165,7 +165,7 @@ interface RunTestDescription {
 }
 
 type MockState = State & {
-  runOneStep: () => AtomicResult
+  runOneStep: () => CycleResult
 }
 
 function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
@@ -193,13 +193,13 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
       yieldDebugSignals: false,
       keepDebugInfo: false
     }, test.before.flags ?? {}),
-    runOneStep (): AtomicResult {
+    runOneStep (): CycleResult {
       const { top, index } = this.calls
       return steps[callStack.step].call(this, top, index)
     }
   } as MockState
   let exceptionCaught: Error | undefined
-  let result: AtomicResult = null
+  let result: CycleResult = null
   try {
     result = mockState.runOneStep()
   } catch (e) {

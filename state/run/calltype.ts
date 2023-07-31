@@ -1,8 +1,8 @@
 import { RUN_STEP_END } from './types'
 import { EngineSignalType } from '../../index'
-import { InternalValue, AtomicResult, State } from '../index'
+import { InternalValue, CycleResult, State } from '../index'
 
-function init (this: State, { data }: InternalValue): AtomicResult {
+function init (this: State, { data }: InternalValue): CycleResult {
   this.calls.step = calltype.indexOf(lookup)
   return {
     type: EngineSignalType.beforeCall,
@@ -11,13 +11,13 @@ function init (this: State, { data }: InternalValue): AtomicResult {
   }
 }
 
-function lookup (this: State, { data }: InternalValue): AtomicResult {
+function lookup (this: State, { data }: InternalValue): CycleResult {
   const resolvedValue = this.dictionaries.lookup(data as string)
   this.calls.step = calltype.indexOf(after)
   return resolvedValue
 }
 
-function after (this: State, { data }: InternalValue): AtomicResult {
+function after (this: State, { data }: InternalValue): CycleResult {
   this.calls.step = RUN_STEP_END
   return {
     type: EngineSignalType.afterCall,

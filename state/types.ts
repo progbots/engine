@@ -2,7 +2,7 @@ import { InternalError } from '../errors/InternalError'
 import { EngineSignal, Value, ValueType } from '../index'
 import { State } from './State'
 
-export type AtomicResult = EngineSignal | InternalValue | null
+export type CycleResult = EngineSignal | InternalValue | null
 
 export interface OperatorAttributes {
   name?: string
@@ -10,15 +10,15 @@ export interface OperatorAttributes {
   // When specified, the collected values are kept valid during the operator lifetime (including catch & finally)
   typeCheck?: Array<ValueType | null>
   // When specified, the method is called until the result is false
-  loop?: (state: State, parameters: readonly InternalValue[], index: number) => AtomicResult | false
+  loop?: (state: State, parameters: readonly InternalValue[], index: number) => CycleResult | false
   // When specified, any InternalError is transmitted to it
-  catch?: (state: State, parameters: readonly InternalValue[], e: InternalError) => AtomicResult
+  catch?: (state: State, parameters: readonly InternalValue[], e: InternalError) => CycleResult
   // When specified, triggered before unstacking the operator from call stack
-  finally?: (state: State, parameters: readonly InternalValue[]) => AtomicResult
+  finally?: (state: State, parameters: readonly InternalValue[]) => CycleResult
 }
 
 export interface OperatorFunction extends OperatorAttributes {
-  (state: State, parameters: readonly InternalValue[]): AtomicResult
+  (state: State, parameters: readonly InternalValue[]): CycleResult
   name: string
 }
 

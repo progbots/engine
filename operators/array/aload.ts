@@ -1,10 +1,10 @@
-import { State, InternalValue, AtomicResult } from '../../state/index'
+import { State, InternalValue, CycleResult } from '../../state/index'
 import { ValueType } from '../../index'
 import { TypeCheck } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
 import { setOperatorAttributes } from '../attributes'
 
-export function aload ({ operands }: State, [{ type, data }]: readonly InternalValue[]): AtomicResult {
+export function aload ({ operands }: State, [{ type, data }]: readonly InternalValue[]): CycleResult {
   if (![ValueType.array, ValueType.block, ValueType.proc].includes(type)) {
     throw new TypeCheck()
   }

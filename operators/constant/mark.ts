@@ -1,8 +1,8 @@
 import { ValueType } from '../../index'
-import { AtomicResult } from '../../state/index'
+import { CycleResult } from '../../state/index'
 import { setOperatorAttributes } from '../attributes'
 
-export function mark (): AtomicResult {
+export function mark (): CycleResult {
   return null
 }
 

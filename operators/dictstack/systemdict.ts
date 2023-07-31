@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
-import { AtomicResult, State } from '../../state/index'
+import { CycleResult, State } from '../../state/index'
 
-export function systemdict ({ operands, dictionaries }: State): AtomicResult {
+export function systemdict ({ operands, dictionaries }: State): CycleResult {
   operands.push({
     type: ValueType.dict,
     data: dictionaries.systemdict

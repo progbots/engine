@@ -1,6 +1,6 @@
 import { IDictionary, ValueType } from '../../index'
 import { TypeCheck } from '../../errors/index'
-import { AtomicResult, InternalValue, State } from '../../state/index'
+import { CycleResult, InternalValue, State } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 
 function arrayLikeImpl (container: InternalValue, value: InternalValue): boolean {
@@ -25,7 +25,7 @@ const implementations: Record<string, (container: InternalValue, value: Internal
   [ValueType.proc]: arrayLikeImpl
 }
 
-export function inOp ({ operands }: State): AtomicResult {
+export function inOp ({ operands }: State): CycleResult {
   const [value, container] = operands.check(null, null)
   const impl = implementations[container.type]
   if (impl === undefined) {

@@ -1,6 +1,6 @@
 import { IDictionary, ValueType } from '../../index'
 import { RangeCheck, TypeCheck, Undefined } from '../../errors/index'
-import { AtomicResult, InternalValue, State } from '../../state/index'
+import { CycleResult, InternalValue, State } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 
 function arrayLikeGetter (container: InternalValue, index: InternalValue): InternalValue {
@@ -48,7 +48,7 @@ const getters: Record<string, (container: InternalValue, index: InternalValue) =
   [ValueType.proc]: arrayLikeGetter
 }
 
-export function get ({ operands }: State): AtomicResult {
+export function get ({ operands }: State): CycleResult {
   const [index, container] = operands.check(null, null)
   const getter = getters[container.type]
   if (getter === undefined) {

@@ -1,8 +1,8 @@
-import { AtomicResult, State } from '../../state/index'
+import { CycleResult, State } from '../../state/index'
 import { ValueType } from '../../index'
 import { closeToMark } from '../open-close-helper'
 
-export function closeBlock (state: State): AtomicResult {
+export function closeBlock (state: State): CycleResult {
   closeToMark(state, ValueType.block)
   state.allowCall()
   return null

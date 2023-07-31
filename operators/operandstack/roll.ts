@@ -1,8 +1,8 @@
 import { RangeCheck } from '../../errors/index'
 import { ValueType } from '../../index'
-import { AtomicResult, State } from '../../state/index'
+import { CycleResult, State } from '../../state/index'
 
-export function roll ({ operands }: State): AtomicResult {
+export function roll ({ operands }: State): CycleResult {
   const [steps, size] = operands.check(ValueType.integer, ValueType.integer).map(value => value.data as number)
   if (size <= 0) {
     throw new RangeCheck()

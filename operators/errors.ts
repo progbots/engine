@@ -1,6 +1,6 @@
 import { InternalError } from '../errors/InternalError'
 import * as errorClasses from '../errors/index'
-import { AtomicResult, OperatorFunction, State } from '../state/index'
+import { CycleResult, OperatorFunction, State } from '../state/index'
 
 const errorOperators: Record<string, OperatorFunction> = {}
 const noOperators = [
@@ -17,7 +17,7 @@ Object.values(errorClasses).forEach((ErrorClass: Function) => {
 
   const ErrorConstructor = ErrorClass as (new () => InternalError)
 
-  const operator = function (state: State): AtomicResult {
+  const operator = function (state: State): CycleResult {
     throw new ErrorConstructor()
   }
 

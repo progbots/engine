@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
-import { AtomicResult, State } from '../../state/index'
+import { CycleResult, State } from '../../state/index'
 
-export function where ({ operands, dictionaries }: State): AtomicResult {
+export function where ({ operands, dictionaries }: State): CycleResult {
   const [name] = operands.check(ValueType.string)
   const result = dictionaries.where(name.data as string)
   if (result === null) {

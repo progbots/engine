@@ -1,11 +1,11 @@
 import { ValueType } from '../../index'
 import { Undefined } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
-import { InternalValue, AtomicResult, State } from '../../state/index'
+import { InternalValue, CycleResult, State } from '../../state/index'
 import { extractDebugInfos } from '../debug-infos'
 import { setOperatorAttributes } from '../attributes'
 
-export function bind (state: State, [block]: readonly InternalValue[]): AtomicResult {
+export function bind (state: State, [block]: readonly InternalValue[]): CycleResult {
   state.pushStepParameter(block)
   state.pushStepParameter({
     type: ValueType.integer,
@@ -21,7 +21,7 @@ export function bind (state: State, [block]: readonly InternalValue[]): AtomicRe
  */
 setOperatorAttributes(bind, {
   typeCheck: [ValueType.block],
-  loop (state: State, parameters: readonly InternalValue[]): AtomicResult | false {
+  loop (state: State, parameters: readonly InternalValue[]): CycleResult | false {
     const lastParameter = parameters.at(-1)
     if (lastParameter!.type !== ValueType.integer) {
       return false

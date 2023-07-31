@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
-import { AtomicResult, State } from '../../state/index'
+import { CycleResult, State } from '../../state/index'
 
-export function neq ({ operands }: State): AtomicResult {
+export function neq ({ operands }: State): CycleResult {
   const [value1, value2] = operands.check(null, null)
   operands.splice(2, {
     type: ValueType.boolean,
