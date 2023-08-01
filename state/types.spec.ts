@@ -1,5 +1,5 @@
-import { ValueType } from '..'
-import { checkBooleanValue, isBooleanValue } from './types'
+import { IArray, Value, ValueType } from '../index'
+import { checkBlockValue, checkBooleanValue, isBlockValue, isBooleanValue } from './types'
 
 interface checkParameters {
   name: string
@@ -12,18 +12,83 @@ interface checkParameters {
 
 function check ({ name, type, check, is, ok, ko }: checkParameters): void {
   describe(name, () => {
-    ok.forEach(value => {
-      value.type = type
-      const valueAsString = JSON.stringify(value)
-      it(`validates ${valueAsString} (check)`, () => {
-        expect(() => check(value)).not.toThrowError()
+    ok
+      .forEach(data => {
+        const value = {
+          type,
+          data
+        }
+        const valueAsString = JSON.stringify(value)
+        it(`validates ${valueAsString} (check)`, () => {
+          expect(() => check(value)).not.toThrowError()
+        })
+        it(`validates ${valueAsString} (is)`, () => {
+          expect(is(value)).toStrictEqual(true)
+        })
       })
-      it(`validates ${valueAsString} ()`, () => {
-        expect(is(value)).toStrictEqual(true)
+    const invalidData = [
+      null,
+      true, false,
+      -1, 0, 1,
+      '', 'hello world !'
+    ]
+    invalidData
+      .filter(data => !ok.includes(data))
+      .map(data => ({
+        type,
+        data
+      }))
+      .concat(ko)
+      .forEach(value => {
+        const valueAsString = JSON.stringify(value)
+        it(`invalidates ${valueAsString} (check)`, () => {
+          expect(() => check(value)).toThrowError()
+        })
+        it(`invalidates ${valueAsString} (is)`, () => {
+          expect(is(value)).toStrictEqual(false)
+        })
       })
-    })
   })
 }
+
+const iarray: IArray = {
+  length: 1,
+  at (index: number): Value {
+    return {
+      type: ValueType.integer,
+      data: index
+    }
+  }
+}
+
+const notIArrays = [{
+  length: -1,
+  at (index: number): Value {
+    return {
+      type: ValueType.integer,
+      data: index
+    }
+  }
+}, {
+  length: '123',
+  at (index: number): Value {
+    return {
+      type: ValueType.integer,
+      data: index
+    }
+  }
+}, {
+  at (index: number): Value {
+    return {
+      type: ValueType.integer,
+      data: index
+    }
+  }
+}, {
+  length: 1,
+  at (): void { }
+}, {
+}]
 
 describe('state/types', () => {
   check({
@@ -31,14 +96,19 @@ describe('state/types', () => {
     type: ValueType.boolean,
     check: checkBooleanValue,
     is: isBooleanValue,
-    ok: [{
-      data: true
-    }, {
-      data: false
-    }],
+    ok: [true, false],
     ko: [{
       type: ValueType.boolean,
-      data: null
+      data: {}
     }]
+  })
+
+  check({
+    name: 'BlockValue',
+    type: ValueType.block,
+    check: checkBlockValue,
+    is: isBlockValue,
+    ok: [iarray],
+    ko: notIArrays
   })
 })
