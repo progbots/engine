@@ -260,3 +260,40 @@ export function extractRunSteps (steps: RunSteps): Record<string, number> {
     return names
   }, {})
 }
+
+export interface checkTestsParameters {
+  name: string
+  check: (value: any) => void
+  is?: (value: any) => boolean
+  ok: any[]
+  ko: any[]
+}
+
+export function executeCheckTests ({ name, check, is, ok, ko }: checkTestsParameters): void {
+  describe(name, () => {
+    ok
+      .forEach(value => {
+        const valueAsString = JSON.stringify(value)
+        it(`validates ${valueAsString} (check)`, () => {
+          expect(() => check(value)).not.toThrowError()
+        })
+        if (is !== undefined) {
+          it(`validates ${valueAsString} (is)`, () => {
+            expect(is(value)).toStrictEqual(true)
+          })
+        }
+      })
+    ko
+      .forEach(value => {
+        const valueAsString = JSON.stringify(value)
+        it(`invalidates ${valueAsString} (check)`, () => {
+          expect(() => check(value)).toThrowError()
+        })
+        if (is !== undefined) {
+          it(`invalidates ${valueAsString} (is)`, () => {
+            expect(is(value)).toStrictEqual(false)
+          })
+        }
+      })
+  })
+}
