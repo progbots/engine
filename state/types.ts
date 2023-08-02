@@ -1,5 +1,5 @@
 import { InternalError } from '../errors/InternalError'
-import { BlockValue, BooleanValue, EngineSignal, IArray, Value, ValueType } from '../index'
+import { BlockValue, BooleanValue, DictValue, EngineSignal, IArray, Value, ValueType } from '../index'
 import { State } from './State'
 
 export interface DebugInfos {
@@ -70,7 +70,7 @@ export const isBooleanValue = isA(checkBooleanValue)
 
 const NOT_AN_IARRAY = 'Not an IArray'
 
-function checkIArray (value: any): asserts value is IArray {
+export function checkIArray (value: any): asserts value is IArray {
   if (typeof value !== 'object') {
     throw new InternalError(NOT_AN_IARRAY)
   }
@@ -91,3 +91,27 @@ export function checkBlockValue (value: any): asserts value is BlockValue {
   checkIArray(data)
 }
 export const isBlockValue = isA(checkBlockValue)
+
+const NOT_AN_IDICTIONARY = 'Not an IDictionary'
+
+export function checkIDictionary (value: any): asserts value is IArray {
+  if (typeof value !== 'object') {
+    throw new InternalError(NOT_AN_IDICTIONARY)
+  }
+  const { names, lookup } = value
+  if (!Array.isArray(names) || !names.every(name => typeof name === 'string') || typeof lookup !== 'function' || lookup.length !== 1) {
+    throw new InternalError(NOT_AN_IDICTIONARY)
+  }
+}
+
+const NOT_A_DICT_VALUE = 'Not a DictValue'
+
+export function checkDictValue (value: any): asserts value is DictValue {
+  checkGenericValue(value)
+  const { type, data } = value
+  if (type !== ValueType.dict) {
+    throw new InternalError(NOT_A_DICT_VALUE)
+  }
+  checkIDictionary(data)
+}
+export const isDictValue = isA(checkDictValue)

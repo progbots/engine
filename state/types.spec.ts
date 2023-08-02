@@ -1,5 +1,5 @@
-import { IArray, Value, ValueType } from '../index'
-import { checkBlockValue, checkBooleanValue, isBlockValue, isBooleanValue } from './types'
+import { IArray, IDictionary, Value, ValueType } from '../index'
+import { checkBlockValue, checkBooleanValue, checkDictValue, isBlockValue, isBooleanValue, isDictValue } from './types'
 
 interface checkParameters {
   name: string
@@ -90,6 +90,46 @@ const notIArrays = [{
 }, {
 }]
 
+const idictionary: IDictionary = {
+  names: ['a', 'b'],
+  lookup (name: string): Value {
+    return {
+      type: ValueType.string,
+      data: name
+    }
+  }
+}
+
+const notIDictionaries = [{
+  names: -1,
+  lookup (name: string): Value {
+    return {
+      type: ValueType.string,
+      data: name
+    }
+  }
+}, {
+  names: 'abc',
+  lookup (name: string): Value {
+    return {
+      type: ValueType.string,
+      data: name
+    }
+  }
+}, {
+  lookup (name: string): Value {
+    return {
+      type: ValueType.string,
+      data: name
+    }
+  }
+}, {
+  names: ['a', 'b'],
+  lookup (): void {
+  }
+}, {
+}]
+
 describe('state/types', () => {
   check({
     name: 'BooleanValue',
@@ -110,5 +150,14 @@ describe('state/types', () => {
     is: isBlockValue,
     ok: [iarray],
     ko: notIArrays
+  })
+
+  check({
+    name: 'DictValue',
+    type: ValueType.dict,
+    check: checkDictValue,
+    is: isDictValue,
+    ok: [idictionary],
+    ko: notIDictionaries
   })
 })
