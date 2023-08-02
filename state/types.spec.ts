@@ -1,53 +1,28 @@
 import { IArray, IDictionary, Value, ValueType } from '../index'
 import { checkBlockValue, checkBooleanValue, checkDictValue, isBlockValue, isBooleanValue, isDictValue } from './types'
+import { executeCheckTests, checkTestsParameters } from '../test-helpers'
 
-interface checkParameters {
-  name: string
-  type: ValueType
-  check: (value: any) => void
-  is: (value: any) => boolean
-  ok: any[]
-  ko: any[]
-}
+const invalidData = [
+  undefined,
+  null,
+  true, false,
+  -1, 0, 1,
+  '', 'hello world !'
+]
 
-function check ({ name, type, check, is, ok, ko }: checkParameters): void {
-  describe(name, () => {
-    ok
-      .forEach(data => {
-        const value = {
-          type,
-          data
-        }
-        const valueAsString = JSON.stringify(value)
-        it(`validates ${valueAsString} (check)`, () => {
-          expect(() => check(value)).not.toThrowError()
-        })
-        it(`validates ${valueAsString} (is)`, () => {
-          expect(is(value)).toStrictEqual(true)
-        })
-      })
-    const invalidData = [
-      null,
-      true, false,
-      -1, 0, 1,
-      '', 'hello world !'
-    ]
-    invalidData
+function typecheck ({ name, check, is, ok, ko }: checkTestsParameters, type: ValueType): void {
+  executeCheckTests({
+    name,
+    check,
+    is,
+    ok: ok.map(data => ({ type, data })),
+    ko: invalidData
       .filter(data => !ok.includes(data))
       .map(data => ({
         type,
         data
       }))
       .concat(ko)
-      .forEach(value => {
-        const valueAsString = JSON.stringify(value)
-        it(`invalidates ${valueAsString} (check)`, () => {
-          expect(() => check(value)).toThrowError()
-        })
-        it(`invalidates ${valueAsString} (is)`, () => {
-          expect(is(value)).toStrictEqual(false)
-        })
-      })
   })
 }
 
@@ -131,9 +106,8 @@ const notIDictionaries = [{
 }]
 
 describe('state/types', () => {
-  check({
+  typecheck({
     name: 'BooleanValue',
-    type: ValueType.boolean,
     check: checkBooleanValue,
     is: isBooleanValue,
     ok: [true, false],
@@ -141,23 +115,21 @@ describe('state/types', () => {
       type: ValueType.boolean,
       data: {}
     }]
-  })
+  }, ValueType.boolean)
 
-  check({
+  typecheck({
     name: 'BlockValue',
-    type: ValueType.block,
     check: checkBlockValue,
     is: isBlockValue,
     ok: [iarray],
     ko: notIArrays
-  })
+  }, ValueType.block)
 
-  check({
+  typecheck({
     name: 'DictValue',
-    type: ValueType.dict,
     check: checkDictValue,
     is: isDictValue,
     ok: [idictionary],
     ko: notIDictionaries
-  })
+  }, ValueType.dict)
 })
