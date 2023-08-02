@@ -1,10 +1,18 @@
 import { InternalValue } from '../state/index'
 import { Internal, RangeCheck } from '../errors/index'
 import { BaseArray } from './BaseArray'
+import { InternalError } from '../errors/InternalError'
 
 const EMPTY_ARRAY = 'Empty array'
+const NOT_AN_ARRAYLIKE = 'Not an ArrayLike'
 
 export class ArrayLike extends BaseArray {
+  static check (value: any): asserts value is ArrayLike {
+    if (typeof value !== 'object' || !(value instanceof ArrayLike)) {
+      throw new InternalError(NOT_AN_ARRAYLIKE)
+    }
+  }
+
   protected pushImpl (value: InternalValue): void {
     this._values.push(value)
   }
