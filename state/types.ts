@@ -1,5 +1,5 @@
 import { InternalError } from '../errors/InternalError'
-import { BlockValue, BooleanValue, DictValue, EngineSignal, IArray, Value, ValueType } from '../index'
+import { BlockValue, BooleanValue, CallValue, DictValue, EngineSignal, IArray, IntegerValue, StringValue, Value, ValueType } from '../index'
 import { State } from './State'
 
 export interface DebugInfos {
@@ -14,7 +14,7 @@ type Internal<T> = T & DebugInfos & {
 
 export type InternalValue = Internal<Value>
 
-export type CycleResult = EngineSignal | Internal<BlockValue> | null
+export type CycleResult = EngineSignal | Internal<IntegerValue> | Internal<StringValue> | Internal<CallValue> | Internal<BlockValue> | null
 
 export interface OperatorAttributes {
   name?: string
@@ -67,6 +67,17 @@ export function checkBooleanValue (value: any): asserts value is BooleanValue {
   }
 }
 export const isBooleanValue = isA(checkBooleanValue)
+
+const NOT_AN_INTEGER_VALUE = 'Not an IntegerValue'
+
+export function checkIntegerValue (value: any): asserts value is IntegerValue {
+  checkGenericValue(value)
+  const { type, data } = value
+  if (type !== ValueType.integer || typeof data !== 'number') {
+    throw new InternalError(NOT_AN_INTEGER_VALUE)
+  }
+}
+export const isIntegerValue = isA(checkIntegerValue)
 
 const NOT_AN_IARRAY = 'Not an IArray'
 

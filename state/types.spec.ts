@@ -1,5 +1,5 @@
 import { IArray, IDictionary, Value, ValueType } from '../index'
-import { checkBlockValue, checkBooleanValue, checkDictValue, isBlockValue, isBooleanValue, isDictValue } from './types'
+import { checkBlockValue, checkBooleanValue, checkDictValue, checkIntegerValue, isBlockValue, isBooleanValue, isDictValue, isIntegerValue } from './types'
 import { executeCheckTests, checkTestsParameters } from '../test-helpers'
 
 const invalidData = [
@@ -116,6 +116,17 @@ describe('state/types', () => {
       data: {}
     }]
   }, ValueType.boolean)
+
+  typecheck({
+    name: 'IntegerValue',
+    check: checkIntegerValue,
+    is: isIntegerValue,
+    ok: [-1, 0, 1],
+    ko: [{
+      type: ValueType.boolean,
+      data: {}
+    }]
+  }, ValueType.integer)
 
   typecheck({
     name: 'BlockValue',
