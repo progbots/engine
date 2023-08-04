@@ -1,12 +1,15 @@
-import { IArray, IDictionary, IOperator, Value, ValueType } from './index'
+import { Value, ValueType } from './index'
 import { HostDictionary, SystemDictionary } from './objects/dictionaries/index'
+import { checkBooleanValue, checkCallValue, checkIArray, checkIDictionary, checkIntegerValue, checkOperatorValue } from './state/index'
 
-function codeFormatter (opening: string, closing: string, value: Value): string {
+/* eslint-disable no-labels */
+
+function codeFormatter (opening: string, closing: string, { data }: Value): string {
   const output = [opening]
-  const array: IArray = value.data as IArray
-  const { length } = array
+  assert: checkIArray(data)
+  const { length } = data
   for (let index = 0; index < length; ++index) {
-    const item = array.at(index)
+    const item = data.at(index)
     output.push(formatters[item.type](item))
   }
   output.push(closing)
@@ -14,32 +17,45 @@ function codeFormatter (opening: string, closing: string, value: Value): string 
 }
 
 export const formatters: Record<ValueType, (value: Value) => string> = {
-  [ValueType.boolean]: (value: Value): string => value.data as boolean ? 'true' : 'false',
-  [ValueType.integer]: (value: Value): string => (value.data as number).toString(),
-  [ValueType.string]: (value: Value): string => JSON.stringify(value.data as string),
-  [ValueType.call]: (value: Value): string => value.data as string,
-  [ValueType.operator]: (value: Value): string => `-${(value.data as IOperator).name}-`,
+  [ValueType.boolean]: (value: Value): string => {
+    assert: checkBooleanValue(value)
+    return value.data ? 'true' : 'false'
+  },
+  [ValueType.integer]: (value: Value): string => {
+    assert: checkIntegerValue(value)
+    return value.data.toString()
+  },
+  [ValueType.string]: (value: Value): string => JSON.stringify(value.data),
+  [ValueType.call]: (value: Value): string => {
+    assert: checkCallValue(value)
+    return value.data
+  },
+  [ValueType.operator]: (value: Value): string => {
+    assert: checkOperatorValue(value)
+    return `-${value.data.name}-`
+  },
   [ValueType.mark]: (value: Value): string => '--mark--',
   [ValueType.array]: (value: Value): string => {
     const output = ['[']
-    const array: IArray = value.data as IArray
-    const { length } = array
+    assert: checkIArray(value.data)
+    const { length } = value.data
     for (let index = 0; index < length; ++index) {
-      const item = array.at(index)
+      const item = value.data.at(index)
       output.push(formatters[item.type](item))
     }
     output.push(']')
     return output.join(' ')
   },
   [ValueType.dict]: (value: Value): string => {
-    const dict = value.data as IDictionary
+    assert: checkIDictionary(value.data)
+    const namesCount = value.data.names.length.toString()
     if (value.data instanceof HostDictionary) {
-      return `--hostdict(${dict.names.length.toString()})--`
+      return `--hostdict(${namesCount})--`
     }
     if (value.data instanceof SystemDictionary) {
-      return `--systemdict(${dict.names.length.toString()})--`
+      return `--systemdict(${namesCount})--`
     }
-    return `--dictionary(${dict.names.length.toString()})--`
+    return `--dictionary(${namesCount})--`
   },
   [ValueType.block]: codeFormatter.bind(null, '{', '}'),
   [ValueType.proc]: codeFormatter.bind(null, '(', ')')
