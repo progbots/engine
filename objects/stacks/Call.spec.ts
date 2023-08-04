@@ -1,15 +1,22 @@
 import { CallStack, Stack } from './index'
 import { MemoryTracker } from '../../state/MemoryTracker'
-import { IArray, ValueType } from '../../index'
+import { IArray, Value, ValueType } from '../../index'
 import { Internal, StackUnderflow } from '../../errors/index'
 import { ShareableObject } from '../ShareableObject'
 
-class MyObject extends ShareableObject {
+class MyObject extends ShareableObject implements IArray {
   public disposeCalled: number = 0
 
   protected _dispose (): void {
     ++this.disposeCalled
   }
+
+  // region IArray
+
+  get length (): number { return 0 }
+  at (index: number): Value { return { type: ValueType.integer, data: index } }
+
+  // endregion
 }
 
 describe('objects/stacks/Call', () => {
@@ -162,7 +169,7 @@ describe('objects/stacks/Call', () => {
           object = new MyObject()
           stack.parameters = [{
             type: ValueType.array,
-            data: object as unknown as IArray
+            data: object
           }]
           expect(object.refCount).toStrictEqual(2)
           object.release()
@@ -185,7 +192,7 @@ describe('objects/stacks/Call', () => {
         it('returns the value', () => {
           expect(stack.parameters).toStrictEqual([{
             type: ValueType.array,
-            data: object as unknown as IArray
+            data: object
           }])
         })
 

@@ -51,8 +51,8 @@ describe('operators/dictstack/bind', () => {
       host: {
         asro: function ({ operands }: State): undefined {
           const value = operands.ref[0]
-          const block = value.data as unknown as ArrayLike
-          block.set = function (index: number, value: InternalValue): void {
+          ArrayLike.check(value.data)
+          value.data.set = function (index: number, value: InternalValue): void {
             throw new InvalidAccess()
           }
         }

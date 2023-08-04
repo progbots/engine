@@ -1,13 +1,27 @@
 import { Internal } from '../errors/index'
-import { IArray, IDictionary, ValueType } from '../index'
+import { IArray, IDictionary, Value, ValueType } from '../index'
 import { ShareableObject } from './ShareableObject'
 
-class MyObject extends ShareableObject {
+class MyObject extends ShareableObject implements IArray, IDictionary {
   public disposeCalled: number = 0
 
   protected _dispose (): void {
     ++this.disposeCalled
   }
+
+  // region IArray
+
+  get length (): number { return 0 }
+  at (index: number): Value { return { type: ValueType.integer, data: index } }
+
+  // endregion
+
+  // region IDictionary
+
+  get names (): string[] { return [] }
+  lookup (name: string): Value { return { type: ValueType.string, data: name } }
+
+  // endregion
 }
 
 describe('objects/ShareableObject', () => {
@@ -37,7 +51,7 @@ describe('objects/ShareableObject', () => {
     const object = new MyObject()
     ShareableObject.addRef({
       type: ValueType.array,
-      data: object as unknown as IArray
+      data: object
     })
     expect(object.refCount).toStrictEqual(2)
   })
@@ -46,7 +60,7 @@ describe('objects/ShareableObject', () => {
     const object = new MyObject()
     ShareableObject.release({
       type: ValueType.array,
-      data: object as unknown as IArray
+      data: object
     })
     expect(object.refCount).toStrictEqual(0)
   })
@@ -56,10 +70,10 @@ describe('objects/ShareableObject', () => {
     const obj2 = new MyObject()
     ShareableObject.addRef([{
       type: ValueType.array,
-      data: obj1 as unknown as IArray
+      data: obj1
     }, {
       type: ValueType.dict,
-      data: obj2 as unknown as IDictionary
+      data: obj2
     }])
     expect(obj1.refCount).toStrictEqual(2)
     expect(obj2.refCount).toStrictEqual(2)
@@ -70,10 +84,10 @@ describe('objects/ShareableObject', () => {
     const obj2 = new MyObject()
     ShareableObject.release([{
       type: ValueType.array,
-      data: obj1 as unknown as IArray
+      data: obj1
     }, {
       type: ValueType.dict,
-      data: obj2 as unknown as IDictionary
+      data: obj2
     }])
     expect(obj1.refCount).toStrictEqual(0)
     expect(obj2.refCount).toStrictEqual(0)

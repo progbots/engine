@@ -1,14 +1,21 @@
 import { Dictionary } from './Dictionary'
 import { MemoryTracker } from '../../state/MemoryTracker'
-import { IArray, ValueType } from '../../index'
+import { IArray, Value, ValueType } from '../../index'
 import { ShareableObject } from '../ShareableObject'
 
-class MyObject extends ShareableObject {
+class MyObject extends ShareableObject implements IArray {
   public disposeCalled: number = 0
 
   protected _dispose (): void {
     ++this.disposeCalled
   }
+
+  // region IArray
+
+  get length (): number { return 0 }
+  at (index: number): Value { return { type: ValueType.integer, data: index } }
+
+  // endregion
 }
 
 describe('objects/dictionaries/Dictionary', () => {
@@ -31,7 +38,7 @@ describe('objects/dictionaries/Dictionary', () => {
     sharedObject = new MyObject()
     dictionary.def('sharedobject', {
       type: ValueType.array,
-      data: sharedObject as unknown as IArray
+      data: sharedObject
     })
     expect(sharedObject.refCount).toStrictEqual(2)
     sharedObject.release()

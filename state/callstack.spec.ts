@@ -1,4 +1,4 @@
-import { IArray, IDictionary, ValueType } from '../index'
+import { IArray, ValueType } from '../index'
 import { renderCallStack } from './callstack'
 import { InternalValue } from './index'
 
@@ -147,7 +147,10 @@ const testCases: Record<string, TestCase> = {
   'formats unexpected items as an error': {
     calls: [{
       type: ValueType.dict,
-      data: null as unknown as IDictionary
+      data: {
+        names: [],
+        lookup (): null { return null }
+      }
     }],
     expected: '/!\\ unexpected stack item type dicttype'
   }

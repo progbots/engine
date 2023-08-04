@@ -1,6 +1,6 @@
 import { Stack } from './Stack'
 import { MemoryTracker } from '../../state/MemoryTracker'
-import { IArray, ValueType } from '../../index'
+import { IArray, Value, ValueType } from '../../index'
 import { StackUnderflow } from '../../errors/index'
 import { ShareableObject } from '../ShareableObject'
 
@@ -10,12 +10,19 @@ class MyStack extends Stack {
   }
 }
 
-class MyObject extends ShareableObject {
+class MyObject extends ShareableObject implements IArray {
   public disposeCalled: number = 0
 
   protected _dispose (): void {
     ++this.disposeCalled
   }
+
+  // region IArray
+
+  get length (): number { return 0 }
+  at (index: number): Value { return { type: ValueType.integer, data: index } }
+
+  // endregion
 }
 
 describe('objects/stacks/Stack', () => {
@@ -77,7 +84,7 @@ describe('objects/stacks/Stack', () => {
         sharedObject = new MyObject()
         stack.push({
           type: ValueType.array,
-          data: sharedObject as unknown as IArray
+          data: sharedObject
         })
         sharedObject.release()
         expect(sharedObject.refCount).toStrictEqual(1)
@@ -92,7 +99,7 @@ describe('objects/stacks/Stack', () => {
       it('does not release if added again (1)', () => {
         stack.splice(1, [{
           type: ValueType.array,
-          data: sharedObject as unknown as IArray
+          data: sharedObject
         }])
         expect(sharedObject.refCount).toStrictEqual(1)
         expect(sharedObject.disposeCalled).toStrictEqual(0)
