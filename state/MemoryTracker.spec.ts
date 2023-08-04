@@ -1,4 +1,4 @@
-import { IArray, Value, ValueType } from '../index'
+import { IArray, IDictionary, Value, ValueType } from '../index'
 import { VMError } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
 import { MemoryTracker } from './MemoryTracker'
@@ -9,6 +9,16 @@ class MyObject extends ShareableObject {
   protected _dispose (): void {
     ++this.disposeCalled
   }
+}
+
+class MyArray extends MyObject implements IArray {
+  get length (): number { return 0 }
+  at (index: number): Value { return { type: ValueType.integer, data: index } }
+}
+
+class MyDictionary extends MyObject implements IDictionary {
+  get names (): string[] { return [] }
+  lookup (name: string): Value { return { type: ValueType.string, data: name } }
 }
 
 describe('state/MemoryTracker', () => {
@@ -140,22 +150,29 @@ describe('state/MemoryTracker', () => {
   })
 
   describe('shareable object management', () => {
-    const types = [ValueType.array, ValueType.dict, ValueType.block, ValueType.proc]
+    const types: Array<ValueType.array | ValueType.block | ValueType.proc | ValueType.dict> = [ValueType.array, ValueType.block, ValueType.proc, ValueType.dict]
 
     types.forEach(type => {
       describe(type, () => {
-        let object: MyObject
+        let object: MyArray | MyDictionary
         let tracker: MemoryTracker
         let value: Value
 
         beforeEach(() => {
-          object = new MyObject()
           tracker = new MemoryTracker()
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          value = {
-            type,
-            data: object as unknown as IArray
-          } as Value
+          if (type === ValueType.dict) {
+            object = new MyDictionary()
+            value = {
+              type,
+              data: object
+            }
+          } else {
+            object = new MyArray()
+            value = {
+              type,
+              data: object
+            }
+          }
         })
 
         it('increments reference count on addValueRef', () => {
