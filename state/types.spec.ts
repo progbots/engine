@@ -1,13 +1,16 @@
 import { IArray, IDictionary, Value, ValueType } from '../index'
-import { checkBlockValue, checkBooleanValue, checkDictValue, checkIntegerValue, isBlockValue, isBooleanValue, isDictValue, isIntegerValue } from './types'
+import { checkBlockValue, checkBooleanValue, checkCallValue, checkDictValue, checkIntegerValue, checkOperatorValue, checkStringValue, isBlockValue, isBooleanValue, isCallValue, isDictValue, isIntegerValue, isOperatorValue, isStringValue } from './types'
 import { executeCheckTests, checkTestsParameters } from '../test-helpers'
+import { add } from '../operators'
 
 const invalidData = [
   undefined,
   null,
   true, false,
   -1, 0, 1,
-  '', 'hello world !'
+  '', 'hello world !',
+  {},
+  add
 ]
 
 function typecheck ({ name, check, is, ok, ko }: checkTestsParameters, type: ValueType): void {
@@ -111,10 +114,7 @@ describe('state/types', () => {
     check: checkBooleanValue,
     is: isBooleanValue,
     ok: [true, false],
-    ko: [{
-      type: ValueType.boolean,
-      data: {}
-    }]
+    ko: []
   }, ValueType.boolean)
 
   typecheck({
@@ -122,11 +122,32 @@ describe('state/types', () => {
     check: checkIntegerValue,
     is: isIntegerValue,
     ok: [-1, 0, 1],
-    ko: [{
-      type: ValueType.boolean,
-      data: {}
-    }]
+    ko: []
   }, ValueType.integer)
+
+  typecheck({
+    name: 'StringValue',
+    check: checkStringValue,
+    is: isStringValue,
+    ok: ['', '0, 1', 'hello world !'],
+    ko: []
+  }, ValueType.string)
+
+  typecheck({
+    name: 'CallValue',
+    check: checkCallValue,
+    is: isCallValue,
+    ok: ['add', '{', 'hello world !'],
+    ko: []
+  }, ValueType.call)
+
+  typecheck({
+    name: 'OperatorValue',
+    check: checkOperatorValue,
+    is: isOperatorValue,
+    ok: [add],
+    ko: []
+  }, ValueType.operator)
 
   typecheck({
     name: 'BlockValue',

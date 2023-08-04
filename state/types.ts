@@ -1,5 +1,5 @@
 import { InternalError } from '../errors/InternalError'
-import { BlockValue, BooleanValue, CallValue, DictValue, EngineSignal, IArray, IntegerValue, StringValue, Value, ValueType } from '../index'
+import { BlockValue, BooleanValue, CallValue, DictValue, EngineSignal, IArray, IDictionary, IntegerValue, OperatorValue, StringValue, Value, ValueType } from '../index'
 import { State } from './State'
 
 export interface DebugInfos {
@@ -79,6 +79,39 @@ export function checkIntegerValue (value: any): asserts value is IntegerValue {
 }
 export const isIntegerValue = isA(checkIntegerValue)
 
+const NOT_A_STRING_VALUE = 'Not a StringValue'
+
+export function checkStringValue (value: any): asserts value is StringValue {
+  checkGenericValue(value)
+  const { type, data } = value
+  if (type !== ValueType.string || typeof data !== 'string') {
+    throw new InternalError(NOT_A_STRING_VALUE)
+  }
+}
+export const isStringValue = isA(checkStringValue)
+
+const NOT_A_CALL_VALUE = 'Not a CallValue'
+
+export function checkCallValue (value: any): asserts value is CallValue {
+  checkGenericValue(value)
+  const { type, data } = value
+  if (type !== ValueType.call || typeof data !== 'string' || data === '') {
+    throw new InternalError(NOT_A_CALL_VALUE)
+  }
+}
+export const isCallValue = isA(checkCallValue)
+
+const NOT_AN_OPERATOR_VALUE = 'Not an OperatorValue'
+
+export function checkOperatorValue (value: any): asserts value is OperatorValue {
+  checkGenericValue(value)
+  const { type, data } = value
+  if (type !== ValueType.operator || typeof data !== 'function') {
+    throw new InternalError(NOT_AN_OPERATOR_VALUE)
+  }
+}
+export const isOperatorValue = isA(checkOperatorValue)
+
 const NOT_AN_IARRAY = 'Not an IArray'
 
 export function checkIArray (value: any): asserts value is IArray {
@@ -105,7 +138,7 @@ export const isBlockValue = isA(checkBlockValue)
 
 const NOT_AN_IDICTIONARY = 'Not an IDictionary'
 
-export function checkIDictionary (value: any): asserts value is IArray {
+export function checkIDictionary (value: any): asserts value is IDictionary {
   if (typeof value !== 'object') {
     throw new InternalError(NOT_AN_IDICTIONARY)
   }
