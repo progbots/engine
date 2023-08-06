@@ -74,7 +74,11 @@ function executeTest (test: TestDescription): void {
   try {
     cyclesCount = waitForCycles(state.parse(src, SOURCE_FILE)).length
   } catch (e) {
-    exceptionCaught = e as Error
+    if (typeof e === 'object' && e instanceof Error) {
+      exceptionCaught = e
+    } else {
+      throw e
+    }
   }
   if (typeof expectedResult !== 'function' || expectedResult.length !== 2) {
     if (expectedErrorClass === undefined) {
@@ -164,10 +168,6 @@ interface RunTestDescription {
   }
 }
 
-type MockState = State & {
-  runOneStep: () => CycleResult
-}
-
 function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
   const tracker = new MemoryTracker()
   const callStack = new CallStack(tracker)
@@ -184,7 +184,7 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
     callStack.parameters = test.before.parameters
   }
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const mockState = {
+  const mockState = Object.assign(new State(), {
     calls: callStack,
     dictionaries,
     flags: Object.assign({
@@ -193,17 +193,21 @@ function executeRunTest (steps: RunSteps, test: RunTestDescription): void {
       yieldDebugSignals: false,
       keepDebugInfo: false
     }, test.before.flags ?? {}),
-    runOneStep (): CycleResult {
-      const { top, index } = this.calls
-      return steps[callStack.step].call(this, top, index)
+    runOneStep: (): CycleResult => {
+      const { top, index } = mockState.calls
+      return steps[callStack.step].call(mockState, top, index)
     }
-  } as MockState
+  })
   let exceptionCaught: Error | undefined
   let result: CycleResult = null
   try {
     result = mockState.runOneStep()
   } catch (e) {
-    exceptionCaught = e as Error
+    if (typeof e === 'object' && e instanceof Error) {
+      exceptionCaught = e
+    } else {
+      throw e
+    }
   }
   if (test.error !== undefined) {
     expect(exceptionCaught).toBeInstanceOf(test.error)
