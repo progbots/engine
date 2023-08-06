@@ -1,9 +1,12 @@
-import { IDictionary, ValueType } from '../../index'
-import { CycleResult, State } from '../../state/index'
+import { ValueType } from '../../index'
+import { CycleResult, State, checkIDictionary } from '../../state/index'
+
+/* eslint-disable no-labels */
 
 export function begin ({ operands, dictionaries }: State): CycleResult {
   const [dict] = operands.check(ValueType.dict)
-  dictionaries.begin(dict.data as IDictionary)
+  assert: checkIDictionary(dict.data)
+  dictionaries.begin(dict.data)
   operands.pop()
   return null
 }
