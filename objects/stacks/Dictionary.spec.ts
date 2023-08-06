@@ -82,7 +82,7 @@ describe('objects/stacks/Dictionary', () => {
       it('resolves host name', () => {
         const stackWithHost = new DictionaryStack(tracker, host)
         expect(stackWithHost.where('hostname')).toStrictEqual({
-          dict: stackWithHost.ref.at(-1)?.data as IDictionary,
+          dict: host,
           value: {
             type: ValueType.string,
             data: 'localhost'

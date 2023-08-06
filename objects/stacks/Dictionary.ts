@@ -1,6 +1,6 @@
 import { IDictionary, ValueType } from '../../index'
 import { DictStackUnderflow, Undefined } from '../../errors/index'
-import { InternalValue } from '../../state/index'
+import { InternalValue, checkIDictionary } from '../../state/index'
 import { Stack } from './Stack'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { Dictionary, HostDictionary, SystemDictionary } from '../dictionaries/index'
@@ -48,11 +48,11 @@ export class DictionaryStack extends Stack {
     value: InternalValue
   } | null {
     for (const dictionaryValue of this._values) {
-      const dictionary = dictionaryValue.data as IDictionary
-      const value = dictionary.lookup(name)
+      checkIDictionary(dictionaryValue.data)
+      const value = dictionaryValue.data.lookup(name)
       if (value !== null) {
         return {
-          dict: dictionary,
+          dict: dictionaryValue.data,
           value
         }
       }
