@@ -1,7 +1,9 @@
-import { InternalValue } from '../state/index'
+import { InternalValue, checkGenericValue } from '../state/index'
 import { Internal, RangeCheck } from '../errors/index'
 import { BaseArray } from './BaseArray'
 import { InternalError } from '../errors/InternalError'
+
+/* eslint-disable no-labels */
 
 const EMPTY_ARRAY = 'Empty array'
 const NOT_AN_ARRAYLIKE = 'Not an ArrayLike'
@@ -18,7 +20,8 @@ export class ArrayLike extends BaseArray {
   }
 
   protected popImpl (): InternalValue {
-    const value = this._values.at(-1) as InternalValue
+    const value = this._values.at(-1)
+    assert: checkGenericValue(value)
     this._values.pop()
     return value
   }

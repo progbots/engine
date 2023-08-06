@@ -1,6 +1,8 @@
 import { StackUnderflow } from '../../errors/index'
-import { InternalValue } from '../../state/index'
+import { InternalValue, checkGenericValue } from '../../state/index'
 import { BaseArray } from '../BaseArray'
+
+/* eslint-disable no-labels */
 
 export class Stack extends BaseArray {
   protected pushImpl (value: InternalValue): void {
@@ -8,7 +10,9 @@ export class Stack extends BaseArray {
   }
 
   protected popImpl (): InternalValue {
-    return this._values.shift() as InternalValue
+    const value = this._values.shift()
+    assert: checkGenericValue(value)
+    return value
   }
 
   pop (): void {

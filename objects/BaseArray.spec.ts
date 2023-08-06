@@ -1,10 +1,12 @@
 import { BaseArray } from './BaseArray'
 import { MemoryTracker } from '../state/MemoryTracker'
 import { ValueType } from '../index'
-import { InternalValue } from '../state/index'
+import { InternalValue, checkGenericValue } from '../state/index'
 import { Dictionary } from './dictionaries/index'
 import { RangeCheck } from '../errors/index'
 import { InternalError } from '../errors/InternalError'
+
+/* eslint-disable no-labels */
 
 class MyArray extends BaseArray {
   protected pushImpl (value: InternalValue): void {
@@ -12,7 +14,8 @@ class MyArray extends BaseArray {
   }
 
   protected popImpl (): InternalValue {
-    const value = this._values.at(-1) as InternalValue
+    const value = this._values.at(-1)
+    assert: checkGenericValue(value)
     this._values.pop()
     return value
   }

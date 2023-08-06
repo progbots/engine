@@ -47,7 +47,7 @@ export function isA<T> (checker: (value: any) => asserts value is T): (value: an
 
 const NOT_A_VALUE = 'Not a Value'
 
-function checkGenericValue (value: any): asserts value is Value {
+export function checkGenericValue (value: any): asserts value is Value {
   if (typeof value !== 'object') {
     throw new InternalError(NOT_A_VALUE)
   }
