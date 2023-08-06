@@ -1,7 +1,9 @@
 import { TypeCheck } from '../../errors/index'
 import { ValueType } from '../../index'
-import { InternalValue, CycleResult, State } from '../../state/index'
+import { InternalValue, CycleResult, State, checkStringValue } from '../../state/index'
 import { Dictionary } from '../../objects/dictionaries/index'
+
+/* eslint-disable no-labels */
 
 export function dicttomark (state: State): CycleResult {
   const { operands } = state
@@ -23,7 +25,8 @@ export function dicttomark (state: State): CycleResult {
           type: ValueType.proc
         }
       }
-      dict.def(name.data as string, value)
+      assert: checkStringValue(name)
+      dict.def(name.data, value)
     })
     operands.splice(pos + 1, {
       type: ValueType.dict,
