@@ -1,12 +1,14 @@
 import { OperatorAttributes, OperatorFunction } from '../state/types'
 
+const getKeys = Object.keys as <T extends object>(obj: T) => Array<keyof T>
+
 export function setOperatorAttributes (operator: OperatorFunction, attributes: OperatorAttributes): void {
-  Object.defineProperties(operator, Object.keys(attributes).reduce((
+  Object.defineProperties(operator, getKeys(attributes).reduce((
     properties: PropertyDescriptorMap,
-    attributeName: string
+    attributeName: keyof OperatorAttributes
   ): PropertyDescriptorMap => {
     properties[attributeName] = {
-      value: attributes[attributeName as keyof OperatorAttributes],
+      value: attributes[attributeName],
       writable: false
     }
     return properties
