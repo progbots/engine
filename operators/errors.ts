@@ -1,21 +1,11 @@
 import { InternalError } from '../errors/InternalError'
-import * as errorClasses from '../errors/index'
+import * as errorClasses from '../errors/operators'
 import { CycleResult, OperatorFunction, State } from '../state/index'
 
 const errorOperators: Record<string, OperatorFunction> = {}
-const noOperators = [
-  'BusyParsing',
-  'DictStackUnderflow',
-  'Internal',
-  'InvalidBreak'
-]
 
-Object.values(errorClasses).forEach((ErrorClass: Function) => {
-  if (noOperators.includes(ErrorClass.name)) {
-    return // filter out
-  }
-
-  const ErrorConstructor = ErrorClass as (new () => InternalError)
+Object.values(errorClasses).forEach((ErrorClass: new () => InternalError) => {
+  const ErrorConstructor = ErrorClass
 
   const operator = function (state: State): CycleResult {
     throw new ErrorConstructor()
