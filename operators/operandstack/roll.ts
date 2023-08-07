@@ -1,9 +1,14 @@
 import { RangeCheck } from '../../errors/index'
 import { ValueType } from '../../index'
-import { CycleResult, State } from '../../state/index'
+import { CycleResult, State, checkIntegerValue } from '../../state/index'
+
+/* eslint-disable no-labels */
 
 export function roll ({ operands }: State): CycleResult {
-  const [steps, size] = operands.check(ValueType.integer, ValueType.integer).map(value => value.data as number)
+  const [steps, size] = operands.check(ValueType.integer, ValueType.integer).map(value => {
+    assert: checkIntegerValue(value)
+    return value.data
+  })
   if (size <= 0) {
     throw new RangeCheck()
   }
