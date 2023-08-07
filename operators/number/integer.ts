@@ -1,8 +1,13 @@
 import { ValueType } from '../../index'
-import { State } from '../../state/index'
+import { State, checkIntegerValue } from '../../state/index'
+
+/* eslint-disable no-labels */
 
 function extract ({ operands }: State): number[] {
-  return operands.check(ValueType.integer, ValueType.integer).map(value => value.data as number)
+  return operands.check(ValueType.integer, ValueType.integer).map(value => {
+    assert: checkIntegerValue(value)
+    return value.data
+  })
 }
 
 export function compare (state: State, implementation: (value1: number, value2: number) => boolean): void {
