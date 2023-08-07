@@ -1,4 +1,4 @@
-import { CycleResult, InternalValue, State, checkBlockValue } from '../../state/index'
+import { CycleResult, InternalValue, State, checkBlockValue, checkBooleanValue } from '../../state/index'
 import { ValueType } from '../../index'
 import { setOperatorAttributes } from '../attributes'
 
@@ -6,7 +6,8 @@ import { setOperatorAttributes } from '../attributes'
 
 export function ifOp (state: State, [block, condition]: readonly InternalValue[]): CycleResult {
   state.operands.splice(2)
-  if (condition.data as boolean) {
+  assert: checkBooleanValue(condition)
+  if (condition.data) {
     assert: checkBlockValue(block)
     return block
   }
