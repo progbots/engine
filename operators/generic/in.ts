@@ -1,23 +1,25 @@
-import { IDictionary, ValueType } from '../../index'
+import { ValueType } from '../../index'
 import { TypeCheck } from '../../errors/index'
-import { CycleResult, InternalValue, State } from '../../state/index'
+import { CycleResult, InternalValue, State, checkDictValue } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 
+/* eslint-disable no-labels */
+
 function arrayLikeImpl (container: InternalValue, value: InternalValue): boolean {
-  const array = container.data as ArrayLike
-  return array.some((item: InternalValue) => item.type === value.type && item.data === value.data)
+  assert: ArrayLike.check(container.data)
+  return container.data.some((item: InternalValue) => item.type === value.type && item.data === value.data)
 }
 
 const implementations: Record<string, (container: InternalValue, value: InternalValue) => boolean> = {
   [ValueType.array]: arrayLikeImpl,
 
   [ValueType.dict]: (container: InternalValue, index: InternalValue): boolean => {
+    assert: checkDictValue(container)
     if (index.type !== ValueType.string) {
       throw new TypeCheck()
     }
     const name = index.data
-    const iDict = container.data as IDictionary
-    return iDict.names.includes(name)
+    return container.data.names.includes(name)
   },
 
   [ValueType.block]: arrayLikeImpl,
