@@ -1,4 +1,4 @@
-import { ValueType, IDictionary } from '../../index'
+import { ValueType } from '../../index'
 import { RangeCheck, TypeCheck } from '../../errors/index'
 import { CycleResult, InternalValue, State, checkDictValue, checkStringValue } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
