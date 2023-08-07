@@ -1,9 +1,11 @@
 import { ValueType } from '../../index'
-import { Undefined } from '../../errors/index'
+import { Internal, Undefined } from '../../errors/index'
 import { ArrayLike } from '../../objects/Array'
 import { InternalValue, CycleResult, State } from '../../state/index'
 import { extractDebugInfos } from '../debug-infos'
 import { setOperatorAttributes } from '../attributes'
+
+/* eslint-disable no-labels */
 
 export function bind (state: State, [block]: readonly InternalValue[]): CycleResult {
   state.pushStepParameter(block)
@@ -23,18 +25,22 @@ setOperatorAttributes(bind, {
   typeCheck: [ValueType.block],
   loop (state: State, parameters: readonly InternalValue[]): CycleResult | false {
     const lastParameter = parameters.at(-1)
-    if (lastParameter!.type !== ValueType.integer) {
+    if (lastParameter === undefined || lastParameter.type !== ValueType.integer) {
       return false
     }
-    let index = lastParameter!.data
+    let index = lastParameter.data
     const block = parameters.at(-2)
-    const blockArray = block!.data as ArrayLike
-    const value = blockArray.at(index)
+    assert: if (block === undefined) {
+      throw new Internal('Invalid bind parameters')
+    } else {
+      ArrayLike.check(block.data)
+    }
+    const value = block.data.at(index)
     if (value.type === ValueType.call) {
       try {
         const resolvedValue = state.dictionaries.lookup(value.data)
         // TODO: some operators can be replaced with values (true, false, mark...)
-        blockArray.set(index, {
+        block.data.set(index, {
           ...extractDebugInfos(value),
           ...resolvedValue
         })
@@ -49,7 +55,7 @@ setOperatorAttributes(bind, {
       return null
     }
     state.popStepParameter()
-    if (++index < blockArray.length) {
+    if (++index < block.data.length) {
       state.pushStepParameter({
         type: ValueType.integer,
         data: index + 1
