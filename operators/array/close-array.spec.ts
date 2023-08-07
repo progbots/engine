@@ -1,6 +1,6 @@
 import { UnmatchedMark } from '../../errors/index'
 import { executeTests } from '../../test-helpers'
-import { IArray, ValueType } from '../../index'
+import { ValueType } from '../../index'
 import { State, checkIArray } from '../../state/index'
 
 // test-for ../open-close-helper.ts
