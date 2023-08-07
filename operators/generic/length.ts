@@ -1,24 +1,26 @@
-import { IDictionary, ValueType } from '../../index'
+import { ValueType } from '../../index'
 import { TypeCheck } from '../../errors/index'
-import { CycleResult, InternalValue, State } from '../../state/index'
+import { CycleResult, InternalValue, State, checkDictValue, checkStringValue } from '../../state/index'
 import { ArrayLike } from '../../objects/Array'
 
+/* eslint-disable no-labels */
+
 function arrayLikeLength (container: InternalValue): number {
-  const array = container.data as ArrayLike
-  return array.length
+  assert: ArrayLike.check(container.data)
+  return container.data.length
 }
 
 const sizers: Record<string, (container: InternalValue) => number> = {
   [ValueType.string]: (container: InternalValue): number => {
-    const string = container.data as string
-    return string.length
+    assert: checkStringValue(container)
+    return container.data.length
   },
 
   [ValueType.array]: arrayLikeLength,
 
   [ValueType.dict]: (container: InternalValue): number => {
-    const iDict = container.data as IDictionary
-    return iDict.names.length
+    assert: checkDictValue(container)
+    return container.data.names.length
   },
 
   [ValueType.block]: arrayLikeLength,
