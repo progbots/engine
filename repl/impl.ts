@@ -8,7 +8,9 @@ import { $debug, $load, $state } from './signals'
 import { renderCallStack } from '../state/callstack'
 import { forEach } from './forEach'
 import { formatters } from '../formatters'
-import { InternalValue } from '../state/types'
+import { checkInternalValue, checkStringValue } from '../state/types'
+
+/* eslint-disable no-labels */
 
 export async function main (replHost: IReplHost, debug: boolean): Promise<void> {
   if (debug) {
@@ -26,8 +28,9 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
   function operands (): void {
     replHost.output(`${cyan}operands: ${yellow}${state.operands.length}`)
     forEach(state.operands, (value, formattedIndex) => {
+      assert: checkInternalValue(value)
       let debugInfo
-      const { sourceFile, sourcePos } = value as InternalValue
+      const { sourceFile, sourcePos } = value
       if (sourceFile === undefined || sourcePos === undefined) {
         debugInfo = ''
       } else {
@@ -60,9 +63,10 @@ export async function main (replHost: IReplHost, debug: boolean): Promise<void> 
         } else if (value === $debug) {
           debugging = true
         } else if (value === $load) {
-          const { data } = state.operands.at(0)
+          const name = state.operands.at(0)
           try {
-            nextValue = await replHost.getSample(data as string)
+            assert: checkStringValue(name)
+            nextValue = await replHost.getSample(name.data)
           } catch (e) {
             nextValue = e
           }
