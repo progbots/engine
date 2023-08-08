@@ -1,7 +1,9 @@
 import { IStateMemory, Value, ValueType } from '../index'
-import { InternalValue } from './index'
+import { InternalValue, checkStringValue } from './index'
 import { VMError } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
+
+/* eslint-disable no-labels */
 
 const stringSizer = (data: string): number => {
   const encoder = new TextEncoder()
@@ -30,12 +32,12 @@ export class MemoryTracker implements IStateMemory {
   private readonly _stringsRefCount: number[] = []
 
   private _addStringRef (value: Value): number {
-    const text = value.data as string
-    const size = stringSizer(text)
-    if (text.length >= MemoryTracker.CACHABLE_STRING_LENGTH) {
-      const pos = this._strings.indexOf(text)
+    assert: checkStringValue(value)
+    const size = stringSizer(value.data)
+    if (value.data.length >= MemoryTracker.CACHABLE_STRING_LENGTH) {
+      const pos = this._strings.indexOf(value.data)
       if (pos === -1) {
-        this._strings.push(text)
+        this._strings.push(value.data)
         this._stringsRefCount.push(1)
         return size + MemoryTracker.INTEGER_SIZE
       }
@@ -46,10 +48,10 @@ export class MemoryTracker implements IStateMemory {
   }
 
   private _releaseString (value: Value): number {
-    const text = value.data as string
-    const size = stringSizer(text)
-    if (text.length >= MemoryTracker.CACHABLE_STRING_LENGTH) {
-      const pos = this._strings.indexOf(text)
+    assert: checkStringValue(value)
+    const size = stringSizer(value.data)
+    if (value.data.length >= MemoryTracker.CACHABLE_STRING_LENGTH) {
+      const pos = this._strings.indexOf(value.data)
       const refCount = --this._stringsRefCount[pos]
       if (refCount === 0) {
         return size + MemoryTracker.INTEGER_SIZE
