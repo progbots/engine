@@ -57,6 +57,19 @@ export function checkGenericValue (value: any): asserts value is Value {
   }
 }
 
+const NOT_AN_INTERNAL_VALUE = 'Not an InternalValue'
+
+export function checkInternalValue (value: any): asserts value is InternalValue {
+  const { source, sourcePos, sourceFile } = value
+  checkGenericValue(value)
+  if ((source !== undefined && typeof source !== 'string') ||
+    (sourcePos !== undefined && typeof sourcePos !== 'number') ||
+    (sourceFile !== undefined && typeof sourceFile !== 'string')
+  ) {
+    throw new InternalError(NOT_AN_INTERNAL_VALUE)
+  }
+}
+
 const NOT_A_BOOLEAN_VALUE = 'Not a BooleanValue'
 
 export function checkBooleanValue (value: any): asserts value is BooleanValue {
