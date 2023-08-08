@@ -4,6 +4,13 @@ import { InternalError } from '../errors/InternalError'
 import { waitForCycles } from '../test-helpers'
 import { renderCallStack } from './callstack'
 
+function asError (value: any): Error {
+  if (value !== null && typeof value === 'object' && value instanceof Error) {
+    return value
+  }
+  throw value
+}
+
 describe('state/State', () => {
   describe('protection against concurrent execution', () => {
     it('maintains a parsing flag', () => {
@@ -22,7 +29,7 @@ describe('state/State', () => {
       try {
         state.parse('4 5 6')
       } catch (e) {
-        exceptionCaught = e as Error
+        exceptionCaught = asError(e)
       }
       expect(exceptionCaught).not.toBeUndefined()
       if (exceptionCaught !== undefined) {
@@ -381,8 +388,8 @@ describe('state/State', () => {
       } catch (e) {
         expect(e).toBeInstanceOf(Error)
         expect(e).not.toBeInstanceOf(InternalError)
-        exceptionCaught = e as Error
-        expect((e as Error).name).toStrictEqual('TypeCheck')
+        exceptionCaught = asError(e)
+        expect(exceptionCaught.name).toStrictEqual('TypeCheck')
       }
       expect(exceptionCaught).not.toBeUndefined()
     })
@@ -393,7 +400,7 @@ describe('state/State', () => {
       try {
         waitForCycles(state.parse('typecheck'))
       } catch (e) {
-        exceptionCaught = e as Error
+        exceptionCaught = asError(e)
       }
       if (exceptionCaught === undefined) {
         throw new Error('No exception thrown')
@@ -416,7 +423,7 @@ describe('state/State', () => {
       try {
         waitForCycles(state.parse('break'))
       } catch (e) {
-        exceptionCaught = e as Error
+        exceptionCaught = asError(e)
         expect(exceptionCaught.name).toStrictEqual('InvalidBreak')
       }
       expect(exceptionCaught).not.toBeUndefined()
@@ -428,7 +435,7 @@ describe('state/State', () => {
       try {
         waitForCycles(state.parse('true { break } if'))
       } catch (e) {
-        exceptionCaught = e as Error
+        exceptionCaught = asError(e)
         expect(exceptionCaught.name).toStrictEqual('InvalidBreak')
       }
       expect(exceptionCaught).not.toBeUndefined()
