@@ -1,8 +1,10 @@
 import { IArray, Value, ValueType } from '../index'
-import { InternalValue } from './index'
+import { InternalValue, checkIArray, checkStringValue } from './index'
 import { formatters } from '../formatters'
 import { parse } from './parser'
 import { Internal } from '../errors/index'
+
+/* eslint-disable no-labels */
 
 const BEFORE_CURRENT = '»'
 const AFTER_CURRENT = '«'
@@ -19,10 +21,10 @@ function stringify (text: string): string {
 
 function codeRenderer (value: Value, callIndex: number | undefined): string {
   const output = ['{']
-  const array: IArray = value.data as IArray
-  const { length } = array
+  assert: checkIArray(value.data)
+  const { length } = value.data
   for (let index = 0; index < length; ++index) {
-    const item = array.at(index)
+    const item = value.data.at(index)
     if (callIndex === index) {
       output.push(BEFORE_CURRENT + formatters[item.type](item) + AFTER_CURRENT)
     } else {
@@ -37,18 +39,19 @@ const renderers: Record<ValueType, (value: Value, callIndex: number | undefined)
   [ValueType.boolean]: unexpected,
   [ValueType.integer]: unexpected,
   [ValueType.string]: (value: Value, callIndex: number | undefined): string => {
-    const text = value.data as string
+    assert: checkStringValue(value)
+    // const text = value.data
     if (callIndex !== undefined) {
-      const before = text.substring(0, callIndex)
-      const value = parse(text, callIndex)
-      if (value === undefined) {
+      const before = value.data.substring(0, callIndex)
+      const parsedValue = parse(value.data, callIndex)
+      if (parsedValue === undefined) {
         throw new Internal(UNEXPECTED_PARSER_FAILURE)
       }
-      const keyword = formatters[value.type](value)
-      const after = text.substring(value.nextPos)
+      const keyword = formatters[parsedValue.type](parsedValue)
+      const after = value.data.substring(parsedValue.nextPos)
       return stringify(`${before}${BEFORE_CURRENT}${keyword}${AFTER_CURRENT}${after}`)
     }
-    return stringify(text)
+    return stringify(value.data)
   },
   [ValueType.call]: (value: Value): string => formatters[value.type](value),
   [ValueType.operator]: (value: Value, callIndex: number | undefined): string => {
