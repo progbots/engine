@@ -1,5 +1,6 @@
 import { parse, ParsedValue } from './parser'
 import { Value, ValueType } from '../index'
+import { checkCallValue } from './types'
 
 function * parseAll (source: string): Generator<ParsedValue> {
   let pos = 0
@@ -116,21 +117,30 @@ describe('state/parser', () => {
 
   describe('array and block', () => {
     it('separates array and block symbols', () => {
-      const block = [...parseAll('[][[]]]{{}{}}')].map(value => value.data as string)
+      const block = [...parseAll('[][[]]]{{}{}}')].map(value => {
+        checkCallValue(value)
+        return value.data
+      })
       expect(block).toStrictEqual([
         '[', ']', '[', '[', ']', ']', ']', '{', '{', '}', '{', '}', '}'
       ])
     })
 
     it('separates array symbols from the names', () => {
-      const block = [...parseAll('[abc] abc[')].map(value => value.data as string)
+      const block = [...parseAll('[abc] abc[')].map(value => {
+        checkCallValue(value)
+        return value.data
+      })
       expect(block).toStrictEqual([
         '[', 'abc', ']', 'abc', '['
       ])
     })
 
     it('separates block symbols from the names', () => {
-      const block = [...parseAll('{abc} abc{')].map(value => value.data as string)
+      const block = [...parseAll('{abc} abc{')].map(value => {
+        checkCallValue(value)
+        return value.data
+      })
       expect(block).toStrictEqual([
         '{', 'abc', '}', 'abc', '{'
       ])
