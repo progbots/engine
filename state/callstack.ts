@@ -1,5 +1,5 @@
 import { IArray, Value, ValueType } from '../index'
-import { InternalValue, checkIArray, checkStringValue } from './index'
+import { InternalValue, checkIArray, checkInternalValue, checkStringValue } from './index'
 import { formatters } from '../formatters'
 import { parse } from './parser'
 import { Internal } from '../errors/index'
@@ -73,7 +73,8 @@ export function renderCallStack (calls: IArray): string {
   const callstack: string[] = []
   let callIndex: number | undefined
   for (let index = 0; index < length; ++index) {
-    const value = calls.at(index) as InternalValue
+    const value = calls.at(index)
+    assert: checkInternalValue(value)
     if (value.type === ValueType.integer) {
       callIndex = value.data
       continue
