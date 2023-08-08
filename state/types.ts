@@ -14,7 +14,7 @@ type Internal<T> = T & DebugInfos & {
 
 export type InternalValue = Internal<Value>
 
-export type CycleResult = EngineSignal | Internal<IntegerValue> | Internal<StringValue> | Internal<CallValue> | Internal<BlockValue> | null
+export type CycleResult = EngineSignal | InternalValue | null
 
 export interface OperatorAttributes {
   name?: string
@@ -45,6 +45,31 @@ export function isA<T> (checker: (value: any) => asserts value is T): (value: an
   }
 }
 
+const NOT_AN_OPERATOR_FUNCTION = 'Not an OperatorFunction'
+
+export function checkOperatorFunction (value: any): asserts value is OperatorFunction {
+  const { name, constant, typeCheck, loop, catch: catchFunc, finally: finallyFunc } = value
+  try {
+    if (typeof value !== 'function' || typeof name !== 'string') {
+      throw new Error()
+    }
+    if (constant !== undefined) {
+      checkGenericValue(constant)
+    }
+    if (typeCheck !== undefined &&
+      (!Array.isArray(typeCheck) || typeCheck.some(value => value !== null && !Object.values(ValueType).includes(value)))) {
+      throw new Error()
+    }
+    if ((loop !== undefined && typeof loop !== 'function') ||
+      (catchFunc !== undefined && typeof catchFunc !== 'function') ||
+      (finallyFunc !== undefined && typeof finallyFunc !== 'function')) {
+      throw new Error()
+    }
+  } catch (e) {
+    throw new InternalError(NOT_AN_OPERATOR_FUNCTION)
+  }
+}
+
 const NOT_A_VALUE = 'Not a Value'
 
 export function checkGenericValue (value: any): asserts value is Value {
@@ -54,19 +79,6 @@ export function checkGenericValue (value: any): asserts value is Value {
   const { type, data } = value
   if (!Object.values(ValueType).includes(type) || data === undefined) {
     throw new InternalError(NOT_A_VALUE)
-  }
-}
-
-const NOT_AN_INTERNAL_VALUE = 'Not an InternalValue'
-
-export function checkInternalValue (value: any): asserts value is InternalValue {
-  const { source, sourcePos, sourceFile } = value
-  checkGenericValue(value)
-  if ((source !== undefined && typeof source !== 'string') ||
-    (sourcePos !== undefined && typeof sourcePos !== 'number') ||
-    (sourceFile !== undefined && typeof sourceFile !== 'string')
-  ) {
-    throw new InternalError(NOT_AN_INTERNAL_VALUE)
   }
 }
 
