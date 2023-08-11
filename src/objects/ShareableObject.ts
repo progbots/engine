@@ -1,30 +1,37 @@
-import { Internal } from '../src/errors/index'
+import { IArray, IDictionary, ValueType } from '../Value'
+import { Internal } from '../errors/index'
 import { InternalValue } from '../state/index'
 
 const TOOMANY_RELEASE = 'Superfluous release'
 
 export abstract class ShareableObject {
+  public static extract (value: InternalValue): ShareableObject | undefined {
+    let object: IArray | IDictionary | undefined
+    if (value.type === ValueType.block) {
+      object = value.block
+    } else if (value.type === ValueType.array) {
+      object = value.array
+    } else if (value.type === ValueType.dictionary) {
+      object = value.dictionary
+    }
+    if (object !== undefined && object instanceof ShareableObject) {
+      return object
+    }
+  }
+
   public static addRef (values: InternalValue | InternalValue[]): void {
     if (Array.isArray(values)) {
-      values.forEach(value => {
-        if (value.data instanceof ShareableObject) {
-          value.data.addRef()
-        }
-      })
-    } else if (values.data instanceof ShareableObject) {
-      values.data.addRef()
+      values.forEach(value => ShareableObject.extract(value)?.addRef())
+    } else {
+      ShareableObject.extract(values)?.addRef()
     }
   }
 
   public static release (values: InternalValue | InternalValue[]): void {
     if (Array.isArray(values)) {
-      values.forEach(value => {
-        if (value.data instanceof ShareableObject) {
-          value.data.release()
-        }
-      })
-    } else if (values.data instanceof ShareableObject) {
-      values.data.release()
+      values.forEach(value => ShareableObject.extract(value)?.release())
+    } else {
+      ShareableObject.extract(values)?.release()
     }
   }
 
