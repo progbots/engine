@@ -1,5 +1,5 @@
 import { IArray, IDictionary, Value, ValueType } from '../index'
-import { VMError } from '../src/errors/index'
+import { VMError } from '../errors/index'
 import { ShareableObject } from '../objects/ShareableObject'
 import { MemoryTracker } from './MemoryTracker'
 
@@ -13,12 +13,12 @@ class MyObject extends ShareableObject {
 
 class MyArray extends MyObject implements IArray {
   get length (): number { return 0 }
-  at (index: number): Value { return { type: ValueType.integer, data: index } }
+  at (index: number): Value { return { type: ValueType.integer, number: index } }
 }
 
 class MyDictionary extends MyObject implements IDictionary {
   get names (): string[] { return [] }
-  lookup (name: string): Value { return { type: ValueType.string, data: name } }
+  lookup (name: string): Value { return { type: ValueType.string, string: name } }
 }
 
 describe('state/MemoryTracker', () => {
@@ -33,7 +33,7 @@ describe('state/MemoryTracker', () => {
     let integerValueSize: number
     const integer: Value = {
       type: ValueType.integer,
-      data: 1
+      number: 1
     }
 
     beforeEach(() => {
@@ -67,7 +67,7 @@ describe('state/MemoryTracker', () => {
     describe('small strings', () => {
       const string: Value = {
         type: ValueType.string,
-        data: 'small'
+        string: 'small'
       }
       const expectedSize = MemoryTracker.VALUE_SIZE + 6
 
@@ -97,7 +97,7 @@ describe('state/MemoryTracker', () => {
     describe('reference counts big strings', () => {
       const value: Value = {
         type: ValueType.string,
-        data: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef')
+        string: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef')
       }
       const expectedSize = MemoryTracker.VALUE_SIZE + MemoryTracker.INTEGER_SIZE + MemoryTracker.CACHABLE_STRING_LENGTH + 1
       let tracker: MemoryTracker
@@ -141,7 +141,7 @@ describe('state/MemoryTracker', () => {
         const initial = tracker.used
         tracker.addValueRef({
           type: ValueType.string,
-          data: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef'),
+          string: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef'),
           untracked: true
         })
         expect(tracker.used - initial).toStrictEqual(MemoryTracker.VALUE_SIZE)
@@ -150,40 +150,38 @@ describe('state/MemoryTracker', () => {
   })
 
   describe('shareable object management', () => {
-    const types: Array<ValueType.array | ValueType.block | ValueType.proc | ValueType.dict> = [ValueType.array, ValueType.block, ValueType.proc, ValueType.dict]
+    type ObjectValue = Value & {
+      object: MyObject
+    }
+    const array = new MyArray()
+    const block = new MyArray()
+    const dictionary = new MyDictionary()
 
-    types.forEach(type => {
-      describe(type, () => {
-        let object: MyArray | MyDictionary
+    const values: ObjectValue[] = [{
+      type: ValueType.array,
+      array,
+      object: array
+    }, {
+      type: ValueType.block,
+      block,
+      object: block
+    }, {
+      type: ValueType.dictionary,
+      dictionary,
+      object: dictionary
+    }]
+
+    values.forEach(value => {
+      describe(value.type, () => {
         let tracker: MemoryTracker
-        let value: Value
 
         beforeEach(() => {
           tracker = new MemoryTracker()
-          if (type === ValueType.dict) {
-            object = new MyDictionary()
-            value = {
-              type,
-              data: object
-            }
-          } else {
-            object = new MyArray()
-            value = {
-              type,
-              data: object
-            }
-          }
         })
 
         it('increments reference count on addValueRef', () => {
           tracker.addValueRef(value)
-          expect(object.refCount).toStrictEqual(2)
-        })
-
-        it('decrements reference count on releaseValue', () => {
-          tracker.releaseValue(value)
-          expect(object.refCount).toStrictEqual(0)
-          expect(object.disposeCalled).toStrictEqual(1)
+          expect(value.object.refCount).toStrictEqual(2)
         })
 
         it('ignores if untracked', () => {
@@ -191,12 +189,24 @@ describe('state/MemoryTracker', () => {
             ...value,
             untracked: true
           })
-          expect(object.refCount).toStrictEqual(1)
+          expect(value.object.refCount).toStrictEqual(2)
           tracker.releaseValue({
             ...value,
             untracked: true
           })
-          expect(object.refCount).toStrictEqual(1)
+          expect(value.object.refCount).toStrictEqual(2)
+        })
+
+        it('decrements reference count on releaseValue', () => {
+          tracker.releaseValue(value)
+          expect(value.object.refCount).toStrictEqual(1)
+          expect(value.object.disposeCalled).toStrictEqual(0)
+        })
+
+        it('decrements reference count and dispose', () => {
+          tracker.releaseValue(value)
+          expect(value.object.refCount).toStrictEqual(0)
+          expect(value.object.disposeCalled).toStrictEqual(1)
         })
       })
     })
