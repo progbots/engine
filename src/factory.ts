@@ -1,6 +1,6 @@
 import { IDictionary } from './Value'
 import { IState } from './IState'
-import { State } from '../state/index'
+import { State } from './state/index'
 
 export interface StateFactorySettings {
   hostDictionary?: IDictionary
