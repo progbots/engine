@@ -2,7 +2,6 @@ import { ValueType } from '../index'
 import { InternalValue } from './index'
 
 export type ParsedValue = InternalValue & {
-  data: string | number
   sourcePos: number
   nextPos: number
 }
@@ -13,9 +12,7 @@ export function parse (source: string, pos: number): ParsedValue | undefined {
   let match = matcher.exec(source)
   while (match !== null) {
     const [, string, integer, call] = match
-    const baseValue: ParsedValue = {
-      type: ValueType.integer,
-      data: 0,
+    const baseValue = {
       source,
       sourcePos: match.index,
       nextPos: match.index + match[0].length
@@ -24,19 +21,19 @@ export function parse (source: string, pos: number): ParsedValue | undefined {
       return {
         ...baseValue,
         type: ValueType.string,
-        data: string
+        string
       }
     } else if (integer !== undefined) {
       return {
         ...baseValue,
         type: ValueType.integer,
-        data: parseInt(integer, 10)
+        number: parseInt(integer, 10)
       }
     } else if (call !== undefined) {
       return {
         ...baseValue,
         type: ValueType.call,
-        data: call
+        call
       }
     }
     match = matcher.exec(source)
