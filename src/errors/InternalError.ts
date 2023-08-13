@@ -49,20 +49,20 @@ export class InternalError extends Error implements IDictionary {
   }
 
   lookup (name: string): Value | null {
-    let data: string | undefined
+    let string: string | undefined
     if (name === TYPE_PROPERTY) {
-      data = 'system'
+      string = 'system'
     } else if (name === NAME_PROPERTY) {
-      data = this.name
+      string = this.name
     } else if (name === MESSAGE_PROPERTY) {
-      data = this.message
+      string = this.message
     } else if (name === STACK_PROPERTY) {
-      data = this.callstack
+      string = this.callstack
     }
-    if (data !== undefined) {
+    if (string !== undefined) {
       return {
         type: ValueType.string,
-        data
+        string
       }
     }
     return null
