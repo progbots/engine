@@ -1,22 +1,19 @@
-import { BaseArray } from './BaseArray'
+import { BaseValueArray } from './BaseValueArray'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { ValueType } from '../index'
-import { InternalValue, checkGenericValue } from '../state/index'
+import { Value, ValueType } from '../index'
+import { InternalValue } from '../state/index'
 import { Dictionary } from './dictionaries/index'
-import { RangeCheck } from '../src/errors/index'
-import { InternalError } from '../src/errors/InternalError'
+import { InternalError } from '../errors/InternalError'
 
-/* eslint-disable no-labels */
-
-class MyArray extends BaseArray {
+class MyArray extends BaseValueArray {
   protected pushImpl (value: InternalValue): void {
     this._values.push(value)
   }
 
   protected popImpl (): InternalValue {
-    const value = this._values.at(-1)
-    assert: checkGenericValue(value)
-    this._values.pop()
+    const values = this.getNonEmptyValueArray()
+    const value = values[values.length - 1]
+    values.pop()
     return value
   }
 
@@ -32,26 +29,26 @@ class MyArray extends BaseArray {
 describe('objects/BaseArray', () => {
   let tracker: MemoryTracker
   let array: MyArray
-  let dict: Dictionary
+  let dictionary: Dictionary
 
   beforeEach(() => {
     tracker = new MemoryTracker()
     array = new MyArray(tracker)
-    dict = new Dictionary(tracker)
+    dictionary = new Dictionary(tracker)
     array.push({
       type: ValueType.integer,
-      data: 1
+      number: 1
     })
     array.push({
       type: ValueType.string,
-      data: 'abc'
+      string: 'abc'
     })
     array.push({
-      type: ValueType.dict,
-      data: dict
+      type: ValueType.dictionary,
+      dictionary
     })
-    dict.release()
-    expect(dict.refCount).toStrictEqual(1)
+    dictionary.release()
+    expect(dictionary.refCount).toStrictEqual(1)
   })
 
   it('tracks memory used', () => {
@@ -63,16 +60,17 @@ describe('objects/BaseArray', () => {
   })
 
   it('offers an array reference', () => {
-    expect(array.ref).toStrictEqual([{
+    const expected: Value[] = [{
       type: ValueType.integer,
-      data: 1
+      number: 1
     }, {
       type: ValueType.string,
-      data: 'abc'
+      string: 'abc'
     }, {
-      type: ValueType.dict,
-      data: expect.anything()
-    }])
+      type: ValueType.dictionary,
+      dictionary: expect.anything()
+    }]
+    expect(array.ref).toStrictEqual(expected)
   })
 
   describe('IArray', () => {
@@ -88,11 +86,11 @@ describe('objects/BaseArray', () => {
     })
 
     it('controls boundaries (-1)', () => {
-      expect(() => array.at(-1)).toThrowError(RangeCheck)
+      expect(() => array.at(-1)).toStrictEqual(null)
     })
 
     it('controls boundaries (0-based)', () => {
-      expect(() => array.at(array.length)).toThrowError(RangeCheck)
+      expect(() => array.at(array.length)).toStrictEqual(null)
     })
   })
 
@@ -101,7 +99,7 @@ describe('objects/BaseArray', () => {
       const before = tracker.used
       array.pop()
       expect(tracker.used).toBeLessThan(before)
-      expect(dict.refCount).toStrictEqual(0)
+      expect(dictionary.refCount).toStrictEqual(0)
     })
 
     it('fails after all items were removed', () => {
@@ -112,7 +110,7 @@ describe('objects/BaseArray', () => {
 
   it('releases memory once disposed', () => {
     array.release()
-    expect(dict.refCount).toStrictEqual(0)
+    expect(dictionary.refCount).toStrictEqual(0)
     expect(tracker.used).toStrictEqual(0)
   })
 })

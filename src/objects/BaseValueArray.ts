@@ -1,13 +1,20 @@
 import { ShareableObject } from './ShareableObject'
 import { IArray, Value } from '../index'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { RangeCheck } from '../src/errors/index'
 import { InternalValue } from '../state/index'
-import { InternalError } from '../src/errors/InternalError'
+import { InternalError } from '../errors/InternalError'
 
 const EMPTY_ARRAY = 'Empty array'
 
-export abstract class BaseArray extends ShareableObject implements IArray {
+type NonEmptyValueArray = [InternalValue, ...InternalValue[]]
+
+function checkNonEmpty (values: Value[]): asserts values is NonEmptyValueArray {
+  if (values.length === 0) {
+    throw new InternalError(EMPTY_ARRAY)
+  }
+}
+
+export abstract class BaseValueArray extends ShareableObject implements IArray {
   public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
   public static readonly VALUE_ADDITIONAL_SIZE = MemoryTracker.POINTER_SIZE
 
@@ -17,7 +24,7 @@ export abstract class BaseArray extends ShareableObject implements IArray {
     private readonly _memoryTracker: MemoryTracker
   ) {
     super()
-    this._memoryTracker.increment(BaseArray.INITIAL_SIZE)
+    this._memoryTracker.increment(BaseValueArray.INITIAL_SIZE)
   }
 
   // region IArray
@@ -26,10 +33,10 @@ export abstract class BaseArray extends ShareableObject implements IArray {
     return this._values.length
   }
 
-  at (index: number): Value {
+  at (index: number): Value | null {
     const value = this._values[index]
     if (value === undefined) {
-      throw new RangeCheck()
+      return null
     }
     // copy to avoid alterations
     return Object.assign({}, value)
@@ -43,7 +50,7 @@ export abstract class BaseArray extends ShareableObject implements IArray {
 
   protected addValueRef (value: InternalValue): void {
     this._memoryTracker.addValueRef(value)
-    this._memoryTracker.increment(BaseArray.VALUE_ADDITIONAL_SIZE)
+    this._memoryTracker.increment(BaseValueArray.VALUE_ADDITIONAL_SIZE)
   }
 
   protected abstract pushImpl (value: InternalValue): void
@@ -55,15 +62,17 @@ export abstract class BaseArray extends ShareableObject implements IArray {
 
   protected releaseValue (value: InternalValue): void {
     this._memoryTracker.releaseValue(value)
-    this._memoryTracker.decrement(BaseArray.VALUE_ADDITIONAL_SIZE)
+    this._memoryTracker.decrement(BaseValueArray.VALUE_ADDITIONAL_SIZE)
   }
 
   protected abstract popImpl (): InternalValue
 
+  protected getNonEmptyValueArray (): NonEmptyValueArray {
+    checkNonEmpty(this._values)
+    return this._values
+  }
+
   pop (): void {
-    if (this._values.length === 0) {
-      throw new InternalError(EMPTY_ARRAY)
-    }
     const value = this.popImpl()
     this.releaseValue(value)
   }
@@ -76,12 +85,12 @@ export abstract class BaseArray extends ShareableObject implements IArray {
     for (const value of this._values) {
       this._memoryTracker.releaseValue(value)
     }
-    this._memoryTracker.decrement(this._values.length * BaseArray.VALUE_ADDITIONAL_SIZE)
+    this._memoryTracker.decrement(this._values.length * BaseValueArray.VALUE_ADDITIONAL_SIZE)
     this._values.length = 0
   }
 
   protected _dispose (): void {
     this._clear()
-    this._memoryTracker.decrement(BaseArray.INITIAL_SIZE)
+    this._memoryTracker.decrement(BaseValueArray.INITIAL_SIZE)
   }
 }
