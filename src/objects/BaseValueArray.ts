@@ -3,16 +3,9 @@ import { IArray, Value } from '../index'
 import { MemoryTracker } from '../state/MemoryTracker'
 import { InternalValue } from '../state/index'
 import { InternalError } from '../errors/InternalError'
+import { NonEmptyArray, checkNonEmptyArray } from '../ts-helpers'
 
 const EMPTY_ARRAY = 'Empty array'
-
-type NonEmptyValueArray = [InternalValue, ...InternalValue[]]
-
-function checkNonEmpty (values: Value[]): asserts values is NonEmptyValueArray {
-  if (values.length === 0) {
-    throw new InternalError(EMPTY_ARRAY)
-  }
-}
 
 export abstract class BaseValueArray extends ShareableObject implements IArray {
   public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
@@ -67,8 +60,8 @@ export abstract class BaseValueArray extends ShareableObject implements IArray {
 
   protected abstract popImpl (): InternalValue
 
-  protected getNonEmptyValueArray (): NonEmptyValueArray {
-    checkNonEmpty(this._values)
+  protected getNonEmptyValueArray (): NonEmptyArray<Value> {
+    checkNonEmptyArray(this._values, () => { throw new InternalError(EMPTY_ARRAY) })
     return this._values
   }
 
