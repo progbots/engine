@@ -1,4 +1,4 @@
-import { ValueType } from '..'
+import { Value, checkStringValue } from '../index'
 import { InternalError } from './InternalError'
 
 describe('errors/InternalError', () => {
@@ -38,37 +38,38 @@ describe('errors/InternalError', () => {
       ])
     })
 
+    function checkNonNull (value: Value | null): asserts value is Value {
+      if (value === null) {
+        throw new Error('Unexpected null value')
+      }
+    }
+
     it('exposes type', () => {
-      expect(error.lookup('type')).toStrictEqual({
-        type: ValueType.string,
-        data: 'system'
-      })
+      const typeValue = error.lookup('type')
+      checkNonNull(typeValue)
+      checkStringValue(typeValue)
+      expect(typeValue.string).toStrictEqual('system')
     })
 
     it('exposes name', () => {
-      expect(error.lookup('name')).toStrictEqual({
-        type: ValueType.string,
-        data: 'InternalError'
-      })
+      const nameValue = error.lookup('name')
+      checkNonNull(nameValue)
+      checkStringValue(nameValue)
+      expect(nameValue.string).toStrictEqual('InternalError')
     })
 
     it('exposes message', () => {
-      expect(error.lookup('message')).toStrictEqual({
-        type: ValueType.string,
-        data: 'test'
-      })
+      const messageValue = error.lookup('message')
+      checkNonNull(messageValue)
+      checkStringValue(messageValue)
+      expect(messageValue.string).toStrictEqual('test')
     })
 
     it('exposes stack', () => {
       const stackValue = error.lookup('stack')
-      if (stackValue === null) {
-        throw new Error('Unexpected null stack')
-      }
-      expect(stackValue).toStrictEqual({
-        type: ValueType.string,
-        data: expect.anything()
-      })
-      expect(stackValue.data).toContain('InternalError.spec.ts')
+      checkNonNull(stackValue)
+      checkStringValue(stackValue)
+      expect(stackValue.string).toContain('InternalError.spec.ts')
     })
 
     it('returns null on any other property', () => {
