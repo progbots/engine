@@ -27,7 +27,7 @@ export class SystemDictionary extends ShareableObject implements IDictionary {
     }
     return {
       type: ValueType.operator,
-      data: operator
+      operator
     }
   }
 
