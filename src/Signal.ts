@@ -1,4 +1,4 @@
-import { IArray } from "./Value"
+import { IArray } from './Value'
 
 const SignalPrefix = 'signal:'
 
@@ -34,7 +34,7 @@ export type Signal = {
   source: string
   sourceFile: string
 } | {
-  type: SignalType.tokenParsed 
+  type: SignalType.tokenParsed
   debug: true
   source: string
   sourceFile: string
