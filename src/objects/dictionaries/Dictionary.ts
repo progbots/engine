@@ -43,7 +43,7 @@ export class Dictionary extends ShareableObject implements IWritableDictionary {
     } else {
       this._memoryTracker.addValueRef({
         type: ValueType.string,
-        data: name
+        string: name
       })
       this._memoryTracker.increment(Dictionary.VALUE_ADDITIONAL_SIZE)
     }
@@ -59,7 +59,7 @@ export class Dictionary extends ShareableObject implements IWritableDictionary {
       this._memoryTracker.releaseValue(value)
       this._memoryTracker.releaseValue({
         type: ValueType.string,
-        data: name
+        string: name
       })
       this._memoryTracker.decrement(Dictionary.VALUE_ADDITIONAL_SIZE)
     })

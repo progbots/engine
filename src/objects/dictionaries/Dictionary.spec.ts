@@ -13,7 +13,7 @@ class MyObject extends ShareableObject implements IArray {
   // region IArray
 
   get length (): number { return 0 }
-  at (index: number): Value { return { type: ValueType.integer, data: index } }
+  at (index: number): Value { return { type: ValueType.integer, number: index } }
 
   // endregion
 }
@@ -29,16 +29,16 @@ describe('objects/dictionaries/Dictionary', () => {
     dictionary = new Dictionary(tracker)
     dictionary.def('value1', {
       type: ValueType.integer,
-      data: 1
+      number: 1
     })
     dictionary.def('value2', {
       type: ValueType.integer,
-      data: 2
+      number: 2
     })
     sharedObject = new MyObject()
     dictionary.def('sharedobject', {
       type: ValueType.array,
-      data: sharedObject
+      array: sharedObject
     })
     expect(sharedObject.refCount).toStrictEqual(2)
     sharedObject.release()
@@ -55,10 +55,11 @@ describe('objects/dictionaries/Dictionary', () => {
 
   it('retrieves a value by its name', () => {
     const value = dictionary.lookup('value1')
-    expect(value).toStrictEqual({
+    const expected: Value = {
       type: ValueType.integer,
-      data: 1
-    })
+      number: 1
+    }
+    expect(value).toStrictEqual(expected)
   })
 
   it('returns null on an unknown name', () => {
@@ -67,14 +68,12 @@ describe('objects/dictionaries/Dictionary', () => {
   })
 
   it('allows the override of a named value', () => {
-    dictionary.def('value2', {
+    const expected: Value = {
       type: ValueType.integer,
-      data: 3
-    })
-    expect(dictionary.lookup('value2')).toStrictEqual({
-      type: ValueType.integer,
-      data: 3
-    })
+      number: 3
+    }
+    dictionary.def('value2', expected)
+    expect(dictionary.lookup('value2')).toStrictEqual(expected)
     // Same name does (and simple value) not increase memory
     expect(tracker.used).toStrictEqual(initiallyUsed)
   })
@@ -82,20 +81,18 @@ describe('objects/dictionaries/Dictionary', () => {
   it('allows the override of a named value (shareable)', () => {
     dictionary.def('sharedobject', {
       type: ValueType.integer,
-      data: 0
+      number: 0
     })
     expect(sharedObject.disposeCalled).toStrictEqual(1)
   })
 
   it('allows new values', () => {
-    dictionary.def('new_value', {
+    const expected: Value = {
       type: ValueType.integer,
-      data: 3
-    })
-    expect(dictionary.lookup('new_value')).toStrictEqual({
-      type: ValueType.integer,
-      data: 3
-    })
+      number: 3
+    }
+    dictionary.def('new_value', expected)
+    expect(dictionary.lookup('new_value')).toStrictEqual(expected)
     expect(tracker.used).toBeGreaterThan(initiallyUsed)
   })
 
