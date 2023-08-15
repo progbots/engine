@@ -27,7 +27,7 @@ export function checkIntegerValue (value: Value): asserts value is IntegerValue 
 }
 
 export function checkStringValue (value: Value): asserts value is StringValue {
-  check(value, ValueType.integer)
+  check(value, ValueType.string)
 }
 
 export function checkBlockValue (value: Value): asserts value is BlockValue {
