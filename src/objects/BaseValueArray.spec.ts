@@ -79,18 +79,19 @@ describe('objects/BaseArray', () => {
     })
 
     it('exposes at', () => {
-      expect(array.at(0)).toStrictEqual({
+      const expected: Value = {
         type: ValueType.integer,
-        data: 1
-      })
+        number: 1
+      }
+      expect(array.at(0)).toStrictEqual(expected)
     })
 
     it('controls boundaries (-1)', () => {
-      expect(() => array.at(-1)).toStrictEqual(null)
+      expect(array.at(-1)).toStrictEqual(null)
     })
 
     it('controls boundaries (0-based)', () => {
-      expect(() => array.at(array.length)).toStrictEqual(null)
+      expect(array.at(array.length)).toStrictEqual(null)
     })
   })
 
