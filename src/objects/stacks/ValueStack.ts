@@ -4,7 +4,7 @@ import { BaseValueArray } from '../BaseValueArray'
 
 /* eslint-disable no-labels */
 
-export class Stack extends BaseValueArray {
+export class ValueStack extends BaseValueArray {
   protected pushImpl (value: InternalValue): void {
     this._values.unshift(value)
   }
