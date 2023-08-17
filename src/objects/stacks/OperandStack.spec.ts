@@ -3,7 +3,7 @@ import { Value, ValueType } from '../../index'
 import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../errors/index'
 import { OperandStack } from './OperandStack'
 
-describe('objects/stacks/Operand', () => {
+describe('objects/stacks/OperandStack', () => {
   let tracker: MemoryTracker
   let stack: OperandStack
 

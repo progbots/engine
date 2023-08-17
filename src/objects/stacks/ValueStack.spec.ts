@@ -25,7 +25,7 @@ class MyObject extends ShareableObject implements IArray {
   // endregion
 }
 
-describe('objects/stacks/Stack', () => {
+describe('objects/stacks/ValueStack', () => {
   let tracker: MemoryTracker
   let stack: MyStack
   let initialUsedMemory: number

@@ -26,7 +26,7 @@ class MyArray extends BaseValueArray {
   }
 }
 
-describe('objects/BaseArray', () => {
+describe('objects/BaseValueArray', () => {
   let tracker: MemoryTracker
   let array: MyArray
   let dictionary: Dictionary

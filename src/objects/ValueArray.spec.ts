@@ -3,7 +3,7 @@ import { MemoryTracker } from '../state/MemoryTracker'
 import { Value, ValueType, checkIntegerValue } from '../index'
 import { Internal, RangeCheck } from '../errors/index'
 
-describe('objects/Array', () => {
+describe('objects/ValueArray', () => {
   let tracker: MemoryTracker
   let array: ValueArray
 
