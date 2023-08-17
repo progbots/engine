@@ -1,16 +1,16 @@
 import { ValueType } from '../..'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { InternalValue } from '../../state/index'
-import { Stack } from './Stack'
-import { ArrayLike } from '../Array'
-import { Internal, StackUnderflow } from '../../src/errors/index'
+import { ValueStack } from './ValueStack'
+import { ValueArray } from '../ValueArray'
+import { Internal, StackUnderflow } from '../../errors/index'
 
 interface CallState {
   step: number
-  parameters: null | ArrayLike
+  parameters: null | ValueArray
 }
 
-export class CallStack extends Stack {
+export class CallStack extends ValueStack {
   private readonly _states: CallState[] = []
   public static readonly EXTRA_SIZE = MemoryTracker.POINTER_SIZE + MemoryTracker.INTEGER_SIZE + 1
   public static readonly NO_INDEX = Number.MIN_SAFE_INTEGER
@@ -24,7 +24,7 @@ export class CallStack extends Stack {
   }
 
   pop (): void {
-    if (this.at(0).type === ValueType.integer) {
+    if (this._values[0].type === ValueType.integer) {
       super.pop()
     }
     super.pop()
@@ -43,7 +43,7 @@ export class CallStack extends Stack {
     if (this.length === 0) {
       throw new StackUnderflow()
     }
-    if (this.at(0).type === ValueType.integer) {
+    if (this._values[0].type === ValueType.integer) {
       index = 1
     } else {
       index = 0
@@ -52,7 +52,7 @@ export class CallStack extends Stack {
       throw new StackUnderflow()
     }
     return {
-      value: this.at(index),
+      value: this._values[index],
       state: this._states[index]
     }
   }
@@ -70,23 +70,23 @@ export class CallStack extends Stack {
   }
 
   get index (): number {
-    const value = this.at(0)
-    if (value.type !== ValueType.integer) {
+    const value = this._values[0]
+    if (value === undefined || value.type !== ValueType.integer) {
       return CallStack.NO_INDEX
     }
-    return value.data
+    return value.number
   }
 
   set index (value: number) {
-    if (this.at(0).type !== ValueType.integer) {
+    if (this._values[0].type !== ValueType.integer) {
       this.push({
         type: ValueType.integer,
-        data: value
+        number: value
       })
     } else {
       this.splice(1, {
         type: ValueType.integer,
-        data: value
+        number: value
       })
     }
   }
@@ -105,7 +105,7 @@ export class CallStack extends Stack {
     if (state.parameters !== null) {
       throw new Internal('Parameters are already set')
     }
-    const array = new ArrayLike(this.memoryTracker)
+    const array = new ValueArray(this.memoryTracker)
     values.forEach(value => array.push(value))
     state.parameters = array
   }

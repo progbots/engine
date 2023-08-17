@@ -1,7 +1,8 @@
-import { CallStack, Stack } from './index'
+import { CallStack } from './CallStack'
+import { ValueStack } from './ValueStack'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { IArray, Value, ValueType } from '../../index'
-import { Internal, StackUnderflow } from '../../src/errors/index'
+import { Internal, StackUnderflow } from '../../errors/index'
 import { ShareableObject } from '../ShareableObject'
 
 class MyObject extends ShareableObject implements IArray {
@@ -14,12 +15,12 @@ class MyObject extends ShareableObject implements IArray {
   // region IArray
 
   get length (): number { return 0 }
-  at (index: number): Value { return { type: ValueType.integer, data: index } }
+  at (index: number): Value { return { type: ValueType.integer, number: index } }
 
   // endregion
 }
 
-describe('objects/stacks/Call', () => {
+describe('objects/stacks/CallStack', () => {
   let tracker: MemoryTracker
   let stack: CallStack
 
@@ -30,14 +31,14 @@ describe('objects/stacks/Call', () => {
 
   it('counts extra memory for the additional values', () => {
     const baseTracker = new MemoryTracker()
-    const baseStack = new Stack(baseTracker)
+    const baseStack = new ValueStack(baseTracker)
     baseStack.push({
       type: ValueType.string,
-      data: 'test'
+      string: 'test'
     })
     stack.push({
       type: ValueType.string,
-      data: 'test'
+      string: 'test'
     })
     expect(tracker.used).toBeGreaterThan(baseTracker.used)
     expect(tracker.used).toStrictEqual(baseTracker.used + CallStack.EXTRA_SIZE)
@@ -53,6 +54,10 @@ describe('objects/stacks/Call', () => {
         expect(() => stack.step).toThrow(StackUnderflow)
       })
 
+      it('returns a default value for index', () => {
+        expect(stack.index).toStrictEqual(CallStack.NO_INDEX)
+      })
+
       it('fails parameters', () => {
         expect(() => stack.parameters).toThrow(StackUnderflow)
       })
@@ -60,35 +65,31 @@ describe('objects/stacks/Call', () => {
 
     describe('top', () => {
       it('gives access to the value and the state', () => {
-        stack.push({
+        const expected: Value = {
           type: ValueType.string,
-          data: 'test'
-        })
-        expect(stack.top).toStrictEqual({
-          type: ValueType.string,
-          data: 'test'
-        })
+          string: 'test'
+        }
+        stack.push(expected)
+        expect(stack.top).toStrictEqual(expected)
       })
 
       it('ignores any integer added to the call stack', () => {
-        stack.push({
+        const expected: Value = {
           type: ValueType.string,
-          data: 'test'
-        })
+          string: 'test'
+        }
+        stack.push(expected)
         stack.push({
           type: ValueType.integer,
-          data: 0
+          number: 0
         })
-        expect(stack.top).toStrictEqual({
-          type: ValueType.string,
-          data: 'test'
-        })
+        expect(stack.top).toStrictEqual(expected)
       })
 
       it('fails if only an integer is in the call stack', () => {
         stack.push({
           type: ValueType.integer,
-          data: 0
+          number: 0
         })
         expect(() => stack.top).toThrow(StackUnderflow)
       })
@@ -98,7 +99,7 @@ describe('objects/stacks/Call', () => {
       beforeEach(() => {
         stack.push({
           type: ValueType.string,
-          data: 'test'
+          string: 'test'
         })
       })
 
@@ -116,7 +117,7 @@ describe('objects/stacks/Call', () => {
       beforeEach(() => {
         stack.push({
           type: ValueType.string,
-          data: 'test'
+          string: 'test'
         })
       })
 
@@ -131,13 +132,14 @@ describe('objects/stacks/Call', () => {
 
       it('sets the index on top of the stack', () => {
         stack.index = 42
-        expect(stack.ref).toStrictEqual([{
+        const expected: Value[] = [{
           type: ValueType.integer,
-          data: 42
+          number: 42
         }, {
           type: ValueType.string,
-          data: 'test'
-        }])
+          string: 'test'
+        }]
+        expect(stack.ref).toStrictEqual(expected)
       })
 
       it('pops the index with the value', () => {
@@ -154,7 +156,7 @@ describe('objects/stacks/Call', () => {
         initialMemoryUsed = tracker.used
         stack.push({
           type: ValueType.string,
-          data: 'test'
+          string: 'test'
         })
       })
 
@@ -169,7 +171,7 @@ describe('objects/stacks/Call', () => {
           object = new MyObject()
           stack.parameters = [{
             type: ValueType.array,
-            data: object
+            array: object
           }]
           expect(object.refCount).toStrictEqual(2)
           object.release()
@@ -181,19 +183,20 @@ describe('objects/stacks/Call', () => {
 
         it('increases memory', () => {
           const baseTracker = new MemoryTracker()
-          const baseStack = new Stack(baseTracker)
+          const baseStack = new ValueStack(baseTracker)
           baseStack.push({
             type: ValueType.string,
-            data: 'test'
+            string: 'test'
           })
           expect(tracker.used).toBeGreaterThan(baseTracker.used + CallStack.EXTRA_SIZE)
         })
 
         it('returns the value', () => {
-          expect(stack.parameters).toStrictEqual([{
+          const expected: Value[] = [{
             type: ValueType.array,
-            data: object
-          }])
+            array: object
+          }]
+          expect(stack.parameters).toStrictEqual(expected)
         })
 
         it('can be set only once', () => {
@@ -211,7 +214,7 @@ describe('objects/stacks/Call', () => {
         it('fails push when parameters are not set', () => {
           expect(() => stack.pushParameter({
             type: ValueType.integer,
-            data: 42
+            number: 42
           })).toThrowError(Internal)
         })
 
@@ -223,19 +226,20 @@ describe('objects/stacks/Call', () => {
           stack.parameters = []
           stack.pushParameter({
             type: ValueType.integer,
-            data: 42
+            number: 42
           })
-          expect(stack.parameters).toStrictEqual([{
+          const expected: Value[] = [{
             type: ValueType.integer,
-            data: 42
-          }])
+            number: 42
+          }]
+          expect(stack.parameters).toStrictEqual(expected)
         })
 
         it('pops a parameter from an existing list', () => {
           stack.parameters = []
           stack.pushParameter({
             type: ValueType.integer,
-            data: 42
+            number: 42
           })
           stack.popParameter()
           expect(stack.parameters).toStrictEqual([])
@@ -245,7 +249,7 @@ describe('objects/stacks/Call', () => {
           stack.parameters = []
           stack.pushParameter({
             type: ValueType.string,
-            data: ''.padStart(1000, '1234567980')
+            string: ''.padStart(1000, '1234567980')
           })
           expect(tracker.used).toBeGreaterThan(1000)
           stack.pop()
@@ -258,24 +262,26 @@ describe('objects/stacks/Call', () => {
       it('gives access to parameters *after* setting the index', () => {
         stack.push({
           type: ValueType.string,
-          data: 'test'
+          string: 'test'
         })
         stack.parameters = [{
           type: ValueType.integer,
-          data: 42
+          number: 42
         }]
         stack.index = 13
-        expect(stack.ref).toStrictEqual([{
+        const expectedRef: Value[] = [{
           type: ValueType.integer,
-          data: 13
+          number: 13
         }, {
           type: ValueType.string,
-          data: 'test'
-        }])
-        expect(stack.parameters).toStrictEqual([{
+          string: 'test'
+        }]
+        expect(stack.ref).toStrictEqual(expectedRef)
+        const expectedParameters: Value[] = [{
           type: ValueType.integer,
-          data: 42
-        }])
+          number: 42
+        }]
+        expect(stack.parameters).toStrictEqual(expectedParameters)
       })
     })
   })
