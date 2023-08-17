@@ -1,10 +1,10 @@
-import { Stack } from './ValueStack'
+import { ValueStack } from './ValueStack'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { IArray, Value, ValueType } from '../../index'
 import { StackUnderflow } from '../../errors/index'
 import { ShareableObject } from '../ShareableObject'
 
-class MyStack extends Stack {
+class MyStack extends ValueStack {
   clear (): void {
     this._clear()
   }
