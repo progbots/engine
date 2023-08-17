@@ -9,7 +9,11 @@ export class HostDictionary extends ShareableObject implements IDictionary {
   }
 
   lookup (name: string): Value | null {
-    return this._hostDictionary.lookup(name)
+    const value = this._hostDictionary.lookup(name)
+    if (value !== null) {
+      // TODO validate that the value is correct
+    }
+    return value
   }
 
   // endregion IDictionary
