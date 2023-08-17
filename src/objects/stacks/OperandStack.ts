@@ -1,9 +1,9 @@
 import { ValueType } from '../../index'
-import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../src/errors/index'
+import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../errors/index'
 import { InternalValue } from '../../state/index'
-import { Stack } from './Stack'
+import { ValueStack } from './ValueStack'
 
-export class OperandStack extends Stack {
+export class OperandStack extends ValueStack {
   check (...types: Array<ValueType | null>): InternalValue[] {
     if (types.length > this._values.length) {
       throw new StackUnderflow()

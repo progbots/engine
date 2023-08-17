@@ -1,7 +1,7 @@
 import { MemoryTracker } from '../../state/MemoryTracker'
-import { ValueType } from '../../index'
-import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../src/errors/index'
-import { OperandStack } from './Operand'
+import { Value, ValueType } from '../../index'
+import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../errors/index'
+import { OperandStack } from './OperandStack'
 
 describe('objects/stacks/Operand', () => {
   let tracker: MemoryTracker
@@ -12,47 +12,51 @@ describe('objects/stacks/Operand', () => {
     stack = new OperandStack(tracker)
     stack.push({
       type: ValueType.string,
-      data: 'abc'
+      string: 'abc'
     })
     stack.push({
       type: ValueType.integer,
-      data: 123
+      number: 123
     })
   })
 
   describe('check', () => {
     it('retrieves values of any type (1)', () => {
-      expect(stack.check(null)).toStrictEqual([{
+      const expected: Value[] = [{
         type: ValueType.integer,
-        data: 123
-      }])
+        number: 123
+      }]
+      expect(stack.check(null)).toStrictEqual(expected)
     })
 
     it('retrieves values of any type (2)', () => {
-      expect(stack.check(null, null)).toStrictEqual([{
+      const expected: Value[] = [{
         type: ValueType.integer,
-        data: 123
+        number: 123
       }, {
         type: ValueType.string,
-        data: 'abc'
-      }])
+        string: 'abc'
+      }]
+      expect(stack.check(null, null)).toStrictEqual(expected)
     })
 
     it('retrieves values of a given type (1)', () => {
-      expect(stack.check(ValueType.integer)).toStrictEqual([{
+      const expected: Value[] = [{
         type: ValueType.integer,
-        data: 123
-      }])
+        number: 123
+      }]
+      expect(stack.check(ValueType.integer)).toStrictEqual(expected)
     })
 
     it('retrieves values of a given type (2)', () => {
-      expect(stack.check(ValueType.integer, ValueType.string)).toStrictEqual([{
+      const expected: Value[] = [{
         type: ValueType.integer,
-        data: 123
+        number: 123
       }, {
         type: ValueType.string,
-        data: 'abc'
-      }])
+        string: 'abc'
+      }]
+      expect(stack.check(ValueType.integer, ValueType.string)).toStrictEqual(expected)
     })
 
     it('fails with StackUnderflow if not enough values (any)', () => {
@@ -75,20 +79,18 @@ describe('objects/stacks/Operand', () => {
   describe('findMarkPos', () => {
     it('gives position of the mark (1)', () => {
       stack.push({
-        type: ValueType.mark,
-        data: null
+        type: ValueType.mark
       })
       expect(stack.findMarkPos()).toStrictEqual(0)
     })
 
     it('gives position of the mark (2)', () => {
       stack.push({
-        type: ValueType.mark,
-        data: null
+        type: ValueType.mark
       })
       stack.push({
         type: ValueType.integer,
-        data: 456
+        number: 456
       })
       expect(stack.findMarkPos()).toStrictEqual(1)
     })
