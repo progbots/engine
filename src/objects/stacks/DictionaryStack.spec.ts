@@ -4,6 +4,30 @@ import { MemoryTracker } from '../../state/MemoryTracker'
 import { Dictionary } from '../dictionaries/index'
 import { DictionaryStack, DictionaryStackWhereResult } from './DictionaryStack'
 
+jest.mock('../dictionaries/System', () => {
+  const { clear } = jest.requireActual('../../operators/operandstack/clear.ts')
+
+  class SystemDictionary implements IDictionary {
+    get names (): string [] {
+      return ['clear']
+    }
+
+    lookup (name: string): Value | null {
+      if (name === 'clear') {
+        return {
+          type: ValueType.operator,
+          operator: clear
+        }
+      }
+      return null
+    }
+  }
+
+  return {
+    SystemDictionary
+  }
+})
+
 describe('objects/stacks/DictionaryStack', () => {
   let tracker: MemoryTracker
   let stack: DictionaryStack
@@ -58,22 +82,22 @@ describe('objects/stacks/DictionaryStack', () => {
           operator: expect.anything()
         }
       }
-      expect(stack.where('add')).toStrictEqual(expected)
+      expect(stack.where('clear')).toStrictEqual(expected)
     })
 
     it('searches for a known name (from globaldict)', () => {
-      stack.globaldict.def('add', {
+      stack.globaldict.def('clear', {
         type: ValueType.string,
-        string: 'my_add'
+        string: 'my_clear'
       })
       const expected: DictionaryStackWhereResult = {
         dictionary: stack.globaldict,
         value: {
           type: ValueType.string,
-          string: 'my_add'
+          string: 'my_clear'
         }
       }
-      expect(stack.where('add')).toStrictEqual(expected)
+      expect(stack.where('clear')).toStrictEqual(expected)
     })
 
     it('returns null if the name is not found in the stack', () => {
@@ -101,16 +125,16 @@ describe('objects/stacks/DictionaryStack', () => {
         type: ValueType.operator,
         operator: expect.anything()
       }
-      expect(stack.lookup('add')).toStrictEqual(expected)
+      expect(stack.lookup('clear')).toStrictEqual(expected)
     })
 
     it('searches for a known name (from globaldict)', () => {
       const expected: Value = {
         type: ValueType.string,
-        string: 'my_add'
+        string: 'my_clear'
       }
-      stack.globaldict.def('add', expected)
-      expect(stack.lookup('add')).toStrictEqual(expected)
+      stack.globaldict.def('clear', expected)
+      expect(stack.lookup('clear')).toStrictEqual(expected)
     })
 
     it('fails with Undefined if the name is not found in the stack', () => {
@@ -134,9 +158,9 @@ describe('objects/stacks/DictionaryStack', () => {
 
     beforeEach(() => {
       dict = new Dictionary(tracker)
-      dict.def('add', {
+      dict.def('clear', {
         type: ValueType.string,
-        string: 'another_add'
+        string: 'another_clear'
       })
       stack.begin(dict)
     })
@@ -144,9 +168,9 @@ describe('objects/stacks/DictionaryStack', () => {
     it('adds a new dictionary to the stack', () => {
       const expected: Value = {
         type: ValueType.string,
-        string: 'another_add'
+        string: 'another_clear'
       }
-      expect(stack.lookup('add')).toStrictEqual(expected)
+      expect(stack.lookup('clear')).toStrictEqual(expected)
     })
 
     describe('end', () => {
@@ -159,7 +183,7 @@ describe('objects/stacks/DictionaryStack', () => {
           type: ValueType.operator,
           operator: expect.anything()
         }
-        expect(stack.lookup('add')).toStrictEqual(expected)
+        expect(stack.lookup('clear')).toStrictEqual(expected)
       })
 
       it('fails when attempting to remove pre-installed dictionaries', () => {
