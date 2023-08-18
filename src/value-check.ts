@@ -12,9 +12,13 @@ import {
 } from './Value'
 import { InternalError } from './errors/InternalError'
 
+export function throwValueIsNotOfType (expectedType: ValueType): never {
+  throw new InternalError(`Value is not of type '${expectedType}`)
+}
+
 function check (value: Value, expectedType: ValueType): void {
   if (value.type !== expectedType) {
-    throw new InternalError(`Value is not of type '${expectedType}`)
+    throwValueIsNotOfType(expectedType)
   }
 }
 
