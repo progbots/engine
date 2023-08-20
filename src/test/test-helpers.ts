@@ -1,6 +1,6 @@
-import { IDictionary, IStateFlags, Value, ValueType } from './index'
+import { IDictionary, IStateFlags, Value, ValueType } from '../index'
 import { InternalValue, CycleResult, OperatorFunction, State } from '../state/index'
-import { InternalError } from './errors/InternalError'
+import { InternalError } from '../errors/InternalError'
 import { RUN_STEP_END, RunSteps } from '../state/run/types'
 import { MemoryTracker } from '../state/MemoryTracker'
 import { CallStack, DictionaryStack } from '../objects/stacks/index'
