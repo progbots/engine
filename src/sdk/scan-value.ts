@@ -21,8 +21,10 @@ import {
   checkOperatorValue,
   checkStringValue,
   throwValueIsNotOfType
-} from './index'
-import { InternalError } from './errors/InternalError'
+} from '@api'
+import { InternalError, InvalidAccess } from '@errors'
+import { IOperatorFunction } from './IOperatorFunction'
+import { IWritableDictionary } from './IWritableDictionary'
 
 const INVALID_VALUE = 'Invalid Value'
 
@@ -83,7 +85,7 @@ export const scanStringValue = buildScan<StringValue>(
 
 const INVALID_IARRAY = 'Invalid IArray'
 
-export function checkIArray (value: any): asserts value is IArray {
+export function scanIArray (value: any): asserts value is IArray {
   if (typeof value !== 'object') {
     throw new InternalError(INVALID_IARRAY)
   }
@@ -98,7 +100,7 @@ export const scanBlockValue = buildScan<BlockValue>(
   checkBlockValue,
   (value) => {
     const { block } = value
-    checkIArray(block)
+    scanIArray(block)
     return true
   }
 )
@@ -114,7 +116,7 @@ export const scanCallValue = buildScan<CallValue>(
 
 const INVALID_OPERATOR_FUNCTION = 'Invalid OperatorFunction'
 
-export function checkOperatorFunction (value: any): asserts value is OperatorFunction {
+export function checkOperatorFunction (value: any): asserts value is IOperatorFunction {
   const { name, constant, typeCheck, loop, catch: catchFunc, finally: finallyFunc } = value
   try {
     if (typeof value !== 'function' || typeof name !== 'string') {
@@ -152,14 +154,14 @@ export const scanArrayValue = buildScan<ArrayValue>(
   checkArrayValue,
   (value) => {
     const { array } = value
-    checkIArray(array)
+    scanIArray(array)
     return true
   }
 )
 
 const INVALID_IDICTIONARY = 'Not an IDictionary'
 
-export function checkIDictionary (value: any): asserts value is IDictionary {
+export function scanIDictionary (value: any): asserts value is IDictionary {
   if (typeof value !== 'object') {
     throw new InternalError(INVALID_IDICTIONARY)
   }
@@ -169,12 +171,20 @@ export function checkIDictionary (value: any): asserts value is IDictionary {
   }
 }
 
+export function scanIWritableDictionary (dict: any): asserts dict is IWritableDictionary {
+  const { def } = dict
+  if (typeof def !== 'function' || def.length !== 2) {
+    throw new InvalidAccess()
+  }
+  scanIDictionary(dict)
+}
+
 export const scanDictionaryValue = buildScan<DictionaryValue>(
   ValueType.dictionary,
   checkDictionaryValue,
   (value) => {
     const { dictionary } = value
-    checkIDictionary(dictionary)
+    scanIDictionary(dictionary)
     return true
   }
 )

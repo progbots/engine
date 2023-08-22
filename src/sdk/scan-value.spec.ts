@@ -1,7 +1,7 @@
-import { IArray, IDictionary, Value, ValueType } from './index'
-import { checkBlockValue, checkBooleanValue, checkCallValue, checkDictValue, checkIntegerValue, checkOperatorValue, checkStringValue, isBlockValue, isBooleanValue, isCallValue, isDictValue, isIntegerValue, isOperatorValue, isStringValue } from './scan-value'
-import { executeCheckTests, checkTestsParameters } from './test/test-helpers'
-import { add } from './operators'
+import { IArray, IDictionary, Value, ValueType } from '@api'
+import { scanBlockValue, scanBooleanValue, scanCallValue, scanDictionaryValue, scanIntegerValue, scanOperatorValue, scanStringValue } from './scan-value'
+import { executeCheckTests, checkTestsParameters } from '../test/test-helpers'
+import { add } from '@operators'
 
 const invalidData = [
   undefined,
@@ -111,7 +111,7 @@ const notIDictionaries = [{
 describe('state/types', () => {
   typecheck({
     name: 'BooleanValue',
-    check: checkBooleanValue,
+    check: scanBooleanValue,
     is: isBooleanValue,
     ok: [true, false],
     ko: []
@@ -119,7 +119,7 @@ describe('state/types', () => {
 
   typecheck({
     name: 'IntegerValue',
-    check: checkIntegerValue,
+    check: scanIntegerValue,
     is: isIntegerValue,
     ok: [-1, 0, 1],
     ko: []
@@ -127,7 +127,7 @@ describe('state/types', () => {
 
   typecheck({
     name: 'StringValue',
-    check: checkStringValue,
+    check: scanStringValue,
     is: isStringValue,
     ok: ['', '0, 1', 'hello world !'],
     ko: []
@@ -135,7 +135,7 @@ describe('state/types', () => {
 
   typecheck({
     name: 'CallValue',
-    check: checkCallValue,
+    check: scanCallValue,
     is: isCallValue,
     ok: ['add', '{', 'hello world !'],
     ko: []
@@ -143,7 +143,7 @@ describe('state/types', () => {
 
   typecheck({
     name: 'OperatorValue',
-    check: checkOperatorValue,
+    check: scanOperatorValue,
     is: isOperatorValue,
     ok: [add],
     ko: []
@@ -151,7 +151,7 @@ describe('state/types', () => {
 
   typecheck({
     name: 'BlockValue',
-    check: checkBlockValue,
+    check: scanBlockValue,
     is: isBlockValue,
     ok: [iarray],
     ko: notIArrays
@@ -159,7 +159,7 @@ describe('state/types', () => {
 
   typecheck({
     name: 'DictValue',
-    check: checkDictValue,
+    check: scanDictionaryValue,
     is: isDictValue,
     ok: [idictionary],
     ko: notIDictionaries
