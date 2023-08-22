@@ -1,9 +1,7 @@
-import { IDictionary, Value, ValueType, checkStringValue } from '../index'
-import { ShareableObject } from '../objects/ShareableObject'
-import { IWritableDictionary } from '../objects/dictionaries/index'
-import { InternalValue } from '../state/index'
-import { InternalError } from './InternalError'
-import { TypeCheck } from './TypeCheck'
+import { IDictionary, Value, ValueType, checkStringValue } from '@api'
+import { InternalValue, IWritableDictionary } from '@sdk'
+import { ShareableObject } from '@objects/ShareableObject'
+import { InternalError, TypeCheck } from '@errors'
 
 const NAME_PROPERTY = 'name'
 const MESSAGE_PROPERTY = 'message'
@@ -25,11 +23,11 @@ export class Custom extends InternalError {
     this.name = this.name + `:${extract(_dictionary, NAME_PROPERTY)}`
   }
 
-  get dictionary (): IDictionary {
+  override get dictionary (): IDictionary {
     return this._dictionary
   }
 
-  release (): void {
+  override release (): void {
     ShareableObject.release({
       type: ValueType.dictionary,
       dictionary: this._dictionary
@@ -38,11 +36,11 @@ export class Custom extends InternalError {
 
   // region IWritableDictionary
 
-  get names (): string[] {
+  override get names (): string[] {
     return this._dictionary.names
   }
 
-  lookup (name: string): Value | null {
+  override lookup (name: string): Value | null {
     return this._dictionary.lookup(name)
   }
 

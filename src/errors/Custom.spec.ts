@@ -1,8 +1,8 @@
-import { Value, ValueType } from '../index'
-import { Dictionary } from '../objects/dictionaries'
-import { MemoryTracker } from '../state/MemoryTracker'
+import { Value, ValueType } from '@api'
+import { Dictionary } from '@objects/dictionaries'
+import { TypeCheck } from '@errors'
+import { MemoryTracker } from '@state/MemoryTracker'
 import { Custom } from './Custom'
-import { TypeCheck } from './TypeCheck'
 
 describe('errors/Custom', () => {
   let tracker: MemoryTracker
