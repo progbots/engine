@@ -31,7 +31,7 @@
     "@stryker-mutator/jest-runner": "^7.1.1",
     "@stryker-mutator/typescript-checker": "^7.1.1",
     "@types/jest": "^29.5.3",
-    "jest": "^29.6.2",
+    "jest": "^29.6.3",
     "local-echo": "github:ArnaudBuchholz/local-echo",
     "ncp": "^2.0.0",
     "reserve": "^1.15.2",
