@@ -1,4 +1,4 @@
-import { IDictionary, Value, ValueType } from '../index'
+import { IDictionary, Value, ValueType } from '@api'
 
 const TYPE_PROPERTY = 'type'
 const NAME_PROPERTY = 'name'

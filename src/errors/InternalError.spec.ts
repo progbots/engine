@@ -1,4 +1,4 @@
-import { Value, checkStringValue } from '../index'
+import { Value, checkStringValue } from '@api'
 import { InternalError } from './InternalError'
 
 describe('errors/InternalError', () => {
