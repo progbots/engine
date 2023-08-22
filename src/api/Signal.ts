@@ -1,4 +1,4 @@
-import { IArray } from './Value'
+import { IArray } from './IArray'
 
 const SignalPrefix = 'signal:'
 
