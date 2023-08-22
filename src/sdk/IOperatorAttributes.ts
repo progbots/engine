@@ -1,5 +1,4 @@
-import { Value } from '../api/Value'
-import { ValueType } from '../api/ValueType'
+import { Value, ValueType } from '@api'
 import { CycleResult } from './CycleResult'
 import { IError } from './IError'
 import { IInternalState } from './IInternalState'

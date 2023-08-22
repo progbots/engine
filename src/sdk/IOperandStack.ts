@@ -1,4 +1,4 @@
-import { ValueType } from '../api'
+import { ValueType } from '@api'
 import { IStack } from './IStack'
 import { InternalValue } from './InternalValue'
 

@@ -1,4 +1,4 @@
-import { IArray } from '../api/IArray'
+import { IArray } from '@api'
 import { InternalValue } from './InternalValue'
 
 export interface IStack extends IArray {

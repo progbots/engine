@@ -1,4 +1,4 @@
-import { IDictionary } from '../api/IDictionary'
+import { IDictionary } from '@api'
 
 export interface IError extends Error, IDictionary {
   readonly dictionary: IDictionary

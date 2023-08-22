@@ -1,4 +1,4 @@
-import { Value } from '../api/index'
+import { Value } from '@api'
 import { DebugInfos } from './DebugInfos'
 
 type Internal<T> = T & DebugInfos & {

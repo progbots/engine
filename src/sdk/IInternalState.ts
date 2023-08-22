@@ -1,4 +1,4 @@
-import { IState } from '../api/IState'
+import { IState } from '@api'
 import { ICallStack } from './ICallStack'
 import { IDictionaryStack } from './IDictionaryStack'
 import { IOperandStack } from './IOperandStack'

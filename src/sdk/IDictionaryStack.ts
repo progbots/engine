@@ -1,5 +1,4 @@
-import { IArray } from '../api/IArray'
-import { IDictionary } from '../api/IDictionary'
+import { IArray, IDictionary } from '@api'
 import { InternalValue } from './InternalValue'
 
 export type DictionaryStackWhereResult = {

@@ -1,4 +1,4 @@
-import { IOperator } from '../api/IOperator'
+import { IOperator } from '@api'
 import { CycleResult } from './CycleResult'
 import { IInternalState } from './IInternalState'
 import { IOperatorAttributes } from './IOperatorAttributes'

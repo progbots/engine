@@ -8,7 +8,6 @@ import {
   IDictionary,
   IntegerValue,
   OperatorValue,
-  Signal,
   StringValue,
   Value,
   ValueType,
