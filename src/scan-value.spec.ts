@@ -1,7 +1,7 @@
-import { IArray, IDictionary, Value, ValueType } from '../index'
-import { checkBlockValue, checkBooleanValue, checkCallValue, checkDictValue, checkIntegerValue, checkOperatorValue, checkStringValue, isBlockValue, isBooleanValue, isCallValue, isDictValue, isIntegerValue, isOperatorValue, isStringValue } from './types'
-import { executeCheckTests, checkTestsParameters } from '../src/test-helpers'
-import { add } from '../operators'
+import { IArray, IDictionary, Value, ValueType } from './index'
+import { checkBlockValue, checkBooleanValue, checkCallValue, checkDictValue, checkIntegerValue, checkOperatorValue, checkStringValue, isBlockValue, isBooleanValue, isCallValue, isDictValue, isIntegerValue, isOperatorValue, isStringValue } from './scan-value'
+import { executeCheckTests, checkTestsParameters } from './test/test-helpers'
+import { add } from './operators'
 
 const invalidData = [
   undefined,

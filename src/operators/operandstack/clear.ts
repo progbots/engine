@@ -1,6 +1,6 @@
-import { CycleResult, State } from '../../state/index'
+import { CycleResult, IInternalState } from '@sdk/index'
 
-export function clear ({ operands }: State): CycleResult {
+export function clear ({ operands }: IInternalState): CycleResult {
   operands.splice(operands.length)
   return null
 }

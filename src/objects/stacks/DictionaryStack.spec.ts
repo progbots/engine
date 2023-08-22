@@ -1,10 +1,34 @@
-import { DictStackUnderflow, Undefined } from '../../src/errors/index'
+import { DictStackUnderflow, Undefined } from '../../errors/index'
 import { IDictionary, Value, ValueType } from '../../index'
 import { MemoryTracker } from '../../state/MemoryTracker'
 import { Dictionary } from '../dictionaries/index'
-import { DictionaryStack } from './Dictionary'
+import { DictionaryStack, DictionaryStackWhereResult } from './DictionaryStack'
 
-describe('objects/stacks/Dictionary', () => {
+jest.mock('../dictionaries/System', () => {
+  const { clear } = jest.requireActual('../../operators/operandstack/clear.ts')
+
+  class SystemDictionary implements IDictionary {
+    get names (): string [] {
+      return ['clear']
+    }
+
+    lookup (name: string): Value | null {
+      if (name === 'clear') {
+        return {
+          type: ValueType.operator,
+          operator: clear
+        }
+      }
+      return null
+    }
+  }
+
+  return {
+    SystemDictionary
+  }
+})
+
+describe('objects/stacks/DictionaryStack', () => {
   let tracker: MemoryTracker
   let stack: DictionaryStack
 
@@ -14,7 +38,7 @@ describe('objects/stacks/Dictionary', () => {
       if (name === 'hostname') {
         return {
           type: ValueType.string,
-          data: 'localhost'
+          string: 'localhost'
         }
       }
       return null
@@ -51,27 +75,29 @@ describe('objects/stacks/Dictionary', () => {
 
   describe('where', () => {
     it('searches for a known name (from systemdict)', () => {
-      expect(stack.where('add')).toStrictEqual({
-        dict: stack.systemdict,
+      const expected: DictionaryStackWhereResult = {
+        dictionary: stack.systemdict,
         value: {
           type: ValueType.operator,
-          data: expect.anything()
+          operator: expect.anything()
         }
-      })
+      }
+      expect(stack.where('clear')).toStrictEqual(expected)
     })
 
     it('searches for a known name (from globaldict)', () => {
-      stack.globaldict.def('add', {
+      stack.globaldict.def('clear', {
         type: ValueType.string,
-        data: 'my_add'
+        string: 'my_clear'
       })
-      expect(stack.where('add')).toStrictEqual({
-        dict: stack.globaldict,
+      const expected: DictionaryStackWhereResult = {
+        dictionary: stack.globaldict,
         value: {
           type: ValueType.string,
-          data: 'my_add'
+          string: 'my_clear'
         }
-      })
+      }
+      expect(stack.where('clear')).toStrictEqual(expected)
     })
 
     it('returns null if the name is not found in the stack', () => {
@@ -81,34 +107,34 @@ describe('objects/stacks/Dictionary', () => {
     describe('with a host dictionary', () => {
       it('resolves host name', () => {
         const stackWithHost = new DictionaryStack(tracker, host)
-        expect(stackWithHost.where('hostname')).toStrictEqual({
-          dict: host,
+        const expected: DictionaryStackWhereResult = {
+          dictionary: host,
           value: {
             type: ValueType.string,
-            data: 'localhost'
+            string: 'localhost'
           }
-        })
+        }
+        expect(stackWithHost.where('hostname')).toStrictEqual(expected)
       })
     })
   })
 
   describe('lookup', () => {
     it('searches for a known name (from systemdict)', () => {
-      expect(stack.lookup('add')).toStrictEqual({
+      const expected: Value = {
         type: ValueType.operator,
-        data: expect.anything()
-      })
+        operator: expect.anything()
+      }
+      expect(stack.lookup('clear')).toStrictEqual(expected)
     })
 
     it('searches for a known name (from globaldict)', () => {
-      stack.globaldict.def('add', {
+      const expected: Value = {
         type: ValueType.string,
-        data: 'my_add'
-      })
-      expect(stack.lookup('add')).toStrictEqual({
-        type: ValueType.string,
-        data: 'my_add'
-      })
+        string: 'my_clear'
+      }
+      stack.globaldict.def('clear', expected)
+      expect(stack.lookup('clear')).toStrictEqual(expected)
     })
 
     it('fails with Undefined if the name is not found in the stack', () => {
@@ -118,10 +144,11 @@ describe('objects/stacks/Dictionary', () => {
     describe('with a host dictionary', () => {
       it('resolves host name', () => {
         const stackWithHost = new DictionaryStack(tracker, host)
-        expect(stackWithHost.lookup('hostname')).toStrictEqual({
+        const expected: Value = {
           type: ValueType.string,
-          data: 'localhost'
-        })
+          string: 'localhost'
+        }
+        expect(stackWithHost.lookup('hostname')).toStrictEqual(expected)
       })
     })
   })
@@ -131,18 +158,19 @@ describe('objects/stacks/Dictionary', () => {
 
     beforeEach(() => {
       dict = new Dictionary(tracker)
-      dict.def('add', {
+      dict.def('clear', {
         type: ValueType.string,
-        data: 'another_add'
+        string: 'another_clear'
       })
       stack.begin(dict)
     })
 
     it('adds a new dictionary to the stack', () => {
-      expect(stack.lookup('add')).toStrictEqual({
+      const expected: Value = {
         type: ValueType.string,
-        data: 'another_add'
-      })
+        string: 'another_clear'
+      }
+      expect(stack.lookup('clear')).toStrictEqual(expected)
     })
 
     describe('end', () => {
@@ -151,10 +179,11 @@ describe('objects/stacks/Dictionary', () => {
       })
 
       it('removes the top dictionary from the stack', () => {
-        expect(stack.lookup('add')).toStrictEqual({
+        const expected: Value = {
           type: ValueType.operator,
-          data: expect.anything()
-        })
+          operator: expect.anything()
+        }
+        expect(stack.lookup('clear')).toStrictEqual(expected)
       })
 
       it('fails when attempting to remove pre-installed dictionaries', () => {

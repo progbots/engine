@@ -1,6 +1,6 @@
 import { IDictionary } from '../../index'
 import { InternalValue, checkIDictionary } from '../../state/index'
-import { InvalidAccess } from '../../src/errors/index'
+import { InvalidAccess } from '../../errors/index'
 
 export interface IWritableDictionary extends IDictionary {
   def: (name: string, value: InternalValue) => void

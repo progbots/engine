@@ -1,15 +1,6 @@
-import { IArray } from './Value'
-
-export interface IStateMemory {
-  readonly used: number
-  readonly peak: number
-  readonly total: number
-}
-
-export interface IStateFlags {
-  readonly parsing: boolean
-  readonly call: boolean
-}
+import { IStateFlags } from './IStateFlags'
+import { IStateMemory } from './IStateMemory'
+import { IArray } from './IArray'
 
 export interface IState {
   readonly memory: IStateMemory

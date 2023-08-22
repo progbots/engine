@@ -1,4 +1,3 @@
-export * from './Call'
-export * from './Dictionary'
-export * from './Operand'
-export * from './Stack' // TODO remove
+export * from './CallStack'
+export * from './DictionaryStack'
+export * from './OperandStack'
