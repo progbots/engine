@@ -9,6 +9,7 @@
       "@errors": ["errors/index"],
       "@errors/*": ["errors/*"],
       "@objects/*": ["objects/*"],
+      "@operators": ["operators"],
       "@operators/*": ["operators/*"],
       "@state/*": ["state/*"],
       "@sdk": ["sdk/index"],
