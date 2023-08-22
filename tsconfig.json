@@ -5,8 +5,14 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "paths": {
-      "@api/*": ["api/*"],
-      "@sdk/*": ["sdk/*"]
+      "@api": ["api/index"],
+      "@errors": ["errors/index"],
+      "@errors/*": ["errors/*"],
+      "@objects/*": ["objects/*"],
+      "@operators/*": ["operators/*"],
+      "@state/*": ["state/*"],
+      "@sdk": ["sdk/index"],
+      "@test": ["test/index"]
     },                                      
     "declaration": true,
     "removeComments": true,
