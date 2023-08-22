@@ -1,16 +1,14 @@
-import {
-  ValueType,
-  Value,
-  BooleanValue,
-  IntegerValue,
-  StringValue,
-  BlockValue,
-  CallValue,
-  OperatorValue,
-  ArrayValue,
-  DictionaryValue
-} from './api'
-import { InternalError } from './errors/InternalError'
+import { ValueType } from './ValueType'
+import { Value } from './Value'
+import { BooleanValue } from './BooleanValue'
+import { IntegerValue } from './IntegerValue'
+import { StringValue } from './StringValue'
+import { BlockValue } from './BlockValue'
+import { CallValue } from './CallValue'
+import { OperatorValue } from './OperatorValue'
+import { ArrayValue } from './ArrayValue'
+import { DictionaryValue } from './DictionaryValue'
+import { InternalError } from '../errors/InternalError'
 
 export function throwValueIsNotOfType (expectedType: ValueType): never {
   throw new InternalError(`Value is not of type '${expectedType}`)
