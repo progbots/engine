@@ -1,7 +1,7 @@
+import { Value, ValueType, checkIntegerValue } from '@api'
+import { Internal, RangeCheck } from '@errors'
+import { MemoryTracker } from '@state/MemoryTracker'
 import { ValueArray } from './ValueArray'
-import { MemoryTracker } from '../state/MemoryTracker'
-import { Value, ValueType, checkIntegerValue } from '../index'
-import { Internal, RangeCheck } from '../errors/index'
 
 describe('objects/ValueArray', () => {
   let tracker: MemoryTracker

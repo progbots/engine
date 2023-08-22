@@ -1,5 +1,5 @@
-import { Internal } from '../src/errors/index'
-import { IArray, IDictionary, Value, ValueType } from '../index'
+import { IArray, IDictionary, Value, ValueType } from '@api'
+import { Internal } from '@errors'
 import { ShareableObject } from './ShareableObject'
 
 class MyObject extends ShareableObject implements IArray, IDictionary {
@@ -12,14 +12,14 @@ class MyObject extends ShareableObject implements IArray, IDictionary {
   // region IArray
 
   get length (): number { return 0 }
-  at (index: number): Value { return { type: ValueType.integer, data: index } }
+  at (number: number): Value { return { type: ValueType.integer, number } }
 
   // endregion
 
   // region IDictionary
 
   get names (): string[] { return [] }
-  lookup (name: string): Value { return { type: ValueType.string, data: name } }
+  lookup (string: string): Value { return { type: ValueType.string, string } }
 
   // endregion
 }
@@ -51,7 +51,7 @@ describe('objects/ShareableObject', () => {
     const object = new MyObject()
     ShareableObject.addRef({
       type: ValueType.array,
-      data: object
+      array: object
     })
     expect(object.refCount).toStrictEqual(2)
   })
@@ -60,7 +60,7 @@ describe('objects/ShareableObject', () => {
     const object = new MyObject()
     ShareableObject.release({
       type: ValueType.array,
-      data: object
+      array: object
     })
     expect(object.refCount).toStrictEqual(0)
   })
@@ -70,10 +70,10 @@ describe('objects/ShareableObject', () => {
     const obj2 = new MyObject()
     ShareableObject.addRef([{
       type: ValueType.array,
-      data: obj1
+      array: obj1
     }, {
-      type: ValueType.dict,
-      data: obj2
+      type: ValueType.dictionary,
+      dictionary: obj2
     }])
     expect(obj1.refCount).toStrictEqual(2)
     expect(obj2.refCount).toStrictEqual(2)
@@ -84,10 +84,10 @@ describe('objects/ShareableObject', () => {
     const obj2 = new MyObject()
     ShareableObject.release([{
       type: ValueType.array,
-      data: obj1
+      array: obj1
     }, {
-      type: ValueType.dict,
-      data: obj2
+      type: ValueType.dictionary,
+      dictionary: obj2
     }])
     expect(obj1.refCount).toStrictEqual(0)
     expect(obj2.refCount).toStrictEqual(0)

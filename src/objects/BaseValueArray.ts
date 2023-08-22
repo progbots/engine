@@ -1,9 +1,9 @@
+import { IArray, Value } from '@api'
+import { InternalValue } from '@sdk'
+import { InternalError } from '@errors'
+import { NonEmptyArray, checkNonEmptyArray } from '@typescript'
 import { ShareableObject } from './ShareableObject'
-import { IArray, Value } from '../index'
 import { MemoryTracker } from '../state/MemoryTracker'
-import { InternalValue } from '../state/index'
-import { InternalError } from '../errors/index'
-import { NonEmptyArray, checkNonEmptyArray } from '../ts-helpers'
 
 const EMPTY_ARRAY = 'Empty array'
 

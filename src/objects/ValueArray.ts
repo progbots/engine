@@ -1,5 +1,5 @@
-import { InternalValue } from '../state/index'
-import { Internal, RangeCheck, InternalError } from '../errors/index'
+import { InternalValue } from '@sdk'
+import { Internal, RangeCheck, InternalError } from '@errors'
 import { BaseValueArray } from './BaseValueArray'
 
 const EMPTY_ARRAY = 'Empty array'

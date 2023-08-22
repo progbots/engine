@@ -1,6 +1,6 @@
-import { IArray, IDictionary, ValueType } from '../Value'
-import { Internal } from '../errors/index'
-import { InternalValue } from '../state/index'
+import { IArray, IDictionary, ValueType } from '@api'
+import { InternalValue } from '@sdk'
+import { Internal } from '@errors'
 
 const TOOMANY_RELEASE = 'Superfluous release'
 
@@ -17,6 +17,7 @@ export abstract class ShareableObject {
     if (object !== undefined && object instanceof ShareableObject) {
       return object
     }
+    return undefined
   }
 
   public static addRef (values: InternalValue | InternalValue[]): void {

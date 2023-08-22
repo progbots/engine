@@ -1,9 +1,9 @@
+import { Value, ValueType } from '@api'
+import { InternalValue } from '@sdk'
+import { InternalError } from '@errors'
+import { Dictionary } from '@objects/dictionaries/index'
+import { MemoryTracker } from '@state/MemoryTracker'
 import { BaseValueArray } from './BaseValueArray'
-import { MemoryTracker } from '../state/MemoryTracker'
-import { Value, ValueType } from '../index'
-import { InternalValue } from '../state/index'
-import { Dictionary } from './dictionaries/index'
-import { InternalError } from '../errors/InternalError'
 
 class MyArray extends BaseValueArray {
   protected pushImpl (value: InternalValue): void {
