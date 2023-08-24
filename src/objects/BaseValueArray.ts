@@ -1,9 +1,8 @@
 import { IArray, Value } from '@api'
 import { InternalValue } from '@sdk'
 import { InternalError } from '@errors'
-import { NonEmptyArray, checkNonEmptyArray } from '@typescript'
+import { MemoryTracker } from '@state/MemoryTracker'
 import { ShareableObject } from './ShareableObject'
-import { MemoryTracker } from '../state/MemoryTracker'
 
 const EMPTY_ARRAY = 'Empty array'
 
@@ -60,9 +59,20 @@ export abstract class BaseValueArray extends ShareableObject implements IArray {
 
   protected abstract popImpl (): InternalValue
 
-  protected getNonEmptyValueArray (): NonEmptyArray<Value> {
-    checkNonEmptyArray(this._values, () => { throw new InternalError(EMPTY_ARRAY) })
-    return this._values
+  protected getFirst (): InternalValue {
+    const value = this._values[0]
+    if (value === undefined) {
+      throw new InternalError(EMPTY_ARRAY)
+    }
+    return value
+  }
+
+  protected getLast (): InternalValue {
+    const value = this._values.at(-1)
+    if (value === undefined) {
+      throw new InternalError(EMPTY_ARRAY)
+    }
+    return value
   }
 
   pop (): void {

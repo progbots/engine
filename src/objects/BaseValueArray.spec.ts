@@ -1,7 +1,7 @@
 import { Value, ValueType } from '@api'
 import { InternalValue } from '@sdk'
 import { InternalError } from '@errors'
-import { Dictionary } from '@objects/dictionaries/index'
+import { Dictionary } from '@dictionaries'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { BaseValueArray } from './BaseValueArray'
 
@@ -11,9 +11,8 @@ class MyArray extends BaseValueArray {
   }
 
   protected popImpl (): InternalValue {
-    const values = this.getNonEmptyValueArray()
-    const value = values[values.length - 1]
-    values.pop()
+    const value = this.getLast()
+    this._values.pop()
     return value
   }
 
