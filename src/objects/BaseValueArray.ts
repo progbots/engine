@@ -59,16 +59,8 @@ export abstract class BaseValueArray extends ShareableObject implements IArray {
 
   protected abstract popImpl (): InternalValue
 
-  protected getFirst (): InternalValue {
-    const value = this._values[0]
-    if (value === undefined) {
-      throw new InternalError(EMPTY_ARRAY)
-    }
-    return value
-  }
-
-  protected getLast (): InternalValue {
-    const value = this._values.at(-1)
+  protected safeAt (index: number): InternalValue {
+    const value = this._values.at(index)
     if (value === undefined) {
       throw new InternalError(EMPTY_ARRAY)
     }

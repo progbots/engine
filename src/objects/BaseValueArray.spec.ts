@@ -11,7 +11,7 @@ class MyArray extends BaseValueArray {
   }
 
   protected popImpl (): InternalValue {
-    const value = this.getLast()
+    const value = this.safeAt(-1)
     this._values.pop()
     return value
   }
