@@ -9,7 +9,6 @@ import {
   IntegerValue,
   OperatorValue,
   StringValue,
-  Value,
   ValueType,
   checkArrayValue,
   checkBlockValue,
@@ -24,10 +23,11 @@ import {
 import { InternalError, InvalidAccess } from '@errors'
 import { IOperatorFunction } from './IOperatorFunction'
 import { IWritableDictionary } from './IWritableDictionary'
+import { InternalValue } from './InternalValue'
 
 const INVALID_VALUE = 'Invalid Value'
 
-function scanGenericValue (value: any): asserts value is Value {
+export function scanGenericValue (value: any): asserts value is InternalValue {
   if (typeof value !== 'object') {
     throw new InternalError(INVALID_VALUE)
   }
