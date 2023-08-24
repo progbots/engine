@@ -1,13 +1,13 @@
-import { InternalError } from '../src/errors/InternalError'
-import * as errorClasses from '../src/errors/operators'
-import { CycleResult, OperatorFunction, State } from '../state/index'
+import { InternalError } from '@errors'
+import * as errorClasses from '@errors/operators'
+import { CycleResult, IOperatorFunction, IInternalState } from '@sdk'
 
-const errorOperators: Record<string, OperatorFunction> = {}
+const errorOperators: Record<string, IOperatorFunction> = {}
 
 Object.values(errorClasses).forEach((ErrorClass: new () => InternalError) => {
   const ErrorConstructor = ErrorClass
 
-  const operator = function (state: State): CycleResult {
+  const operator = function (state: IInternalState): CycleResult {
     throw new ErrorConstructor()
   }
 
