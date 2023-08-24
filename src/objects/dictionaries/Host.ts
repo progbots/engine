@@ -1,5 +1,5 @@
+import { IDictionary, Value } from '@api'
 import { ShareableObject } from '../ShareableObject'
-import { IDictionary, Value } from '../../index'
 
 export class HostDictionary extends ShareableObject implements IDictionary {
   // region IDictionary
