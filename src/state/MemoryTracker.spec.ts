@@ -1,6 +1,6 @@
-import { IArray, IDictionary, Value, ValueType } from '../index'
-import { VMError } from '../errors/index'
-import { ShareableObject } from '../objects/ShareableObject'
+import { IArray, IDictionary, Value, ValueType } from '@api'
+import { VMError } from '@errors'
+import { ShareableObject } from '@objects/ShareableObject'
 import { MemoryTracker } from './MemoryTracker'
 
 class MyObject extends ShareableObject {

@@ -1,7 +1,7 @@
-import { IStateMemory, Value, ValueType } from '../index'
-import { InternalValue } from './index'
-import { VMError } from '../errors/index'
-import { ShareableObject } from '../objects/ShareableObject'
+import { IStateMemory, Value, ValueType } from '@api'
+import { InternalValue } from '@sdk'
+import { VMError } from '@errors'
+import { ShareableObject } from '@objects/ShareableObject'
 
 const stringSizer = (data: string): number => {
   const encoder = new TextEncoder()
@@ -15,6 +15,7 @@ function extractString (value: Value): string | undefined {
   } else if (value.type === ValueType.call) {
     return value.call
   }
+  return undefined
 }
 
 export class MemoryTracker implements IStateMemory {
