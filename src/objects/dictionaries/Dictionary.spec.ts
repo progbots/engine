@@ -1,7 +1,7 @@
+import { IArray, Value, ValueType } from '@api'
+import { MemoryTracker } from '@state/MemoryTracker'
+import { ShareableObject } from '@objects/ShareableObject'
 import { Dictionary } from './Dictionary'
-import { MemoryTracker } from '../../state/MemoryTracker'
-import { IArray, Value, ValueType } from '../../index'
-import { ShareableObject } from '../ShareableObject'
 
 class MyObject extends ShareableObject implements IArray {
   public disposeCalled: number = 0

@@ -1,8 +1,7 @@
-import { Value, ValueType } from '../../index'
-import { InternalValue } from '../../state/index'
-import { MemoryTracker } from '../../state/MemoryTracker'
-import { ShareableObject } from '../ShareableObject'
-import { IWritableDictionary } from './types'
+import { Value, ValueType } from '@api'
+import { InternalValue, IWritableDictionary, scanGenericValue } from '@sdk'
+import { MemoryTracker } from '@state/MemoryTracker'
+import { ShareableObject } from '@objects/ShareableObject'
 
 export class Dictionary extends ShareableObject implements IWritableDictionary {
   public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
@@ -56,6 +55,7 @@ export class Dictionary extends ShareableObject implements IWritableDictionary {
   protected _dispose (): void {
     this.names.forEach(name => {
       const value = this._values[name]
+      scanGenericValue(value)
       this._memoryTracker.releaseValue(value)
       this._memoryTracker.releaseValue({
         type: ValueType.string,
