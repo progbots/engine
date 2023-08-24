@@ -1,6 +1,6 @@
-import { MemoryTracker } from '../../state/MemoryTracker'
-import { Value, ValueType } from '../../index'
-import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../errors/index'
+import { Value, ValueType } from '@api'
+import { StackUnderflow, TypeCheck, UnmatchedMark } from '@errors'
+import { MemoryTracker } from '@state/MemoryTracker'
 import { OperandStack } from './OperandStack'
 
 describe('objects/stacks/OperandStack', () => {

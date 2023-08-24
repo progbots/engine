@@ -1,6 +1,6 @@
-import { ValueType } from '../../index'
-import { StackUnderflow, TypeCheck, UnmatchedMark } from '../../errors/index'
-import { InternalValue } from '../../state/index'
+import { ValueType } from '@api'
+import { InternalValue } from '@sdk'
+import { StackUnderflow, TypeCheck, UnmatchedMark } from '@errors'
 import { ValueStack } from './ValueStack'
 
 export class OperandStack extends ValueStack {
@@ -9,7 +9,7 @@ export class OperandStack extends ValueStack {
       throw new StackUnderflow()
     }
     return types.map((type: ValueType | null, pos: number): InternalValue => {
-      const value = this._values[pos]
+      const value = this.safeAt(pos)
       if (type !== null && value.type !== type) {
         throw new TypeCheck()
       }
