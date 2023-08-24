@@ -1,5 +1,5 @@
-import { StackUnderflow } from '../../errors/index'
-import { InternalValue } from '../../state/index'
+import { InternalValue } from '@sdk'
+import { StackUnderflow } from '@errors'
 import { BaseValueArray } from '../BaseValueArray'
 
 /* eslint-disable no-labels */
@@ -10,13 +10,12 @@ export class ValueStack extends BaseValueArray {
   }
 
   protected popImpl (): InternalValue {
-    const values = this.getNonEmptyValueArray()
-    const value = values[0]
-    values.shift()
+    const value = this.safeAt(0)
+    this._values.shift()
     return value
   }
 
-  pop (): void {
+  override pop (): void {
     if (this._values.length === 0) {
       throw new StackUnderflow()
     }

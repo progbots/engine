@@ -1,8 +1,8 @@
+import { IArray, Value, ValueType } from '@api'
+import { StackUnderflow } from '@errors'
+import { MemoryTracker } from '@state/MemoryTracker'
+import { ShareableObject } from '@objects/ShareableObject'
 import { ValueStack } from './ValueStack'
-import { MemoryTracker } from '../../state/MemoryTracker'
-import { IArray, Value, ValueType } from '../../index'
-import { StackUnderflow } from '../../errors/index'
-import { ShareableObject } from '../ShareableObject'
 
 class MyStack extends ValueStack {
   clear (): void {
