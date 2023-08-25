@@ -1,14 +1,14 @@
+import { ValueType } from '@api'
+import { InvalidAccess } from '@errors'
+import { scanIWritableDictionary } from '@sdk'
+import { add, index, sub } from '@operators'
 import { SystemDictionary } from './System'
-import { ValueType } from '../../index'
-import { InvalidAccess } from '../../errors/index'
-import { add, index, sub } from '../../operators'
-import { checkIWritableDictionary } from './types'
 
 describe('objects/dictionaries/System', () => {
   const context = new SystemDictionary()
 
   it('is read-only', () => {
-    expect(() => checkIWritableDictionary(context)).toThrowError(InvalidAccess)
+    expect(() => scanIWritableDictionary(context)).toThrowError(InvalidAccess)
   })
 
   it('returns null on unknown name', () => {
