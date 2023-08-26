@@ -1,5 +1,5 @@
 import { ValueType } from '@api'
-import { InternalValue } from '@sdk'
+import { ICallStack, InternalValue } from '@sdk'
 import { Internal, InternalError, StackUnderflow } from '@errors'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { ValueStack } from './ValueStack'
@@ -12,7 +12,7 @@ interface CallState {
   parameters: null | ValueArray
 }
 
-export class CallStack extends ValueStack {
+export class CallStack extends ValueStack implements ICallStack {
   private readonly _states: CallState[] = []
   public static readonly EXTRA_SIZE = MemoryTracker.POINTER_SIZE + MemoryTracker.INTEGER_SIZE + 1
   public static readonly NO_INDEX = Number.MIN_SAFE_INTEGER
