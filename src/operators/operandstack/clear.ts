@@ -1,4 +1,4 @@
-import { CycleResult, IInternalState } from '@sdk/index'
+import { CycleResult, IInternalState } from '@sdk'
 
 export function clear ({ operands }: IInternalState): CycleResult {
   operands.splice(operands.length)
