@@ -19,7 +19,10 @@ export class HostDictionary extends ShareableObject implements IDictionary {
   // endregion IDictionary
 
   constructor (
-    private readonly _hostDictionary: IDictionary
+    private readonly _hostDictionary: IDictionary = {
+      names: [],
+      lookup: () => null
+    }
   ) {
     super()
   }
