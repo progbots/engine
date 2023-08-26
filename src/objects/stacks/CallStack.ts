@@ -1,9 +1,11 @@
-import { ValueType } from '../..'
-import { MemoryTracker } from '../../state/MemoryTracker'
-import { InternalValue } from '../../state/index'
+import { ValueType } from '@api'
+import { InternalValue } from '@sdk'
+import { Internal, InternalError, StackUnderflow } from '@errors'
+import { MemoryTracker } from '@state/MemoryTracker'
 import { ValueStack } from './ValueStack'
 import { ValueArray } from '../ValueArray'
-import { Internal, StackUnderflow } from '../../errors/index'
+
+const UNEXPECTED_TYPE = 'Unexpected type'
 
 interface CallState {
   step: number
@@ -14,8 +16,14 @@ export class CallStack extends ValueStack {
   private readonly _states: CallState[] = []
   public static readonly EXTRA_SIZE = MemoryTracker.POINTER_SIZE + MemoryTracker.INTEGER_SIZE + 1
   public static readonly NO_INDEX = Number.MIN_SAFE_INTEGER
+  public static readonly ALLOWED_TYPES = [
+    ValueType.string,
+    ValueType.block,
+    ValueType.call,
+    ValueType.operator
+  ]
 
-  push (value: InternalValue): void {
+  protected _push (value: InternalValue): void {
     super.push(value)
     this._states.unshift({
       step: 0,
@@ -23,15 +31,39 @@ export class CallStack extends ValueStack {
     })
   }
 
-  pop (): void {
-    if (this._values[0].type === ValueType.integer) {
+  override push (value: InternalValue): void {
+    if (!CallStack.ALLOWED_TYPES.includes(value.type)) {
+      throw new InternalError(UNEXPECTED_TYPE)
+    }
+    this._push(value)
+  }
+
+  private topIsInteger (): boolean {
+    const { type } = this.safeAt(0)
+    return type === ValueType.integer
+  }
+
+  private safeTupleAt (index: number): {
+    value: InternalValue
+    state: CallState
+  } {
+    const value = this._values[index]
+    const state = this._states[index]
+    if (value === undefined || state === undefined) {
+      throw new StackUnderflow()
+    }
+    return { value, state }
+  }
+
+  override pop (): void {
+    if (this.topIsInteger()) {
       super.pop()
+      this._states.shift()
     }
+    const { state } = this.safeTupleAt(0)
     super.pop()
-    const { parameters } = this._states[0]
-    if (parameters !== null) {
-      parameters.release()
-    }
+    const { parameters } = state
+    parameters?.release()
     this._states.shift()
   }
 
@@ -39,22 +71,16 @@ export class CallStack extends ValueStack {
     value: InternalValue
     state: CallState
   } {
-    let index: number
     if (this.length === 0) {
       throw new StackUnderflow()
     }
-    if (this._values[0].type === ValueType.integer) {
+    let index: number
+    if (this.topIsInteger()) {
       index = 1
     } else {
       index = 0
     }
-    if (index >= this._values.length) {
-      throw new StackUnderflow()
-    }
-    return {
-      value: this._values[index],
-      state: this._states[index]
-    }
+    return this.safeTupleAt(index)
   }
 
   get top (): InternalValue {
@@ -78,16 +104,14 @@ export class CallStack extends ValueStack {
   }
 
   set index (value: number) {
-    if (this._values[0].type !== ValueType.integer) {
-      this.push({
-        type: ValueType.integer,
-        number: value
-      })
+    const newValue: InternalValue = {
+      type: ValueType.integer,
+      number: value
+    }
+    if (this.topIsInteger()) {
+      this.splice(1, newValue)
     } else {
-      this.splice(1, {
-        type: ValueType.integer,
-        number: value
-      })
+      this._push(newValue)
     }
   }
 
@@ -126,12 +150,12 @@ export class CallStack extends ValueStack {
     state.parameters.pop()
   }
 
-  protected addValueRef (value: InternalValue): void {
+  protected override addValueRef (value: InternalValue): void {
     super.addValueRef(value)
     this.memoryTracker.increment(CallStack.EXTRA_SIZE)
   }
 
-  protected releaseValue (value: InternalValue): void {
+  protected override releaseValue (value: InternalValue): void {
     super.releaseValue(value)
     this.memoryTracker.decrement(CallStack.EXTRA_SIZE)
   }

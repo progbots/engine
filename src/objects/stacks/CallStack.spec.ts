@@ -1,8 +1,8 @@
+import { IArray, Value, ValueType } from '@api'
+import { Internal, InternalError, StackUnderflow } from '@errors'
+import { MemoryTracker } from '@state/MemoryTracker'
 import { CallStack } from './CallStack'
 import { ValueStack } from './ValueStack'
-import { MemoryTracker } from '../../state/MemoryTracker'
-import { IArray, Value, ValueType } from '../../index'
-import { Internal, StackUnderflow } from '../../errors/index'
 import { ShareableObject } from '../ShareableObject'
 
 class MyObject extends ShareableObject implements IArray {
@@ -44,6 +44,10 @@ describe('objects/stacks/CallStack', () => {
     expect(tracker.used).toStrictEqual(baseTracker.used + CallStack.EXTRA_SIZE)
   })
 
+  it('forbids pushing an integer to the call stack', () => {
+    expect(() => stack.push({ type: ValueType.integer, number: 0 })).toThrowError(InternalError)
+  })
+
   describe('CallStep specific APIs', () => {
     describe('When stack is empty', () => {
       it('fails top', () => {
@@ -73,25 +77,14 @@ describe('objects/stacks/CallStack', () => {
         expect(stack.top).toStrictEqual(expected)
       })
 
-      it('ignores any integer added to the call stack', () => {
+      it('ignores index (added internally to the call stack)', () => {
         const expected: Value = {
           type: ValueType.string,
           string: 'test'
         }
         stack.push(expected)
-        stack.push({
-          type: ValueType.integer,
-          number: 0
-        })
+        stack.index = 0
         expect(stack.top).toStrictEqual(expected)
-      })
-
-      it('fails if only an integer is in the call stack', () => {
-        stack.push({
-          type: ValueType.integer,
-          number: 0
-        })
-        expect(() => stack.top).toThrow(StackUnderflow)
       })
     })
 
