@@ -7,8 +7,9 @@ export type DictionaryStackWhereResult = {
 } | null
 
 export interface IDictionaryStack extends IArray {
-  readonly systemdict: IDictionary
-  readonly globaldict: IDictionary
+  readonly host: IDictionary
+  readonly system: IDictionary
+  readonly global: IDictionary
   begin: (dictionary: IDictionary) => void
   end: () => void
   where: (name: string) => DictionaryStackWhereResult

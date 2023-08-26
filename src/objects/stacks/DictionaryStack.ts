@@ -1,36 +1,35 @@
-import { IDictionary, ValueType, checkDictionaryValue } from '../../index'
-import { DictStackUnderflow, Undefined } from '../../errors/index'
-import { InternalValue } from '../../state/index'
+import { IDictionary, ValueType, checkDictionaryValue } from '@api'
+import { DictionaryStackWhereResult, IDictionaryStack, InternalValue } from 'sdk'
+import { DictStackUnderflow, Undefined } from '@errors'
+import { MemoryTracker } from '@state/MemoryTracker'
 import { ValueStack } from './ValueStack'
-import { MemoryTracker } from '../../state/MemoryTracker'
-import { Dictionary, HostDictionary, SystemDictionary } from '../dictionaries/index'
+import { Dictionary, HostDictionary, SystemDictionary } from '@dictionaries'
 
-export type DictionaryStackWhereResult = {
-  dictionary: IDictionary
-  value: InternalValue
-} | null
-
-export class DictionaryStack extends ValueStack {
-  private readonly _global: Dictionary
+export class DictionaryStack extends ValueStack implements IDictionaryStack {
+  private readonly _host: HostDictionary
   private readonly _system: SystemDictionary = new SystemDictionary()
+  private readonly _global: Dictionary
   private readonly _minCount: number
 
   constructor (tracker: MemoryTracker, hostDictionary?: IDictionary) {
     super(tracker)
-    if (hostDictionary !== undefined) {
-      this.begin(new HostDictionary(hostDictionary))
-    }
-    this.begin(this._system)
+    this._host = new HostDictionary(hostDictionary)
     this._global = new Dictionary(tracker)
+    this.begin(this._host)
+    this.begin(this._system)
     this.begin(this._global)
-    this._minCount = this._values.length
+    this._minCount = this.length
   }
 
-  get systemdict (): SystemDictionary {
+  get host (): HostDictionary {
+    return this._host
+  }
+
+  get system (): SystemDictionary {
     return this._system
   }
 
-  get globaldict (): Dictionary {
+  get global (): Dictionary {
     return this._global
   }
 

@@ -1,8 +1,9 @@
-import { DictStackUnderflow, Undefined } from '../../errors/index'
-import { IDictionary, Value, ValueType } from '../../index'
-import { MemoryTracker } from '../../state/MemoryTracker'
-import { Dictionary } from '../dictionaries/index'
-import { DictionaryStack, DictionaryStackWhereResult } from './DictionaryStack'
+import { IDictionary, Value, ValueType } from '@api'
+import { DictionaryStackWhereResult } from '@sdk'
+import { DictStackUnderflow, Undefined } from '@errors'
+import { MemoryTracker } from '@state/MemoryTracker'
+import { Dictionary } from '@dictionaries'
+import { DictionaryStack } from './DictionaryStack'
 
 jest.mock('../dictionaries/System', () => {
   const { clear } = jest.requireActual('../../operators/operandstack/clear.ts')
@@ -51,18 +52,23 @@ describe('objects/stacks/DictionaryStack', () => {
   })
 
   describe('initial setup', () => {
-    it('contains two dictionaries', () => {
-      expect(stack.ref.length).toStrictEqual(2)
+    it('contains three dictionaries', () => {
+      expect(stack.ref.length).toStrictEqual(3)
+    })
+
+    it('exposes an empty hostdict', () => {
+      const { host } = stack
+      expect(host.names.length).toStrictEqual(0)
     })
 
     it('exposes a non empty systemdict', () => {
-      const { systemdict } = stack
-      expect(systemdict.names.length).toBeGreaterThan(0)
+      const { system } = stack
+      expect(system.names.length).toBeGreaterThan(0)
     })
 
     it('exposes an empty globaldict', () => {
-      const { globaldict } = stack
-      expect(globaldict.names.length).toStrictEqual(0)
+      const { global } = stack
+      expect(global.names.length).toStrictEqual(0)
     })
 
     describe('with a host dictionary', () => {
@@ -76,7 +82,7 @@ describe('objects/stacks/DictionaryStack', () => {
   describe('where', () => {
     it('searches for a known name (from systemdict)', () => {
       const expected: DictionaryStackWhereResult = {
-        dictionary: stack.systemdict,
+        dictionary: stack.system,
         value: {
           type: ValueType.operator,
           operator: expect.anything()
@@ -86,12 +92,12 @@ describe('objects/stacks/DictionaryStack', () => {
     })
 
     it('searches for a known name (from globaldict)', () => {
-      stack.globaldict.def('clear', {
+      stack.global.def('clear', {
         type: ValueType.string,
         string: 'my_clear'
       })
       const expected: DictionaryStackWhereResult = {
-        dictionary: stack.globaldict,
+        dictionary: stack.global,
         value: {
           type: ValueType.string,
           string: 'my_clear'
@@ -104,17 +110,17 @@ describe('objects/stacks/DictionaryStack', () => {
       expect(stack.where('unknown')).toStrictEqual(null)
     })
 
-    describe('with a host dictionary', () => {
-      it('resolves host name', () => {
+    describe('host dictionary', () => {
+      it('resolves host values', () => {
         const stackWithHost = new DictionaryStack(tracker, host)
-        const expected: DictionaryStackWhereResult = {
-          dictionary: host,
+        const result = stackWithHost.where('hostname')
+        expect(result).toStrictEqual<DictionaryStackWhereResult>({
+          dictionary: stackWithHost.host,
           value: {
             type: ValueType.string,
             string: 'localhost'
           }
-        }
-        expect(stackWithHost.where('hostname')).toStrictEqual(expected)
+        })
       })
     })
   })
@@ -133,7 +139,7 @@ describe('objects/stacks/DictionaryStack', () => {
         type: ValueType.string,
         string: 'my_clear'
       }
-      stack.globaldict.def('clear', expected)
+      stack.global.def('clear', expected)
       expect(stack.lookup('clear')).toStrictEqual(expected)
     })
 
