@@ -1,14 +1,9 @@
-import { CycleResult, State, checkIntegerValue } from '../../state/index'
-import { ValueType } from '../../index'
-import { RangeCheck, StackUnderflow } from '../../src/errors/index'
+import { ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
+import { RangeCheck, StackUnderflow } from '@errors'
 
-/* eslint-disable no-labels */
-
-export function index ({ operands }: State): CycleResult {
-  const [pos] = operands.check(ValueType.integer).map(value => {
-    assert: checkIntegerValue(value)
-    return value.data
-  })
+export function index ({ operands }: IInternalState): CycleResult {
+  const [{ number: pos }] = operands.check(ValueType.integer)
   if (pos < 0) {
     throw new RangeCheck()
   }
