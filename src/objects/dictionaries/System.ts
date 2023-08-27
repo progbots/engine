@@ -1,14 +1,14 @@
 import { Value, ValueType, IDictionary } from '@api'
 import { IOperatorFunction } from '@sdk'
 import { ShareableObject } from '@objects/ShareableObject'
-// import * as operatorFunctions from '@operators'
+import * as operatorFunctions from '@operators'
 import * as errorFunctions from '@operators/errors'
 
 const operators: Record<string, IOperatorFunction> = {}
 
-// Object.values(operatorFunctions).forEach(operator => {
-//   operators[operator.name] = operator
-// })
+Object.values(operatorFunctions).forEach(operator => {
+  operators[operator.name] = operator as IOperatorFunction // TODO remove
+})
 Object.values(errorFunctions.default).forEach(operator => {
   operators[operator.name] = operator
 })

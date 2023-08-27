@@ -1,8 +1,14 @@
-import { ValueType } from '@api'
+import { OperatorValue, ValueType } from '@api'
 import { InvalidAccess } from '@errors'
 import { scanIWritableDictionary } from '@sdk'
-import { add, index, sub } from '@operators'
+import { clear } from '@operators/operandstack/clear'
+import { index } from '@operators/operandstack/index-op'
 import { SystemDictionary } from './System'
+
+jest.mock('@operators', () => ({
+  clear,
+  index
+}))
 
 describe('objects/dictionaries/System', () => {
   const context = new SystemDictionary()
@@ -16,14 +22,14 @@ describe('objects/dictionaries/System', () => {
   })
 
   describe('implemented names', () => {
-    const expectedOperators = [add, index, sub]
+    const expectedOperators = [clear, index]
 
     expectedOperators.forEach(operator => {
       const name = operator.name
       it(`returns ${name} operator`, () => {
-        expect(context.lookup(name)).toStrictEqual({
+        expect(context.lookup(name)).toStrictEqual<OperatorValue>({
           type: ValueType.operator,
-          data: operator
+          operator
         })
       })
     })
