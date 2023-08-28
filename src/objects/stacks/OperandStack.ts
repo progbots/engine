@@ -1,20 +1,12 @@
-import { ArrayValue, BlockValue, BooleanValue, CallValue, DictionaryValue, IntegerValue, OperatorValue, StringValue, ValueType } from '@api'
+import { Value, ValueType } from '@api'
 import { IOperandStack, Internal, InternalValue } from '@sdk'
 import { StackUnderflow, TypeCheck, UnmatchedMark } from '@errors'
 import { ValueStack } from './ValueStack'
 
 export class OperandStack extends ValueStack implements IOperandStack {
-  check (type: ValueType.boolean): readonly [Internal<BooleanValue>]
-  check (type: ValueType.integer): readonly [Internal<IntegerValue>]
-  check (type: ValueType.string): readonly [Internal<StringValue>]
-  check (type: ValueType.block): readonly [Internal<BlockValue>]
-  check (type: ValueType.call): readonly [Internal<CallValue>]
-  check (type: ValueType.operator): readonly [Internal<OperatorValue>]
-  check (type: ValueType.array): readonly [Internal<ArrayValue>]
-  check (type: ValueType.dictionary): readonly [Internal<DictionaryValue>]
-  check (type: null): readonly [InternalValue]
-  check (type1: ValueType | null, type2: ValueType | null): readonly [InternalValue, InternalValue]
-  check (type1: ValueType | null, type2: ValueType | null, type3: ValueType | null): readonly [InternalValue, InternalValue, InternalValue]
+  check<T extends ValueType> (type: T | null): readonly [Internal<Value<T>>]
+  check<T1 extends ValueType, T2 extends ValueType> (type1: T1 | null, type2: T2 | null): readonly [Internal<Value<T1>>, Internal<Value<T2>>]
+  check<T1 extends ValueType, T2 extends ValueType, T3 extends ValueType> (type1: T1 | null, type2: T2 | null, type3: T3 | null): readonly [Internal<Value<T1>>, Internal<Value<T2>>, Internal<Value<T3>>]
   check (...types: Array<ValueType | null>): readonly InternalValue[] {
     if (types.length > this._values.length) {
       throw new StackUnderflow()

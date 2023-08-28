@@ -1,20 +1,12 @@
-import { ArrayValue, BlockValue, BooleanValue, CallValue, DictionaryValue, IntegerValue, OperatorValue, StringValue, ValueType } from '@api'
+import { ValueType, Value } from '@api'
 import { IStack } from './IStack'
 import { Internal, InternalValue } from './InternalValue'
 
 export interface IOperandStack extends IStack {
   splice: (count: number, values?: InternalValue | InternalValue[]) => void
-  check: ((type: ValueType.boolean) => readonly [Internal<BooleanValue>]) &
-  ((type: ValueType.integer) => readonly [Internal<IntegerValue>]) &
-  ((type: ValueType.string) => readonly [Internal<StringValue>]) &
-  ((type: ValueType.block) => readonly [Internal<BlockValue>]) &
-  ((type: ValueType.call) => readonly [Internal<CallValue>]) &
-  ((type: ValueType.operator) => readonly [Internal<OperatorValue>]) &
-  ((type: ValueType.array) => readonly [Internal<ArrayValue>]) &
-  ((type: ValueType.dictionary) => readonly [Internal<DictionaryValue>]) &
-  ((type: null) => readonly [InternalValue]) &
-  ((type1: ValueType | null, type2: ValueType | null) => readonly [InternalValue, InternalValue]) &
-  ((type1: ValueType | null, type2: ValueType | null, type3: ValueType | null) => readonly [InternalValue, InternalValue, InternalValue]) &
+  check: (<T extends ValueType>(type: T | null) => readonly [Internal<Value<T>>]) &
+  (<T1 extends ValueType, T2 extends ValueType>(type1: T1 | null, type2: T2 | null) => readonly [Internal<Value<T1>>, Internal<Value<T2>>]) &
+  (<T1 extends ValueType, T2 extends ValueType, T3 extends ValueType>(type1: T1 | null, type2: T2 | null, type3: T3 | null) => readonly [Internal<Value<T1>>, Internal<Value<T2>>, Internal<Value<T3>>]) &
   ((...types: Array<ValueType | null>) => readonly InternalValue[])
   findMarkPos: () => number
 }
