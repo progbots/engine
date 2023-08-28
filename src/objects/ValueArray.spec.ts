@@ -25,37 +25,33 @@ describe('objects/ValueArray', () => {
   })
 
   it('offers an array reference', () => {
-    const expected: Value[] = [{
+    expect(array.ref).toStrictEqual<Value[]>([{
       type: ValueType.integer,
       number: 1
     }, {
       type: ValueType.integer,
       number: 2
-    }]
-    expect(array.ref).toStrictEqual(expected)
+    }])
   })
 
   it('implements a LIFO array (pop)', () => {
     array.pop()
-    const expected: Value[] = [{
+    expect(array.ref).toStrictEqual<Value[]>([{
       type: ValueType.integer,
       number: 1
-    }]
-    expect(array.ref).toStrictEqual(expected)
+    }])
   })
 
   it('implements shift', () => {
     const value = array.shift()
-    const expectedRef: Value[] = [{
+    expect(array.ref).toStrictEqual<Value[]>([{
       type: ValueType.integer,
       number: 2
-    }]
-    expect(array.ref).toStrictEqual(expectedRef)
-    const expectedValue: Value = {
+    }])
+    expect(value).toStrictEqual<Value>({
       type: ValueType.integer,
       number: 1
-    }
-    expect(value).toStrictEqual(expectedValue)
+    })
   })
 
   it('fails shift on empty array', () => {
@@ -68,7 +64,7 @@ describe('objects/ValueArray', () => {
       type: ValueType.integer,
       number: 3
     })
-    const expected: Value[] = [{
+    expect(array.ref).toStrictEqual<Value[]>([{
       type: ValueType.integer,
       number: 3
     }, {
@@ -77,8 +73,7 @@ describe('objects/ValueArray', () => {
     }, {
       type: ValueType.integer,
       number: 2
-    }]
-    expect(array.ref).toStrictEqual(expected)
+    }])
   })
 
   describe('set', () => {
@@ -87,7 +82,7 @@ describe('objects/ValueArray', () => {
         type: ValueType.integer,
         number: 3
       })
-      const expected: Value[] = [{
+      expect(array.ref).toStrictEqual<Value[]>([{
         type: ValueType.integer,
         number: 1
       }, {
@@ -96,8 +91,7 @@ describe('objects/ValueArray', () => {
       }, {
         type: ValueType.integer,
         number: 3
-      }]
-      expect(array.ref).toStrictEqual(expected)
+      }])
     })
 
     it('allows overriding an item', () => {
@@ -106,14 +100,13 @@ describe('objects/ValueArray', () => {
         type: ValueType.integer,
         number: -1
       })
-      const expected: Value[] = [{
+      expect(array.ref).toStrictEqual<Value[]>([{
         type: ValueType.integer,
         number: -1
       }, {
         type: ValueType.integer,
         number: 2
-      }]
-      expect(array.ref).toStrictEqual(expected)
+      }])
       expect(tracker.used).toStrictEqual(initialMemory)
     })
 

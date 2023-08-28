@@ -1,7 +1,8 @@
-import { Value, ValueType } from '@api'
+import { ValueType } from '@api'
 import { StackUnderflow, TypeCheck, UnmatchedMark } from '@errors'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { OperandStack } from './OperandStack'
+import { InternalValue } from '@sdk'
 
 describe('objects/stacks/OperandStack', () => {
   let tracker: MemoryTracker
@@ -22,41 +23,37 @@ describe('objects/stacks/OperandStack', () => {
 
   describe('check', () => {
     it('retrieves values of any type (1)', () => {
-      const expected: Value[] = [{
+      expect(stack.check(null)).toStrictEqual<InternalValue[]>([{
         type: ValueType.integer,
         number: 123
-      }]
-      expect(stack.check(null)).toStrictEqual(expected)
+      }])
     })
 
     it('retrieves values of any type (2)', () => {
-      const expected: Value[] = [{
+      expect(stack.check(null, null)).toStrictEqual<InternalValue[]>([{
         type: ValueType.integer,
         number: 123
       }, {
         type: ValueType.string,
         string: 'abc'
-      }]
-      expect(stack.check(null, null)).toStrictEqual(expected)
+      }])
     })
 
     it('retrieves values of a given type (1)', () => {
-      const expected: Value[] = [{
+      expect(stack.check(ValueType.integer)).toStrictEqual<InternalValue[]>([{
         type: ValueType.integer,
         number: 123
-      }]
-      expect(stack.check(ValueType.integer)).toStrictEqual(expected)
+      }])
     })
 
     it('retrieves values of a given type (2)', () => {
-      const expected: Value[] = [{
+      expect(stack.check(ValueType.integer, ValueType.string)).toStrictEqual<InternalValue[]>([{
         type: ValueType.integer,
         number: 123
       }, {
         type: ValueType.string,
         string: 'abc'
-      }]
-      expect(stack.check(ValueType.integer, ValueType.string)).toStrictEqual(expected)
+      }])
     })
 
     it('fails with StackUnderflow if not enough values (any)', () => {

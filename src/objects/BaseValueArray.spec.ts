@@ -59,7 +59,7 @@ describe('objects/BaseValueArray', () => {
   })
 
   it('offers an array reference', () => {
-    const expected: Value[] = [{
+    expect(array.ref).toStrictEqual<Value[]>([{
       type: ValueType.integer,
       number: 1
     }, {
@@ -68,8 +68,7 @@ describe('objects/BaseValueArray', () => {
     }, {
       type: ValueType.dictionary,
       dictionary: expect.anything()
-    }]
-    expect(array.ref).toStrictEqual(expected)
+    }])
   })
 
   describe('IArray', () => {
@@ -78,11 +77,10 @@ describe('objects/BaseValueArray', () => {
     })
 
     it('exposes at', () => {
-      const expected: Value = {
+      expect(array.at(0)).toStrictEqual<Value>({
         type: ValueType.integer,
         number: 1
-      }
-      expect(array.at(0)).toStrictEqual(expected)
+      })
     })
 
     it('controls boundaries (-1)', () => {

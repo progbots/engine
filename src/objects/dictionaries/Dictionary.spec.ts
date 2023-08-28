@@ -50,16 +50,15 @@ describe('objects/dictionaries/Dictionary', () => {
   })
 
   it('offers list of names', () => {
-    expect(dictionary.names).toStrictEqual(['value1', 'value2', 'sharedobject'])
+    expect(dictionary.names).toStrictEqual<string[]>(['value1', 'value2', 'sharedobject'])
   })
 
   it('retrieves a value by its name', () => {
     const value = dictionary.lookup('value1')
-    const expected: Value = {
+    expect(value).toStrictEqual<Value>({
       type: ValueType.integer,
       number: 1
-    }
-    expect(value).toStrictEqual(expected)
+    })
   })
 
   it('returns null on an unknown name', () => {
@@ -68,12 +67,14 @@ describe('objects/dictionaries/Dictionary', () => {
   })
 
   it('allows the override of a named value', () => {
-    const expected: Value = {
+    dictionary.def('value2', {
       type: ValueType.integer,
       number: 3
-    }
-    dictionary.def('value2', expected)
-    expect(dictionary.lookup('value2')).toStrictEqual(expected)
+    })
+    expect(dictionary.lookup('value2')).toStrictEqual<Value>({
+      type: ValueType.integer,
+      number: 3
+    })
     // Same name does (and simple value) not increase memory
     expect(tracker.used).toStrictEqual(initiallyUsed)
   })
@@ -87,12 +88,14 @@ describe('objects/dictionaries/Dictionary', () => {
   })
 
   it('allows new values', () => {
-    const expected: Value = {
+    dictionary.def('new_value', {
       type: ValueType.integer,
       number: 3
-    }
-    dictionary.def('new_value', expected)
-    expect(dictionary.lookup('new_value')).toStrictEqual(expected)
+    })
+    expect(dictionary.lookup('new_value')).toStrictEqual<Value>({
+      type: ValueType.integer,
+      number: 3
+    })
     expect(tracker.used).toBeGreaterThan(initiallyUsed)
   })
 

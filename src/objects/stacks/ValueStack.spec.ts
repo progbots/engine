@@ -3,6 +3,7 @@ import { StackUnderflow } from '@errors'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { ShareableObject } from '@objects/ShareableObject'
 import { ValueStack } from './ValueStack'
+import { InternalValue } from '@sdk'
 
 class MyStack extends ValueStack {
   clear (): void {
@@ -49,23 +50,21 @@ describe('objects/stacks/ValueStack', () => {
   })
 
   it('offers an array reference', () => {
-    const expected: Value[] = [{
+    expect(stack.ref).toStrictEqual<InternalValue[]>([{
       type: ValueType.integer,
       number: 123
     }, {
       type: ValueType.string,
       string: 'abc'
-    }]
-    expect(stack.ref).toStrictEqual(expected)
+    }])
   })
 
   it('implements a LIFO stack (pop)', () => {
     stack.pop()
-    const expected: Value[] = [{
+    expect(stack.ref).toStrictEqual<InternalValue[]>([{
       type: ValueType.string,
       string: 'abc'
-    }]
-    expect(stack.ref).toStrictEqual(expected)
+    }])
   })
 
   it('fails pop with StackUnderflow after all items were removed', () => {
@@ -113,14 +112,13 @@ describe('objects/stacks/ValueStack', () => {
         type: ValueType.integer,
         number: 456
       })
-      const expected: Value[] = [{
+      expect(stack.ref).toStrictEqual<InternalValue[]>([{
         type: ValueType.integer,
         number: 456
       }, {
         type: ValueType.string,
         string: 'abc'
-      }]
-      expect(stack.ref).toStrictEqual(expected)
+      }])
     })
 
     it('removes and adds values to the stack (2)', () => {
@@ -131,14 +129,13 @@ describe('objects/stacks/ValueStack', () => {
         type: ValueType.string,
         string: 'def'
       }])
-      const expected: Value[] = [{
+      expect(stack.ref).toStrictEqual<InternalValue[]>([{
         type: ValueType.string,
         string: 'def'
       }, {
         type: ValueType.integer,
         number: 456
-      }]
-      expect(stack.ref).toStrictEqual(expected)
+      }])
     })
 
     it('fails with StackUnderflow if not enough values', () => {

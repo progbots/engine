@@ -1,6 +1,6 @@
-import { IArray, ValueType } from '../index'
+import { IArray, ValueType } from '@api'
+import { InternalValue } from '@sdk'
 import { renderCallStack } from './callstack'
-import { InternalValue } from './index'
 
 interface TestCase {
   only?: boolean

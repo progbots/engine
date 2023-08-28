@@ -4,6 +4,7 @@ import { MemoryTracker } from '@state/MemoryTracker'
 import { CallStack } from './CallStack'
 import { ValueStack } from './ValueStack'
 import { ShareableObject } from '../ShareableObject'
+import { InternalValue } from '@sdk'
 
 class MyObject extends ShareableObject implements IArray {
   public disposeCalled: number = 0
@@ -69,22 +70,26 @@ describe('objects/stacks/CallStack', () => {
 
     describe('top', () => {
       it('gives access to the value and the state', () => {
-        const expected: Value = {
+        stack.push({
           type: ValueType.string,
           string: 'test'
-        }
-        stack.push(expected)
-        expect(stack.top).toStrictEqual(expected)
+        })
+        expect(stack.top).toStrictEqual<InternalValue>({
+          type: ValueType.string,
+          string: 'test'
+        })
       })
 
       it('ignores index (added internally to the call stack)', () => {
-        const expected: Value = {
+        stack.push({
           type: ValueType.string,
           string: 'test'
-        }
-        stack.push(expected)
+        })
         stack.index = 0
-        expect(stack.top).toStrictEqual(expected)
+        expect(stack.top).toStrictEqual<InternalValue>({
+          type: ValueType.string,
+          string: 'test'
+        })
       })
     })
 
@@ -125,20 +130,19 @@ describe('objects/stacks/CallStack', () => {
 
       it('sets the index on top of the stack', () => {
         stack.index = 42
-        const expected: Value[] = [{
+        expect(stack.ref).toStrictEqual<InternalValue[]>([{
           type: ValueType.integer,
           number: 42
         }, {
           type: ValueType.string,
           string: 'test'
-        }]
-        expect(stack.ref).toStrictEqual(expected)
+        }])
       })
 
       it('pops the index with the value', () => {
         stack.index = 42
         stack.pop()
-        expect(stack.ref).toStrictEqual([])
+        expect(stack.ref).toStrictEqual<InternalValue[]>([])
       })
     })
 
@@ -154,7 +158,7 @@ describe('objects/stacks/CallStack', () => {
       })
 
       it('initializes with []', () => {
-        expect(stack.parameters).toStrictEqual([])
+        expect(stack.parameters).toStrictEqual<InternalValue[]>([])
       })
 
       describe('changing the value', () => {
@@ -185,11 +189,10 @@ describe('objects/stacks/CallStack', () => {
         })
 
         it('returns the value', () => {
-          const expected: Value[] = [{
+          expect(stack.parameters).toStrictEqual<InternalValue[]>([{
             type: ValueType.array,
             array: object
-          }]
-          expect(stack.parameters).toStrictEqual(expected)
+          }])
         })
 
         it('can be set only once', () => {
@@ -221,11 +224,10 @@ describe('objects/stacks/CallStack', () => {
             type: ValueType.integer,
             number: 42
           })
-          const expected: Value[] = [{
+          expect(stack.parameters).toStrictEqual<InternalValue[]>([{
             type: ValueType.integer,
             number: 42
-          }]
-          expect(stack.parameters).toStrictEqual(expected)
+          }])
         })
 
         it('pops a parameter from an existing list', () => {
@@ -235,7 +237,7 @@ describe('objects/stacks/CallStack', () => {
             number: 42
           })
           stack.popParameter()
-          expect(stack.parameters).toStrictEqual([])
+          expect(stack.parameters).toStrictEqual<InternalValue[]>([])
         })
 
         it('handles memory', () => {
@@ -262,19 +264,17 @@ describe('objects/stacks/CallStack', () => {
           number: 42
         }]
         stack.index = 13
-        const expectedRef: Value[] = [{
+        expect(stack.ref).toStrictEqual<InternalValue[]>([{
           type: ValueType.integer,
           number: 13
         }, {
           type: ValueType.string,
           string: 'test'
-        }]
-        expect(stack.ref).toStrictEqual(expectedRef)
-        const expectedParameters: Value[] = [{
+        }])
+        expect(stack.parameters).toStrictEqual<InternalValue[]>([{
           type: ValueType.integer,
           number: 42
-        }]
-        expect(stack.parameters).toStrictEqual(expectedParameters)
+        }])
       })
     })
   })

@@ -94,7 +94,7 @@ describe('state/parser', () => {
   it('generates values', () => {
     const source = '1 2 add'
     const block = [...parseAll(source)]
-    expect(block).toStrictEqual([{
+    expect(block).toStrictEqual<ParsedValue[]>([{
       type: ValueType.integer,
       data: 1,
       source,
@@ -155,7 +155,7 @@ describe('state/parser', () => {
 
 add`
     const block = [...parseAll(source)]
-    expect(block).toStrictEqual([{
+    expect(block).toStrictEqual<ParsedValue[]>([{
       type: ValueType.integer,
       data: 1,
       source,
