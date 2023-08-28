@@ -6,6 +6,7 @@
     "baseUrl": "./src",
     "paths": {
       "@api": ["api/index"],
+      "@factory": ["api/factory"],
       "@errors": ["errors/index"],
       "@errors/*": ["errors/*"],
       "@objects/*": ["objects/*"],
