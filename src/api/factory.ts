@@ -1,12 +1,10 @@
-import { IDictionary } from './Value'
+import { IDictionary } from './IDictionary'
 import { IState } from './IState'
-import { State } from './state/index'
+import { State } from '@state/State'
 
 export interface StateFactorySettings {
   hostDictionary?: IDictionary
   maxMemoryBytes?: number
-  keepDebugInfo?: boolean
-  yieldDebugSignals?: boolean
 }
 
 export function createState (settings?: StateFactorySettings): IState {
