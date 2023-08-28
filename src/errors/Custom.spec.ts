@@ -1,5 +1,5 @@
 import { Value, ValueType } from '@api'
-import { Dictionary } from '@objects/dictionaries'
+import { Dictionary } from '@dictionaries/Dictionary'
 import { TypeCheck } from '@errors'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { Custom } from './Custom'
