@@ -10,8 +10,8 @@ import {
   checkArrayValue,
   checkDictionaryValue,
   IArray
-} from './index'
-import { HostDictionary, SystemDictionary } from './objects/dictionaries/index'
+} from '@api'
+import { HostDictionary, SystemDictionary } from '@dictionaries'
 
 function formatArray (array: IArray, begin: string, end: string): string {
   const output = [begin]
