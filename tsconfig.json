@@ -10,6 +10,7 @@
       "@errors/*": ["errors/*"],
       "@objects/*": ["objects/*"],
       "@dictionaries": ["objects/dictionaries/index"],
+      "@dictionaries/*": ["objects/dictionaries/*"],
       "@stacks": ["objects/stacks/index"],
       "@operators": ["operators"],
       "@operators/*": ["operators/*"],

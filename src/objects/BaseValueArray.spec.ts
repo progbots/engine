@@ -1,7 +1,7 @@
 import { Value, ValueType } from '@api'
 import { InternalValue } from '@sdk'
 import { InternalError } from '@errors'
-import { Dictionary } from '@dictionaries'
+import { Dictionary } from '@dictionaries/Dictionary'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { BaseValueArray } from './BaseValueArray'
 
