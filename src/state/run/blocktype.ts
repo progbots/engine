@@ -1,46 +1,45 @@
-import { RUN_STEP_END } from './types'
-import { EngineSignalType, ValueType } from '../../index'
-import { InternalValue, CycleResult, State, checkIArray } from '../index'
+import { BlockValue, SignalType, ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
+import { RUN_STEP_END, RunSteps } from './RunSteps'
+import { InternalError } from '@errors'
 
-/* eslint-disable no-labels */
-
-function init (this: State, { data }: InternalValue): CycleResult {
-  assert: checkIArray(data)
+function init (this: IInternalState, { block }: BlockValue): CycleResult {
   this.calls.step = blocktype.indexOf(loop)
   this.calls.index = 0
   return {
-    type: EngineSignalType.beforeBlock,
+    type: SignalType.beforeBlock,
     debug: true,
-    block: data
+    block
   }
 }
 
-function loop (this: State, { data }: InternalValue, index: number): CycleResult {
-  assert: checkIArray(data)
-  const { length } = data
+function loop (this: IInternalState, { block }: BlockValue, index: number): CycleResult {
+  const { length } = block
   if (index < length) {
     this.calls.step = blocktype.indexOf(stack)
     return {
-      type: EngineSignalType.beforeBlockItem,
+      type: SignalType.beforeBlockItem,
       debug: true,
-      block: data,
+      block,
       index
     }
   } else {
     this.calls.step = RUN_STEP_END
     return {
-      type: EngineSignalType.afterBlock,
+      type: SignalType.afterBlock,
       debug: true,
-      block: data
+      block
     }
   }
 }
 
-function stack (this: State, { data }: InternalValue, index: number): CycleResult {
-  assert: checkIArray(data)
+function stack (this: IInternalState, { block }: BlockValue, index: number): CycleResult {
   ++this.calls.index
   this.calls.step = blocktype.indexOf(loop)
-  const value = data.at(index)
+  const value = block.at(index)
+  if (value === null) {
+    throw new InternalError('Unexpected null')
+  }
   const { type } = value
   if ([ValueType.call, ValueType.operator].includes(type)) {
     return value
@@ -49,7 +48,7 @@ function stack (this: State, { data }: InternalValue, index: number): CycleResul
   return null
 }
 
-export const blocktype = [
+export const blocktype: RunSteps<ValueType.block> = [
   init,
   loop,
   stack

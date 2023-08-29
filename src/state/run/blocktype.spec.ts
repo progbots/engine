@@ -1,15 +1,17 @@
-import { EngineSignalType, IArray, Value, ValueType } from '../../index'
+import { SignalType, IArray, Value, ValueType } from '@api'
+import { executeRunTests } from '@test'
+import { RUN_STEP_END } from './RunSteps'
 import { blocktype } from './blocktype'
-import { extractRunSteps, executeRunTests } from '../../src/test-helpers'
-import { RUN_STEP_END } from './types'
 
-const steps = extractRunSteps(blocktype)
-const array: IArray = {
+const LOOP = 1
+const STACK = 2
+
+const block: IArray = {
   length: 2,
   at (index: number): Value {
     return {
       type: ValueType.integer,
-      data: index
+      number: index
     }
   }
 }
@@ -20,15 +22,15 @@ describe('state/run/blocktype', () => {
       before: {
         callStack: [{
           type: ValueType.block,
-          data: array
+          block
         }]
       },
       after: {
-        step: steps.loop,
+        step: LOOP,
         result: {
-          type: EngineSignalType.beforeBlock,
+          type: SignalType.beforeBlock,
           debug: true,
-          block: array
+          block
         },
         index: 0
       }
@@ -37,17 +39,17 @@ describe('state/run/blocktype', () => {
       before: {
         callStack: [{
           type: ValueType.block,
-          data: array
+          block
         }],
-        step: steps.loop,
+        step: LOOP,
         index: 0
       },
       after: {
-        step: steps.stack,
+        step: STACK,
         result: {
-          type: EngineSignalType.beforeBlockItem,
+          type: SignalType.beforeBlockItem,
           debug: true,
-          block: array,
+          block,
           index: 0
         },
         index: 0
@@ -57,16 +59,16 @@ describe('state/run/blocktype', () => {
       before: {
         callStack: [{
           type: ValueType.block,
-          data: array
+          block
         }],
-        step: steps.stack,
+        step: STACK,
         index: 0
       },
       after: {
-        step: steps.loop,
+        step: LOOP,
         result: {
           type: ValueType.integer,
-          data: 0
+          number: 0
         },
         index: 1
       }
@@ -75,17 +77,17 @@ describe('state/run/blocktype', () => {
       before: {
         callStack: [{
           type: ValueType.block,
-          data: array
+          block
         }],
-        step: steps.loop,
+        step: LOOP,
         index: 2
       },
       after: {
         step: RUN_STEP_END,
         result: {
-          type: EngineSignalType.afterBlock,
+          type: SignalType.afterBlock,
           debug: true,
-          block: array
+          block
         }
       }
     }
