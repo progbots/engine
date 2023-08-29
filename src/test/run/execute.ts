@@ -1,21 +1,18 @@
 import { RUN_STEP_END, RunSteps } from '@state/run/index'
 import { MemoryTracker } from '@state/MemoryTracker'
-import { CallStack, DictionaryStack } from '@objects/stacks'
+import { CallStack, DictionaryStack, OperandStack } from '@objects/stacks'
 import { SystemDictionary } from '@objects/dictionaries/System'
-import { State } from '@state/State'
-import { CycleResult } from '@sdk'
+import { CycleResult, IInternalState } from '@sdk'
 import { IRunTest } from './IRunTest'
 import { execute } from '../execute'
 
-export function extractRunSteps (steps: RunSteps): Record<string, number> {
-  return steps.reduce((names: Record<string, number>, stepHandler: Function, index: number): Record<string, number> => {
-    names[stepHandler.name] = index
-    return names
-  }, {})
-}
+jest.mock('@operators', () => ({
+  add: () => {}
+}))
 
 function executeRunTest (steps: RunSteps, test: IRunTest): void {
   const tracker = new MemoryTracker()
+  const operands = new OperandStack(tracker)
   const callStack = new CallStack(tracker)
   const dictionaries = new DictionaryStack(tracker)
   dictionaries.begin(new SystemDictionary())
@@ -29,26 +26,29 @@ function executeRunTest (steps: RunSteps, test: IRunTest): void {
   if (test.before.parameters !== undefined) {
     callStack.parameters = test.before.parameters
   }
-  const mockState = Object.assign(new State(), {
+  const mockState: IInternalState = {
+    memory: tracker,
+    operands,
     calls: callStack,
     dictionaries,
     flags: Object.assign({
       call: true,
       parsing: false
     }, test.before.flags ?? {}),
-    runOneStep: (): CycleResult => {
-      const { top, index } = mockState.calls
-      const step = steps[callStack.step]
-      if (step === undefined) {
-        throw new Error('Invalid step leads to undefined handler')
-      }
-      return step.call(mockState, top, index)
+    parse: function * () {}
+  }
+  const runOneStep = (): CycleResult => {
+    const { top, index } = mockState.calls
+    const step = steps[callStack.step]
+    if (step === undefined) {
+      throw new Error('Invalid step leads to undefined handler')
     }
-  })
+    return step.call(mockState, top, index)
+  }
   let exceptionCaught: Error | undefined
   let result: CycleResult = null
   try {
-    result = mockState.runOneStep()
+    result = runOneStep()
   } catch (e) {
     if (typeof e === 'object' && e instanceof Error) {
       exceptionCaught = e
