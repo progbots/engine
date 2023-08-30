@@ -1,5 +1,5 @@
 import { SignalType, IArray, Value, ValueType } from '@api'
-import { executeRunTests } from '@test'
+import { executeRunTests } from '@test/run/execute'
 import { RUN_STEP_END } from './RunSteps'
 import { blocktype } from './blocktype'
 
@@ -17,79 +17,74 @@ const block: IArray = {
 }
 
 describe('state/run/blocktype', () => {
-  executeRunTests(blocktype, {
-    'init -> loop': {
-      before: {
-        callStack: [{
-          type: ValueType.block,
-          block
-        }]
-      },
-      after: {
-        step: LOOP,
-        result: {
-          type: SignalType.beforeBlock,
-          debug: true,
-          block
-        },
-        index: 0
-      }
+  executeRunTests(blocktype, [{
+    before: {
+      callStack: [{
+        type: ValueType.block,
+        block
+      }]
     },
-    'loop -> stack': {
-      before: {
-        callStack: [{
-          type: ValueType.block,
-          block
-        }],
-        step: LOOP,
-        index: 0
+    after: {
+      step: LOOP,
+      result: {
+        type: SignalType.beforeBlock,
+        debug: true,
+        block
       },
-      after: {
-        step: STACK,
-        result: {
-          type: SignalType.beforeBlockItem,
-          debug: true,
-          block,
-          index: 0
-        },
-        index: 0
-      }
+      index: 0
+    }
+  }, {
+    before: {
+      step: LOOP,
+      callStack: [{
+        type: ValueType.block,
+        block
+      }],
+      index: 0
     },
-    'stack -> loop': {
-      before: {
-        callStack: [{
-          type: ValueType.block,
-          block
-        }],
-        step: STACK,
+    after: {
+      step: STACK,
+      result: {
+        type: SignalType.beforeBlockItem,
+        debug: true,
+        block,
         index: 0
       },
-      after: {
-        step: LOOP,
-        result: {
-          type: ValueType.integer,
-          number: 0
-        },
-        index: 1
-      }
+      index: 0
+    }
+  }, {
+    before: {
+      step: STACK,
+      callStack: [{
+        type: ValueType.block,
+        block
+      }],
+      index: 0
     },
-    'loop -> ∅': {
-      before: {
-        callStack: [{
-          type: ValueType.block,
-          block
-        }],
-        step: LOOP,
-        index: 2
+    after: {
+      step: LOOP,
+      result: {
+        type: ValueType.integer,
+        number: 0
       },
-      after: {
-        step: RUN_STEP_END,
-        result: {
-          type: SignalType.afterBlock,
-          debug: true,
-          block
-        }
+      index: 1
+    }
+  }, {
+    before: {
+      step: LOOP,
+      callStack: [{
+        type: ValueType.block,
+        block
+      }],
+      index: 2
+    },
+    after: {
+      step: RUN_STEP_END,
+      result: {
+        type: SignalType.afterBlock,
+        debug: true,
+        block
       }
     }
-  })
+  }])
 })
