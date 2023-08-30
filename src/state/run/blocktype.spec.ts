@@ -1,6 +1,5 @@
 import { SignalType, IArray, Value, ValueType } from '@api'
 import { executeRunTests } from '@test/run/execute'
-import { RUN_STEP_END } from './RunSteps'
 import { blocktype } from './blocktype'
 
 const LOOP = 1
@@ -63,10 +62,10 @@ describe('state/run/blocktype', () => {
     },
     after: {
       step: LOOP,
-      result: {
+      operands: [{
         type: ValueType.integer,
         number: 0
-      },
+      }],
       index: 1
     }
   }, {
@@ -79,7 +78,6 @@ describe('state/run/blocktype', () => {
       index: 2
     },
     after: {
-      step: RUN_STEP_END,
       result: {
         type: SignalType.afterBlock,
         debug: true,
