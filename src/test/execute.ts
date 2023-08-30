@@ -17,11 +17,11 @@ export function execute<T extends ITest> (descriptions: Record<string, T | T[]>,
         testLabel = label
       }
       if (test.skip === true) {
-        it.skip(testLabel, executeDescription(test))
+        it.skip(testLabel, () => executeDescription(test))
       } else if (test.only === true) {
-        it.only(testLabel, executeDescription(test))
+        it.only(testLabel, () => executeDescription(test))
       } else {
-        it(testLabel, executeDescription(test))
+        it(testLabel, () => executeDescription(test))
       }
     })
   })
