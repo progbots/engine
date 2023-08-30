@@ -17,7 +17,7 @@
       "@operators/*": ["operators/*"],
       "@state/*": ["state/*"],
       "@sdk": ["sdk/index"],
-      "@test": ["test/index"],
+      "@test/*": ["test/*"],
       "@typescript": ["TypeScript"]
     },                                      
     "declaration": true,
