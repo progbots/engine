@@ -1,8 +1,8 @@
-import { RUN_STEP_END, RunSteps } from '@state/run/index'
-import { MemoryTracker } from '@state/MemoryTracker'
+import { CycleResult, IInternalState } from '@sdk'
 import { CallStack, DictionaryStack, OperandStack } from '@objects/stacks'
 import { SystemDictionary } from '@objects/dictionaries/System'
-import { CycleResult, IInternalState } from '@sdk'
+import { MemoryTracker } from '@state/MemoryTracker'
+import { RUN_STEP_END, RunSteps } from '@state/run/RunSteps'
 import { IRunTest } from './IRunTest'
 import { execute } from '../execute'
 
@@ -78,8 +78,39 @@ function executeRunTest (steps: RunSteps, test: IRunTest): void {
   }
 }
 
-export function executeRunTests (steps: RunSteps, descriptions: Record<string, IRunTest | IRunTest[]>): void {
-  execute(descriptions, (test: IRunTest) => {
+export function executeRunTests (steps: RunSteps, tests: IRunTest[]): void {
+  execute(tests.reduce((descriptions: Record<string, IRunTest[]>, test: IRunTest) => {
+    const fromStep = steps[test.before.step ?? 0]
+    if (fromStep === undefined) {
+      throw new Error('Invalid before step')
+    }
+    const fromState = fromStep.name
+    let toState: string
+    if (test.after !== undefined) {
+      const afterStep = test.after.step
+      if (afterStep === RUN_STEP_END) {
+        toState = '∅'
+      } else {
+        const toStep = steps[afterStep]
+        if (toStep === undefined) {
+          throw new Error('Invalid to step')
+        }
+        toState = toStep.name
+      }
+    } else if (test.error != null) {
+      toState = 'error'
+    } else {
+      throw new Error('Invalid after step')
+    }
+    const key = `${fromState} -> ${toState}`
+    let keyTests = descriptions[key]
+    if (keyTests === undefined) {
+      keyTests = []
+      descriptions[key] = keyTests
+    }
+    keyTests.push(test)
+    return descriptions
+  }, {}), (test: IRunTest) => {
     executeRunTest(steps, test)
   })
 }
