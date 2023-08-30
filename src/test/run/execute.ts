@@ -60,21 +60,16 @@ function executeRunTest (steps: RunSteps, test: IRunTest): void {
     expect(exceptionCaught).toBeInstanceOf(test.error)
   } else if (test.after !== undefined) {
     expect(exceptionCaught).toBeUndefined()
-    if (test.after.result !== undefined) {
-      expect(result).toStrictEqual(test.after.result)
-    } else {
-      expect(result).toBeNull()
-    }
-    if (test.after.index !== undefined) {
-      expect(callStack.index).toStrictEqual(test.after.index)
-    } else if (callStack.step !== RUN_STEP_END) {
-      expect(callStack.index).toStrictEqual(CallStack.NO_INDEX)
-    }
-    if (test.after.parameters !== undefined) {
-      expect(callStack.parameters).toStrictEqual(test.after.parameters)
-    } else {
-      expect(callStack.parameters).toStrictEqual([])
-    }
+    const {
+      result: expectedResult,
+      index: expectedIndex,
+      parameters: expectedParameters,
+      operands: expectedOperands
+    } = test.after
+    expect(result).toStrictEqual(expectedResult ?? null)
+    expect(callStack.index).toStrictEqual(expectedIndex ?? CallStack.NO_INDEX)
+    expect(callStack.parameters).toStrictEqual(expectedParameters ?? [])
+    expect(operands.ref).toStrictEqual(expectedOperands ?? [])
   }
 }
 
