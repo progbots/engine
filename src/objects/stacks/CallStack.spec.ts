@@ -123,12 +123,12 @@ describe('objects/stacks/CallStack', () => {
         expect(stack.index).toStrictEqual(CallStack.NO_INDEX)
       })
 
-      it('can be changed to another value', () => {
+      it('can be set', () => {
         stack.index = 42
         expect(stack.index).toStrictEqual(42)
       })
 
-      it('sets the index on top of the stack', () => {
+      it('sets the index as an integer on top of the stack', () => {
         stack.index = 42
         expect(stack.ref).toStrictEqual<InternalValue[]>([{
           type: ValueType.integer,
@@ -137,6 +137,12 @@ describe('objects/stacks/CallStack', () => {
           type: ValueType.string,
           string: 'test'
         }])
+      })
+
+      it('can be updated', () => {
+        stack.index = 42
+        stack.index = 43
+        expect(stack.index).toStrictEqual(43)
       })
 
       it('pops the index with the value', () => {

@@ -104,15 +104,13 @@ export class CallStack extends ValueStack implements ICallStack {
   }
 
   set index (value: number) {
-    const newValue: InternalValue = {
+    if (this.topIsInteger()) {
+      super.pop()
+    }
+    this._push({
       type: ValueType.integer,
       number: value
-    }
-    if (this.topIsInteger()) {
-      this.splice(1, newValue)
-    } else {
-      this._push(newValue)
-    }
+    })
   }
 
   get parameters (): readonly InternalValue[] {
