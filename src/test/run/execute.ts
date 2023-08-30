@@ -61,14 +61,19 @@ function executeRunTest (steps: RunSteps, test: IRunTest): void {
   } else if (test.after !== undefined) {
     expect(exceptionCaught).toBeUndefined()
     const {
+      step: resultStep,
       result: expectedResult,
       index: expectedIndex,
       parameters: expectedParameters,
       operands: expectedOperands
     } = test.after
+    const expectedStep = resultStep ?? RUN_STEP_END
+    expect(callStack.step).toStrictEqual(expectedStep)
     expect(result).toStrictEqual(expectedResult ?? null)
-    expect(callStack.index).toStrictEqual(expectedIndex ?? CallStack.NO_INDEX)
-    expect(callStack.parameters).toStrictEqual(expectedParameters ?? [])
+    if (expectedStep !== RUN_STEP_END) {
+      expect(callStack.index).toStrictEqual(expectedIndex ?? CallStack.NO_INDEX)
+      expect(callStack.parameters).toStrictEqual(expectedParameters ?? [])
+    }
     expect(operands.ref).toStrictEqual(expectedOperands ?? [])
   }
 }
@@ -83,7 +88,7 @@ export function executeRunTests (steps: RunSteps, tests: IRunTest[]): void {
     let toState: string
     if (test.after !== undefined) {
       const afterStep = test.after.step
-      if (afterStep === RUN_STEP_END) {
+      if (afterStep === undefined || afterStep === RUN_STEP_END) {
         toState = '∅'
       } else {
         const toStep = steps[afterStep]
