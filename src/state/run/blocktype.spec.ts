@@ -8,9 +8,15 @@ const STACK = 2
 const block: IArray = {
   length: 2,
   at (index: number): Value {
+    if (index === 0) {
+      return {
+        type: ValueType.integer,
+        number: index
+      }
+    }
     return {
-      type: ValueType.integer,
-      number: index
+      type: ValueType.call,
+      call: 'name'
     }
   }
 }
@@ -67,6 +73,23 @@ describe('state/run/blocktype', () => {
         number: 0
       }],
       index: 1
+    }
+  }, {
+    before: {
+      step: STACK,
+      callStack: [{
+        type: ValueType.block,
+        block
+      }],
+      index: 1
+    },
+    after: {
+      step: LOOP,
+      result: {
+        type: ValueType.call,
+        call: 'name'
+      },
+      index: 2
     }
   }, {
     before: {
