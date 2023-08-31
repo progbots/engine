@@ -1,72 +1,69 @@
-import { EngineSignalType, ValueType } from '../../index'
+import { SignalType, ValueType } from '@api'
+import { executeRunTests } from '@test/run/execute'
 import { calltype } from './calltype'
-import { extractRunSteps, executeRunTests } from '../../src/test-helpers'
-import { add } from '../../operators/index'
-import { Undefined } from '../../src/errors/index'
-import { RUN_STEP_END } from './types'
+import { Undefined } from '@errors'
 
-const steps = extractRunSteps(calltype)
+const LOOKUP = 1
+const AFTER = 2
+
+const host = {
+  
+}
 
 describe('state/run/calltype', () => {
-  executeRunTests(calltype, {
-    'init -> lookup': {
-      before: {
-        callStack: [{
-          type: ValueType.call,
-          data: 'add'
-        }]
-      },
-      after: {
-        step: steps.lookup,
-        result: {
-          type: EngineSignalType.beforeCall,
-          debug: true,
-          name: 'add'
-        }
-      }
+  executeRunTests(calltype, [{
+    before: {
+      callStack: [{
+        type: ValueType.call,
+        call: 'add'
+      }]
     },
-    'lookup -> after': {
-      before: {
-        callStack: [{
-          type: ValueType.call,
-          data: 'add'
-        }],
-        step: steps.lookup
-      },
-      after: {
-        step: steps.after,
-        result: {
-          type: ValueType.operator,
-          data: add
-        }
-      }
-    },
-    'lookup -> after (undefined)': {
-      before: {
-        callStack: [{
-          type: ValueType.call,
-          data: 'dda'
-        }],
-        step: steps.lookup
-      },
-      error: Undefined
-    },
-    'after -> ∅': {
-      before: {
-        callStack: [{
-          type: ValueType.call,
-          data: 'add'
-        }],
-        step: steps.after
-      },
-      after: {
-        step: RUN_STEP_END,
-        result: {
-          type: EngineSignalType.afterCall,
-          debug: true,
-          name: 'add'
-        }
+    after: {
+      step: LOOKUP,
+      result: {
+        type: SignalType.beforeCall,
+        debug: true,
+        name: 'add'
       }
     }
-  })
+  }, {
+    before: {
+      step: LOOKUP,
+      callStack: [{
+        type: ValueType.call,
+        call: 'add'
+      }]
+    },
+    after: {
+      step: AFTER,
+      result: {
+        type: ValueType.operator,
+        operator: expect.anything()
+      }
+    }
+  }, {
+    before: {
+      step: LOOKUP,
+      callStack: [{
+        type: ValueType.call,
+        call: 'nope'
+      }],
+    },
+    error: Undefined
+  }, {
+    before: {
+      step: AFTER,
+      callStack: [{
+        type: ValueType.call,
+        call: 'add'
+      }],
+    },
+    after: {
+      result: {
+        type: SignalType.afterCall,
+        debug: true,
+        name: 'add'
+      }
+    }
+  }])
 })

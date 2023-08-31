@@ -1,33 +1,36 @@
-import { RUN_STEP_END } from './types'
-import { EngineSignalType } from '../../index'
-import { InternalValue, CycleResult, State } from '../index'
+import { CallValue, SignalType, ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
+import { RUN_STEP_END, RunSteps } from './RunSteps'
 
-function init (this: State, { data }: InternalValue): CycleResult {
+function init (this: IInternalState, { call }: CallValue): CycleResult {
   this.calls.step = calltype.indexOf(lookup)
   return {
-    type: EngineSignalType.beforeCall,
+    type: SignalType.beforeCall,
     debug: true,
-    name: data as string
+    name: call
   }
 }
 
-function lookup (this: State, { data }: InternalValue): CycleResult {
-  const resolvedValue = this.dictionaries.lookup(data as string)
+function lookup (this: IInternalState, { call }: CallValue): CycleResult {
+  const value = this.dictionaries.lookup(call)
   this.calls.step = calltype.indexOf(after)
-  // TODO decide if operand / execute
-  return resolvedValue
+  if ([ValueType.block, ValueType.call, ValueType.operator].includes(value.type)) {
+    return value
+  }
+  this.operands.push(value)
+  return null
 }
 
-function after (this: State, { data }: InternalValue): CycleResult {
+function after (this: IInternalState, { call }: CallValue): CycleResult {
   this.calls.step = RUN_STEP_END
   return {
-    type: EngineSignalType.afterCall,
+    type: SignalType.afterCall,
     debug: true,
-    name: data as string
+    name: call
   }
 }
 
-export const calltype = [
+export const calltype: RunSteps<ValueType.call> = [
   init,
   lookup,
   after
