@@ -1,10 +1,11 @@
 import { CycleResult, IInternalState } from '@sdk'
 import { CallStack, DictionaryStack, OperandStack } from '@objects/stacks'
-import { SystemDictionary } from '@objects/dictionaries/System'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { RUN_STEP_END, RunSteps } from '@state/run/RunSteps'
 import { IRunTest } from './IRunTest'
 import { execute } from '../execute'
+import { IDictionary } from '@api'
+import { toDictionary } from '@test/toDictionary'
 
 jest.mock('@operators', () => ({
   add: () => {}
@@ -13,23 +14,28 @@ jest.mock('@operators', () => ({
 function executeRunTest (steps: RunSteps, test: IRunTest): void {
   const tracker = new MemoryTracker()
   const operands = new OperandStack(tracker)
-  const callStack = new CallStack(tracker)
-  const dictionaries = new DictionaryStack(tracker)
-  dictionaries.begin(new SystemDictionary())
-  test.before.callStack.forEach(value => callStack.push(value))
-  if (test.before.step !== undefined) {
-    callStack.step = test.before.step
+  const calls = new CallStack(tracker)
+  const { host, callStack, step, index, parameters } = test.before
+  let hostDictionary: IDictionary | undefined
+  if (host !== undefined) {
+    hostDictionary = toDictionary(host)
   }
-  if (test.before.index !== undefined) {
-    callStack.index = test.before.index
+  const dictionaries = new DictionaryStack(tracker, hostDictionary)
+  const reveresedCallStack = [...callStack].reverse()
+  reveresedCallStack.forEach(value => calls.push(value))
+  if (step !== undefined) {
+    calls.step = step
   }
-  if (test.before.parameters !== undefined) {
-    callStack.parameters = test.before.parameters
+  if (index !== undefined) {
+    calls.index = index
+  }
+  if (parameters !== undefined) {
+    calls.parameters = parameters
   }
   const mockState: IInternalState = {
     memory: tracker,
     operands,
-    calls: callStack,
+    calls,
     dictionaries,
     flags: Object.assign({
       call: true,
@@ -39,7 +45,7 @@ function executeRunTest (steps: RunSteps, test: IRunTest): void {
   }
   const runOneStep = (): CycleResult => {
     const { top, index } = mockState.calls
-    const step = steps[callStack.step]
+    const step = steps[calls.step]
     if (step === undefined) {
       throw new Error('Invalid step leads to undefined handler')
     }
@@ -68,11 +74,11 @@ function executeRunTest (steps: RunSteps, test: IRunTest): void {
       operands: expectedOperands
     } = test.after
     const expectedStep = resultStep ?? RUN_STEP_END
-    expect(callStack.step).toStrictEqual(expectedStep)
+    expect(calls.step).toStrictEqual(expectedStep)
     expect(result).toStrictEqual(expectedResult ?? null)
     if (expectedStep !== RUN_STEP_END) {
-      expect(callStack.index).toStrictEqual(expectedIndex ?? CallStack.NO_INDEX)
-      expect(callStack.parameters).toStrictEqual(expectedParameters ?? [])
+      expect(calls.index).toStrictEqual(expectedIndex ?? CallStack.NO_INDEX)
+      expect(calls.parameters).toStrictEqual(expectedParameters ?? [])
     }
     expect(operands.ref).toStrictEqual(expectedOperands ?? [])
   }
