@@ -3,7 +3,7 @@ import { scanGenericValue, scanOperatorFunction } from '@sdk'
 
 export type DictionaryMapping = Record<string, string | number | Function | Value>
 
-export function toDictionary (mapping: DictionaryMapping): IDictionary {
+export function toIDictionary (mapping: DictionaryMapping): IDictionary {
   return {
     get names () {
       return Object.keys(mapping)

@@ -1,7 +1,7 @@
 import { IStateFlags } from '@api'
 import { CycleResult, InternalValue } from '@sdk'
 import { ITest } from '../ITest'
-import { DictionaryMapping } from '../toDictionary'
+import { DictionaryMapping } from '../toIDictionary'
 
 export interface IRunTest extends ITest {
   before: {

@@ -4,7 +4,7 @@ import { State } from '@state/State'
 import { IStateTest } from './IStateTest'
 import { execute } from '../execute'
 import { waitForCycles } from '../wait-for-cycles'
-import { toDictionary } from '../toDictionary'
+import { toIDictionary } from '../toIDictionary'
 
 export const SOURCE_FILE = 'test-src.ps'
 
@@ -19,7 +19,7 @@ function executeStateTest (test: IStateTest): void {
   } = test
   let hostDictionary: IDictionary | undefined
   if (host !== undefined) {
-    hostDictionary = toDictionary(host)
+    hostDictionary = toIDictionary(host)
   }
   const state = new State({
     hostDictionary

@@ -5,7 +5,7 @@ import { RUN_STEP_END, RunSteps } from '@state/run/RunSteps'
 import { IRunTest } from './IRunTest'
 import { execute } from '../execute'
 import { IDictionary } from '@api'
-import { toDictionary } from '@test/toDictionary'
+import { toIDictionary } from '@test/toIDictionary'
 
 jest.mock('@operators', () => ({
   add: () => {}
@@ -18,7 +18,7 @@ function executeRunTest (steps: RunSteps, test: IRunTest): void {
   const { host, callStack, step, index, parameters } = test.before
   let hostDictionary: IDictionary | undefined
   if (host !== undefined) {
-    hostDictionary = toDictionary(host)
+    hostDictionary = toIDictionary(host)
   }
   const dictionaries = new DictionaryStack(tracker, hostDictionary)
   const reveresedCallStack = [...callStack].reverse()
