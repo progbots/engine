@@ -115,7 +115,7 @@ export const scanCallValue = buildScan<CallValue>(
 
 const INVALID_OPERATOR_FUNCTION = 'Invalid OperatorFunction'
 
-export function checkOperatorFunction (value: any): asserts value is IOperatorFunction {
+export function scanOperatorFunction (value: any): asserts value is IOperatorFunction {
   const { name, constant, typeCheck, loop, catch: catchFunc, finally: finallyFunc } = value
   try {
     if (typeof value !== 'function' || typeof name !== 'string') {
@@ -143,7 +143,7 @@ export const scanOperatorValue = buildScan<OperatorValue>(
   checkOperatorValue,
   (value) => {
     const { operator } = value
-    checkOperatorFunction(operator)
+    scanOperatorFunction(operator)
     return true
   }
 )
