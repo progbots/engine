@@ -15,7 +15,7 @@ export interface IRunTest extends ITest {
     step?: number // RUN_STEP_END if not specified
     result?: CycleResult // null if not specified
     index?: number
-    parameters?: InternalValue[],
+    parameters?: InternalValue[]
     operands?: InternalValue[]
   }
 }
