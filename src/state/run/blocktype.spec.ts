@@ -1,12 +1,15 @@
 import { SignalType, IArray, Value, ValueType } from '@api'
 import { executeRunTests } from '@test/run/execute'
 import { blocktype } from './blocktype'
+import { CycleResult } from '@sdk'
 
 const LOOP = 1
 const STACK = 2
 
+const operator = (): CycleResult => null
+
 const block: IArray = {
-  length: 2,
+  length: 3,
   at (index: number): Value {
     if (index === 0) {
       return {
@@ -14,9 +17,15 @@ const block: IArray = {
         number: index
       }
     }
+    if (index === 1) {
+      return {
+        type: ValueType.call,
+        call: 'name'
+      }
+    }
     return {
-      type: ValueType.call,
-      call: 'name'
+      type: ValueType.operator,
+      operator
     }
   }
 }
@@ -93,12 +102,29 @@ describe('state/run/blocktype', () => {
     }
   }, {
     before: {
-      step: LOOP,
+      step: STACK,
       callStack: [{
         type: ValueType.block,
         block
       }],
       index: 2
+    },
+    after: {
+      step: LOOP,
+      result: {
+        type: ValueType.operator,
+        operator
+      },
+      index: 3
+    }
+  }, {
+    before: {
+      step: LOOP,
+      callStack: [{
+        type: ValueType.block,
+        block
+      }],
+      index: 3
     },
     after: {
       result: {
