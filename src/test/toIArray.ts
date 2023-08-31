@@ -1,7 +1,7 @@
 import { IArray, Value } from '@api'
 import { CompatibleValue, toValue } from './toValue'
 
-export function toIDictionary (values: CompatibleValue[]): IArray {
+export function toIArray (values: CompatibleValue[]): IArray {
   return {
     get length () {
       return values.length
