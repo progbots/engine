@@ -1,9 +1,10 @@
-import { IDictionary, Value, ValueType } from '@api'
+import { IDictionary } from '@api'
 import { InternalError } from '@errors'
 import { State } from '@state/State'
 import { IStateTest } from './IStateTest'
 import { execute } from '../execute'
 import { waitForCycles } from '../wait-for-cycles'
+import { toDictionary } from '../toDictionary'
 
 export const SOURCE_FILE = 'test-src.ps'
 
@@ -18,22 +19,7 @@ function executeStateTest (test: IStateTest): void {
   } = test
   let hostDictionary: IDictionary | undefined
   if (host !== undefined) {
-    hostDictionary = {
-      get names () {
-        return Object.keys(host)
-      },
-
-      lookup (name: string): Value | null {
-        const operator = host[name]
-        if (operator === undefined) {
-          return null
-        }
-        return {
-          type: ValueType.operator,
-          operator
-        }
-      }
-    }
+    hostDictionary = toDictionary(host)
   }
   const state = new State({
     hostDictionary
