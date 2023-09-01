@@ -1,41 +1,38 @@
-import { ValueType } from '../index'
-import { InternalValue } from './index'
+import { ValueType } from '@api'
+import { DebugInfos, InternalValue } from '@sdk'
 
-export type ParsedValue = InternalValue & {
-  sourcePos: number
-  nextPos: number
-}
-
-export function parse (source: string, pos: number): ParsedValue | undefined {
+export function parse (source: string, filename: string, pos: number): InternalValue | undefined {
   const matcher = /%[^\n]*|(?:"([^"]*)")|\s|((?:-|\+)?\d+)|(\[|\]|{|}|[^[\]{}}\s]+)/g
   matcher.lastIndex = pos
   let match = matcher.exec(source)
   while (match !== null) {
-    const [, string, integer, call] = match
-    const baseValue = {
+    const [text, string, integer, call] = match
+    const debug: DebugInfos = {
       source,
-      sourcePos: match.index,
-      nextPos: match.index + match[0].length
+      filename,
+      pos: match.index,
+      length: text.length
     }
     if (string !== undefined) {
       return {
-        ...baseValue,
+        debug,
         type: ValueType.string,
         string
       }
     } else if (integer !== undefined) {
       return {
-        ...baseValue,
+        debug,
         type: ValueType.integer,
         number: parseInt(integer, 10)
       }
     } else if (call !== undefined) {
       return {
-        ...baseValue,
+        debug,
         type: ValueType.call,
         call
       }
     }
     match = matcher.exec(source)
   }
+  return undefined
 }
