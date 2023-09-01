@@ -1,7 +1,8 @@
 import { Value } from '@api'
 import { DebugInfos } from './DebugInfos'
 
-export type Internal<T> = T & DebugInfos & {
+export type Internal<T> = T & {
+  debug?: DebugInfos
   untracked?: boolean // Disable memory tracking for the value
 }
 
