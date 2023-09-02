@@ -12,18 +12,21 @@ function * parseAll (source: string): Generator<InternalValue> {
     if (result === undefined) {
       break
     }
+    if (result.debug === undefined) {
+      throw new Error('Unexpected undefined debug')
+    }
     yield result
-    pos += result.debug!.length
+    pos += result.debug.length
   }
 }
 
 describe('state/parser', () => {
   const values = {
-    '1': {
+    '1 ': {
       type: ValueType.integer,
       number: 1
     },
-    '123': {
+    '123 ': {
       type: ValueType.integer,
       number: 123
     },
