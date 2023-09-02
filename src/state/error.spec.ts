@@ -1,4 +1,4 @@
-import { Break, InvalidBreak, RangeCheck } from '../src/errors/index'
+import { Break, InvalidBreak, RangeCheck } from '@errors'
 import { wrapError } from './error'
 
 describe('state/error', () => {

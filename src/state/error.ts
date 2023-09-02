@@ -1,5 +1,4 @@
-import { InternalError } from '../src/errors/InternalError'
-import { Break, InvalidBreak } from '../src/errors/index'
+import { Break, InternalError, InvalidBreak } from '@errors'
 
 export function wrapError (error: Error): void {
   if (error !== undefined) {
