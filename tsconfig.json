@@ -4,6 +4,7 @@
     "module": "commonjs",
     "rootDir": "./src",
     "baseUrl": "./src",
+    "outDir": "./dist",
     "paths": {
       "@api": ["api/index"],
       "@factory": ["api/factory"],
