@@ -1,7 +1,7 @@
 import { ValueType, checkCallValue } from '@api'
 import { InternalValue, scanGenericValue } from '@sdk'
 import { parse } from './parser'
-import { getKeys } from '@typescript'
+import { getKeys } from '@ts'
 
 const FILENAME = 'parser.spec'
 
@@ -16,17 +16,17 @@ function * parseAll (source: string): Generator<InternalValue> {
       throw new Error('Unexpected undefined debug')
     }
     yield result
-    pos += result.debug.length
+    pos = result.debug.pos + result.debug.length
   }
 }
 
 describe('state/parser', () => {
   const values = {
-    '1 ': {
+    1: {
       type: ValueType.integer,
       number: 1
     },
-    '123 ': {
+    123: {
       type: ValueType.integer,
       number: 123
     },
@@ -87,7 +87,7 @@ describe('state/parser', () => {
   getKeys(values).forEach(src => {
     const expected = values[src]
     it(`generates ${JSON.stringify(expected)}`, () => {
-      const values = [...parseAll(src)]
+      const values = [...parseAll(src.toString())]
       expect(values.length).toStrictEqual(1)
       const [value] = values
       scanGenericValue(value)
@@ -107,8 +107,9 @@ describe('state/parser', () => {
 
   it('generates values', () => {
     const source = '1 2 add'
-    const block = [...parseAll(source)]
-    expect(block).toStrictEqual<InternalValue[]>([{
+    const values = [...parseAll(source)]
+    console.log(values)
+    expect(values).toStrictEqual<InternalValue[]>([{
       type: ValueType.integer,
       number: 1,
       debug: {
