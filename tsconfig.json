@@ -19,7 +19,7 @@
       "@state/*": ["state/*"],
       "@sdk": ["sdk/index"],
       "@test/*": ["test/*"],
-      "@typescript": ["TypeScript"]
+      "@ts": ["ts-helpers"]
     },                                      
     "declaration": true,
     "removeComments": true,
