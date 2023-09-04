@@ -2,6 +2,7 @@ import { Value, ValueType } from '@api'
 import { InternalValue, IWritableDictionary, scanGenericValue } from '@sdk'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { ShareableObject } from '@objects/ShareableObject'
+import { dictTypeName } from './dict-type'
 
 export class Dictionary extends ShareableObject implements IWritableDictionary {
   public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
@@ -23,6 +24,12 @@ export class Dictionary extends ShareableObject implements IWritableDictionary {
   }
 
   lookup (name: string): Value | null {
+    if (name === dictTypeName) {
+      return {
+        type: ValueType.string,
+        string: 'dict'
+      }
+    }
     const value = this._values[name]
     if (value === undefined) {
       return null

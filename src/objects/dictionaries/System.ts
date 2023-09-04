@@ -3,6 +3,7 @@ import { IOperatorFunction } from '@sdk'
 import { ShareableObject } from '@objects/ShareableObject'
 import * as operatorFunctions from '@operators'
 import * as errorFunctions from '@operators/errors'
+import { dictTypeName } from './dict-type'
 
 const operators: Record<string, IOperatorFunction> = {}
 
@@ -21,6 +22,12 @@ export class SystemDictionary extends ShareableObject implements IDictionary {
   }
 
   lookup (name: string): Value | null {
+    if (name === dictTypeName) {
+      return {
+        type: ValueType.string,
+        string: 'systemdict'
+      }
+    }
     const operator = operators[name]
     if (operator === undefined) {
       return null
