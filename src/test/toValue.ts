@@ -1,7 +1,7 @@
 import { Value, ValueType } from '@api'
-import { scanGenericValue, scanOperatorFunction } from '@sdk'
+import { InternalValue, scanGenericValue, scanOperatorFunction } from '@sdk'
 
-export type CompatibleValue = string | number | Function | Value
+export type CompatibleValue = string | number | Function | Value | InternalValue
 
 export function toValue (value: CompatibleValue): Value {
   if (typeof value === 'string') {
