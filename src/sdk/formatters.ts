@@ -11,7 +11,7 @@ import {
   checkDictionaryValue,
   IArray
 } from '@api'
-import { HostDictionary, SystemDictionary } from '@dictionaries'
+import { dictTypeName } from '@objects/dictionaries/dict-type'
 
 function formatArray (array: IArray, begin: string, end: string): string {
   const output = [begin]
@@ -61,12 +61,8 @@ export const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.dictionary]: (value: Value): string => {
     checkDictionaryValue(value)
     const namesCount = value.dictionary.names.length.toString()
-    if (value.dictionary instanceof HostDictionary) {
-      return `--hostdict(${namesCount})--`
-    }
-    if (value.dictionary instanceof SystemDictionary) {
-      return `--systemdict(${namesCount})--`
-    }
-    return `--dictionary(${namesCount})--`
+    const dictName = value.dictionary.lookup(dictTypeName) ?? { type: ValueType.string, string: 'unknown' }
+    checkStringValue(dictName)
+    return `--${dictName.string}(${namesCount})--`
   }
 }
