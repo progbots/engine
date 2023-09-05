@@ -1,8 +1,8 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/array/aload', () => {
-  executeTests({
+  executeStateTests({
     'pushes all the element of the array': {
       src: '[1 2 3] aload',
       expect: '1 2 3'
