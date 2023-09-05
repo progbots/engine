@@ -1,10 +1,14 @@
 import { IOperatorAttributes, IOperatorFunction } from '@sdk'
 import { getKeys } from '../ts-helpers'
 
-export function setOperatorAttributes (operator: IOperatorFunction, attributes: IOperatorAttributes): void {
+interface IOperatorAttributesAndName extends IOperatorAttributes {
+  name?: string
+}
+
+export function setOperatorAttributes (operator: IOperatorFunction, attributes: IOperatorAttributesAndName): void {
   Object.defineProperties(operator, getKeys(attributes).reduce((
     properties: PropertyDescriptorMap,
-    attributeName: keyof IOperatorAttributes
+    attributeName: keyof IOperatorAttributesAndName
   ): PropertyDescriptorMap => {
     properties[attributeName] = {
       value: attributes[attributeName],
