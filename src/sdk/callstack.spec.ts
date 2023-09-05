@@ -51,7 +51,7 @@ const testCases: Record<string, TestCase> = {
         length: 7
       }
     }],
-    expected: '"1 »2« add" @test.ps:2'
+    expected: '"1 »2« add" @test.ps'
   },
   'formats parsed content': {
     calls: [{

@@ -70,14 +70,19 @@ export function renderCallStack (calls: IArray): string {
   const callstack: string[] = []
   let callIndex: number | undefined
   for (const value of getIArrayValues(calls)) {
-    if (value.type === ValueType.integer) {
+    const { type } = value
+    if (type === ValueType.integer) {
       callIndex = value.number
       continue
     }
     let debugInfo = ''
     const debug = getDebugInfos(value)
     if (debug !== undefined) {
-      debugInfo = ` @${debug.filename}:${debug.pos.toString()}`
+      if (type === ValueType.string) {
+        debugInfo = ` @${debug.filename}`
+      } else {
+        debugInfo = ` @${debug.filename}:${debug.pos.toString()}`
+      }
     }
     const rendered = renderers[value.type](value, callIndex)
     callstack.push(rendered + debugInfo)
