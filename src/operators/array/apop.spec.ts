@@ -1,8 +1,8 @@
-import { RangeCheck, StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { RangeCheck, StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/array/apop', () => {
-  executeTests({
+  executeStateTests({
     'removes the last element of  the array': {
       src: 'mark [1 2 3] dup apop exch aload',
       expect: 'mark 3 1 2'

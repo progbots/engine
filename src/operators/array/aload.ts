@@ -1,19 +1,12 @@
-import { State, InternalValue, CycleResult, checkIArray } from '../../state/index'
-import { ValueType } from '../../index'
-import { TypeCheck } from '../../src/errors/index'
-import { setOperatorAttributes } from '../attributes'
+import { getIArrayValues } from '@api'
+import { InternalValue, CycleResult, IInternalState } from '@sdk'
+import { setOperatorAttributes } from '@operators/attributes'
+import { extractArray } from './extract-array'
 
-/* eslint-disable no-labels */
-
-export function aload ({ operands }: State, [{ type, data }]: readonly InternalValue[]): CycleResult {
-  if (![ValueType.array, ValueType.block, ValueType.proc].includes(type)) {
-    throw new TypeCheck()
-  }
-  assert: checkIArray(data)
-  const { length } = data
+export function aload ({ operands }: IInternalState, operand: InternalValue): CycleResult {
+  const array = extractArray(operand)
   operands.pop()
-  for (let index = 0; index < length; ++index) {
-    const value = data.at(index)
+  for (const value of getIArrayValues(array)) {
     operands.push(value)
   }
   return null

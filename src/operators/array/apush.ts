@@ -1,13 +1,14 @@
-import { CycleResult, State } from '../../state/index'
-import { ValueType } from '../../index'
-import { ArrayLike } from '../../objects/Array'
+import { CycleResult, IInternalState, InternalValue } from '@sdk'
+import { setOperatorAttributes } from '@operators/attributes'
+import { extractValueArray } from './extract-array'
 
-/* eslint-disable no-labels */
-
-export function apush ({ operands }: State): CycleResult {
-  const [value, { data }] = operands.check(null, ValueType.array)
-  assert: ArrayLike.check(data)
-  data.push(value)
+export function apush ({ operands }: IInternalState, operand: InternalValue, value: InternalValue): CycleResult {
+  const array = extractValueArray(operand)
+  array.push(value)
   operands.splice(2)
   return null
 }
+
+setOperatorAttributes(apush, {
+  typeCheck: [null, null]
+})

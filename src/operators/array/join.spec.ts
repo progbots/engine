@@ -1,8 +1,8 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/array/join', () => {
-  executeTests({
+  executeStateTests({
     'converts a string array into a string': {
       src: '[ "Hello" " " "World" " !"] join',
       expect: '"Hello World !"'

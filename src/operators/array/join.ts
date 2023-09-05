@@ -1,24 +1,27 @@
-import { ValueType } from '../../index'
-import { TypeCheck } from '../../src/errors/index'
-import { CycleResult, State, checkStringValue } from '../../state/index'
-import { ArrayLike } from '../../objects/Array'
+import { ValueType, checkStringValue, getIArrayValues } from '@api'
+import { CycleResult, IInternalState, InternalValue } from '@sdk'
+import { TypeCheck } from '@errors'
+import { setOperatorAttributes } from '@operators/attributes'
+import { extractArray } from './extract-array'
 
-/* eslint-disable no-labels */
-
-export function join (state: State): CycleResult {
-  const { operands } = state
-  const [{ data }] = operands.check(ValueType.array)
-  assert: ArrayLike.check(data)
-  if (data.some(value => value.type !== ValueType.string)) {
+export function join ({ operands }: IInternalState, operand: InternalValue): CycleResult {
+  const array = extractArray(operand)
+  const strings = []
+  try {
+    for (const value of getIArrayValues(array)) {
+      checkStringValue(value)
+      strings.push(value.string)
+    }
+  } catch (e) {
     throw new TypeCheck()
   }
-  const strings = data.ref.map(value => {
-    assert: checkStringValue(value)
-    return value.data
-  })
   operands.splice(1, {
     type: ValueType.string,
-    data: strings.join('')
+    string: strings.join('')
   })
   return null
 }
+
+setOperatorAttributes(join, {
+  typeCheck: [ValueType.array]
+})

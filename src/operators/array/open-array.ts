@@ -1,8 +1,8 @@
-import { CycleResult, State } from '../../state/index'
+import { CycleResult, IInternalState } from '@sdk'
 import { openWithMark } from '../open-close-helper'
-import { setOperatorAttributes } from '../attributes'
+import { setOperatorAttributes } from '@operators/attributes'
 
-export function openArray (state: State): CycleResult {
+export function openArray (state: IInternalState): CycleResult {
   openWithMark(state)
   return null
 }
