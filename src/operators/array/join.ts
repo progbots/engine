@@ -2,10 +2,10 @@ import { ValueType, checkStringValue, getIArrayValues } from '@api'
 import { CycleResult, IInternalState, InternalValue } from '@sdk'
 import { TypeCheck } from '@errors'
 import { setOperatorAttributes } from '@operators/attributes'
-import { extractArray } from './extract-array'
+import { extractIArray } from './extract-array'
 
 export function join ({ operands }: IInternalState, operand: InternalValue): CycleResult {
-  const array = extractArray(operand)
+  const array = extractIArray(operand)
   const strings = []
   try {
     for (const value of getIArrayValues(array)) {

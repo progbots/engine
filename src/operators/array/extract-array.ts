@@ -3,7 +3,7 @@ import { InternalValue } from '@sdk'
 import { TypeCheck } from '@errors'
 import { ValueArray } from '@objects/ValueArray';
 
-export function extractArray (operand: InternalValue): IArray {
+export function extractIArray (operand: InternalValue): IArray {
   const { type } = operand
   let array: IArray
   if (type === ValueType.array) {
@@ -17,7 +17,7 @@ export function extractArray (operand: InternalValue): IArray {
 }
 
 export function extractValueArray (operand: InternalValue): ValueArray {
-  const array = extractArray(operand)
+  const array = extractIArray(operand)
   try {
     ValueArray.check(array)
     return array
