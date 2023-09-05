@@ -1,9 +1,9 @@
-import { CycleResult, State } from '../../state/index'
-import { ValueType } from '../../index'
+import { ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
 import { closeToMark } from '../open-close-helper'
 import { setOperatorAttributes } from '../attributes'
 
-export function closeArray (state: State): CycleResult {
+export function closeArray (state: IInternalState): CycleResult {
   closeToMark(state, ValueType.array)
   return null
 }
