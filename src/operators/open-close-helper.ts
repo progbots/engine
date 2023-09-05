@@ -1,9 +1,9 @@
-import { ValueType } from '../index'
-import { ArrayLike } from '../objects/Array'
-import { State } from '../state/index'
+import { ValueType } from '@api'
+import { IInternalState } from '@sdk'
+import { ValueArray } from '@objects/ValueArray'
 import { extractDebugInfos } from './debug-infos'
 
-export function openWithMark ({ operands, calls }: State): void {
+export function openWithMark ({ operands, calls }: IInternalState): void {
   const openInstruction = calls.ref[1]
   operands.push({
     ...extractDebugInfos(openInstruction),
@@ -12,11 +12,11 @@ export function openWithMark ({ operands, calls }: State): void {
   })
 }
 
-export function closeToMark (state: State, type: ValueType.array | ValueType.block): void {
+export function closeToMark (state: IInternalState, type: ValueType.array | ValueType.block): void {
   const { operands } = state
   const markPos = operands.findMarkPos()
   const mark = operands.ref[markPos]
-  const array = new ArrayLike(state.memoryTracker)
+  const array = new ValueArray(state.memoryTracker)
   try {
     let index: number
     for (index = 0; index < markPos; ++index) {
