@@ -5,5 +5,5 @@ import { IOperatorAttributes } from './IOperatorAttributes'
 import { InternalValue } from './InternalValue'
 
 export interface IOperatorFunction extends IOperator, IOperatorAttributes {
-  (state: IInternalState, parameters: readonly [InternalValue, ...InternalValue[]]): CycleResult
+  (state: IInternalState, ...operands: InternalValue[]): CycleResult
 }
