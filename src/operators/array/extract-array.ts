@@ -1,7 +1,7 @@
-import { IArray, ValueType } from '@api';
+import { IArray, ValueType } from '@api'
 import { InternalValue } from '@sdk'
 import { TypeCheck } from '@errors'
-import { ValueArray } from '@objects/ValueArray';
+import { ValueArray } from '@objects/ValueArray'
 
 export function extractIArray (operand: InternalValue): IArray {
   const { type } = operand
