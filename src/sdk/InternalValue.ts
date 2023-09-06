@@ -6,9 +6,9 @@ export type Internal<T> = T & {
   untracked?: boolean // Disable memory tracking for the value
 }
 
-export type InternalValue = Internal<Value>
+export type InternalValue<T = any> = Internal<Value<T>>
 
-export function checkInternalValue (value: Value): asserts value is InternalValue {
+export function checkInternalValue<T = any> (value: Value<T>): asserts value is InternalValue<T> {
   // Since additional members are optionals, nothing to check
 }
 
