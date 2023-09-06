@@ -1,1 +1,5 @@
-export const dictTypeName = 'hidden-dict-type-name'
+export const DICT_TYPE = 'dict'
+export const HOST_TYPE = 'hostdict'
+export const SYSTEM_TYPE = 'systemdict'
+export const EXTERNAL_TYPE = 'external'
+export const DICT_TYPE_INTERNAL_NAME = '  dict-type-internal-name  '

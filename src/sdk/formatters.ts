@@ -11,7 +11,7 @@ import {
   checkDictionaryValue,
   IArray
 } from '@api'
-import { dictTypeName } from '@objects/dictionaries/dict-type'
+import { DICT_TYPE_INTERNAL_NAME, EXTERNAL_TYPE } from '@objects/dictionaries/dict-type'
 
 function formatArray (array: IArray, begin: string, end: string): string {
   const output = [begin]
@@ -61,7 +61,7 @@ export const formatters: Record<ValueType, (value: Value) => string> = {
   [ValueType.dictionary]: (value: Value): string => {
     checkDictionaryValue(value)
     const namesCount = value.dictionary.names.length.toString()
-    const dictName = value.dictionary.lookup(dictTypeName) ?? { type: ValueType.string, string: 'unknown' }
+    const dictName = value.dictionary.lookup(DICT_TYPE_INTERNAL_NAME) ?? { type: ValueType.string, string: EXTERNAL_TYPE }
     checkStringValue(dictName)
     return `--${dictName.string}(${namesCount})--`
   }
