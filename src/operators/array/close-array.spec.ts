@@ -19,11 +19,11 @@ describe('operators/array/close-array (])', () => {
         expect(array.at(0)).toStrictEqual<Value>({
           type: ValueType.integer,
           number: 3
-        });
+        })
         expect(array.at(1)).toStrictEqual<Value>({
           type: ValueType.integer,
           number: 4
-        });
+        })
       }
     },
     'evaluates calls during the array creation': {
