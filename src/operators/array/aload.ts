@@ -12,6 +12,6 @@ export function aload ({ operands }: IInternalState, operand: InternalValue): Cy
   return null
 }
 
-setOperatorAttributes(aload, {
+setOperatorAttributes<null>(aload, {
   typeCheck: [null]
 })

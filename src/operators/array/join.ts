@@ -1,10 +1,10 @@
-import { ValueType, checkStringValue, getIArrayValues } from '@api'
-import { CycleResult, IInternalState, InternalValue } from '@sdk'
+import { ArrayValue, ValueType, checkStringValue, getIArrayValues } from '@api'
+import { CycleResult, IInternalState, Internal } from '@sdk'
 import { TypeCheck } from '@errors'
 import { setOperatorAttributes } from '@operators/attributes'
 import { extractIArray } from './extract-array'
 
-export function join ({ operands }: IInternalState, operand: InternalValue): CycleResult {
+export function join ({ operands }: IInternalState, operand: Internal<ArrayValue>): CycleResult {
   const array = extractIArray(operand)
   const strings = []
   try {
@@ -22,6 +22,6 @@ export function join ({ operands }: IInternalState, operand: InternalValue): Cyc
   return null
 }
 
-setOperatorAttributes(join, {
+setOperatorAttributes<ValueType.array>(join, {
   typeCheck: [ValueType.array]
 })
