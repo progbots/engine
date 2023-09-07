@@ -9,6 +9,7 @@ import {
   IntegerValue,
   OperatorValue,
   StringValue,
+  Value,
   ValueType,
   checkArrayValue,
   checkBlockValue,
@@ -37,50 +38,43 @@ export function scanGenericValue (value: any): asserts value is InternalValue {
   }
 }
 
-function buildScan<T> (
-  type: ValueType,
-  check: (value: any) => asserts value is T,
-  scan: (value: T) => boolean
-): (value: any) => asserts value is T {
-  return function (value: any) {
-    try {
-      scanGenericValue(value)
-      check(value)
-      if (!scan(value)) {
-        throw Error()
-      }
-    } catch (e) {
-      throwValueIsNotOfType(type)
+function scan<T extends ValueType> (
+  type: T,
+  value: Value<T>,
+  check: (value: Value<T>) => asserts value is Value<T>,
+  scan: (value: Value<T>) => boolean
+): void {
+  try {
+    scanGenericValue(value)
+    check(value)
+    if (!scan(value)) {
+      throw Error()
     }
+  } catch (e) {
+    throwValueIsNotOfType(type)
   }
 }
 
-export const scanBooleanValue = buildScan<BooleanValue>(
-  ValueType.boolean,
-  checkBooleanValue,
-  (value) => {
+export function scanBooleanValue (value: any): asserts value is BooleanValue {
+  scan(ValueType.boolean, value, checkBooleanValue, (value) => {
     const { isSet } = value
     return typeof isSet === 'boolean'
-  }
-)
+  })
+}
 
-export const scanIntegerValue = buildScan<IntegerValue>(
-  ValueType.integer,
-  checkIntegerValue,
-  (value) => {
+export function scanIntegerValue (value: any): asserts value is IntegerValue {
+  scan(ValueType.integer, value, checkIntegerValue, (value) => {
     const { number } = value
     return typeof number === 'number'
-  }
-)
+  })
+}
 
-export const scanStringValue = buildScan<StringValue>(
-  ValueType.string,
-  checkStringValue,
-  (value) => {
+export function scanStringValue (value: any): asserts value is StringValue {
+  scan(ValueType.string, value, checkStringValue, (value) => {
     const { string } = value
     return typeof string === 'string'
-  }
-)
+  })
+}
 
 const INVALID_IARRAY = 'Invalid IArray'
 
@@ -94,24 +88,20 @@ export function scanIArray (value: any): asserts value is IArray {
   }
 }
 
-export const scanBlockValue = buildScan<BlockValue>(
-  ValueType.block,
-  checkBlockValue,
-  (value) => {
+export function scanBlockValue (value: any): asserts value is BlockValue {
+  scan(ValueType.block, value, checkBlockValue, (value) => {
     const { block } = value
     scanIArray(block)
     return true
-  }
-)
+  })
+}
 
-export const scanCallValue = buildScan<CallValue>(
-  ValueType.call,
-  checkCallValue,
-  (value) => {
+export function scanCallValue (value: any): asserts value is CallValue {
+  scan(ValueType.call, value, checkCallValue, (value) => {
     const { call } = value
     return typeof call === 'string'
-  }
-)
+  })
+}
 
 const INVALID_OPERATOR_FUNCTION = 'Invalid OperatorFunction'
 
@@ -138,25 +128,21 @@ export function scanOperatorFunction (value: any): asserts value is IOperatorFun
   }
 }
 
-export const scanOperatorValue = buildScan<OperatorValue>(
-  ValueType.operator,
-  checkOperatorValue,
-  (value) => {
+export function scanOperatorValue (value: any): asserts value is OperatorValue {
+  scan(ValueType.operator, value, checkOperatorValue, (value) => {
     const { operator } = value
     scanOperatorFunction(operator)
     return true
-  }
-)
+  })
+}
 
-export const scanArrayValue = buildScan<ArrayValue>(
-  ValueType.array,
-  checkArrayValue,
-  (value) => {
+export function scanArrayValue (value: any): asserts value is ArrayValue {
+  scan(ValueType.array, value, checkArrayValue, (value) => {
     const { array } = value
     scanIArray(array)
     return true
-  }
-)
+  })
+}
 
 const INVALID_IDICTIONARY = 'Not an IDictionary'
 
@@ -178,12 +164,10 @@ export function scanIWritableDictionary (dict: any): asserts dict is IWritableDi
   scanIDictionary(dict)
 }
 
-export const scanDictionaryValue = buildScan<DictionaryValue>(
-  ValueType.dictionary,
-  checkDictionaryValue,
-  (value) => {
+export function scanDictionaryValue (value: any): asserts value is DictionaryValue {
+  scan(ValueType.dictionary, value, checkDictionaryValue, (value) => {
     const { dictionary } = value
     scanIDictionary(dictionary)
     return true
-  }
-)
+  })
+}
