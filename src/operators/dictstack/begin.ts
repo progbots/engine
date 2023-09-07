@@ -1,12 +1,11 @@
-import { ValueType } from '../../index'
-import { CycleResult, State, checkIDictionary } from '../../state/index'
+import { DictionaryValue, ValueType } from '@api'
+import { CycleResult, IInternalState, Internal } from 'sdk'
+import { setOperatorAttributes } from '@operators/attributes'
 
-/* eslint-disable no-labels */
-
-export function begin ({ operands, dictionaries }: State): CycleResult {
-  const [dict] = operands.check(ValueType.dict)
-  assert: checkIDictionary(dict.data)
-  dictionaries.begin(dict.data)
+export function begin ({ operands, dictionaries }: IInternalState, dictionary: Internal<DictionaryValue>): CycleResult {
+  dictionaries.begin(dictionary.dictionary)
   operands.pop()
   return null
 }
+
+setOperatorAttributes(begin, {}, ValueType.dictionary)

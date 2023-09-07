@@ -1,8 +1,8 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/dictstack/begin', () => {
-  executeTests({
+  executeStateTests({
     'adds the dictionary to the dictionary stack': {
       src: 'dict begin dictstack length end',
       expect: '3'
