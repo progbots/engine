@@ -14,6 +14,4 @@ export function apop ({ operands }: IInternalState, operand: InternalValue): Cyc
   return null
 }
 
-setOperatorAttributes<null>(apop, {
-  typeCheck: [null]
-})
+setOperatorAttributes(apop, {}, null)

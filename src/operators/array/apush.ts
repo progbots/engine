@@ -9,6 +9,4 @@ export function apush ({ operands }: IInternalState, operand: InternalValue, val
   return null
 }
 
-setOperatorAttributes<null, null>(apush, {
-  typeCheck: [null, null]
-})
+setOperatorAttributes(apush, {}, null, null)
