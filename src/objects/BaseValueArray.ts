@@ -3,7 +3,7 @@ import { IMemoryTracker, InternalValue, MEMORY_POINTER_SIZE } from '@sdk'
 import { InternalError } from '@errors'
 import { ShareableObject } from './ShareableObject'
 
-const EMPTY_ARRAY = 'Empty array'
+const UNSAFE_VALUE = 'Unexpected unsafe value'
 
 export abstract class BaseValueArray extends ShareableObject implements IArray {
   public static readonly INITIAL_SIZE = MEMORY_POINTER_SIZE
@@ -61,7 +61,7 @@ export abstract class BaseValueArray extends ShareableObject implements IArray {
   protected safeAt (index: number): InternalValue {
     const value = this._values.at(index)
     if (value === undefined) {
-      throw new InternalError(EMPTY_ARRAY)
+      throw new InternalError(UNSAFE_VALUE)
     }
     return value
   }
