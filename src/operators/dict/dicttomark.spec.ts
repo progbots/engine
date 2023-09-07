@@ -1,8 +1,8 @@
-import { TypeCheck, UnmatchedMark } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { TypeCheck, UnmatchedMark } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/dict/dicttomark', () => {
-  executeTests({
+  executeStateTests({
     'builds a dictionary from values in the stack': [{
       src: 'mark dicttomark length',
       expect: '0'

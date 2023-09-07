@@ -1,12 +1,9 @@
-import { TypeCheck } from '../../src/errors/index'
-import { ValueType } from '../../index'
-import { InternalValue, CycleResult, State, checkStringValue } from '../../state/index'
-import { Dictionary } from '../../objects/dictionaries/index'
+import { ValueType, checkStringValue } from '@api'
+import { InternalValue, CycleResult, IInternalState } from '@sdk'
+import { TypeCheck } from '@errors'
+import { Dictionary } from '@dictionaries'
 
-/* eslint-disable no-labels */
-
-export function dicttomark (state: State): CycleResult {
-  const { operands } = state
+export function dicttomark ({ memoryTracker, operands }: IInternalState): CycleResult {
   const pos = operands.findMarkPos()
   if (pos % 2 !== 0) {
     throw new TypeCheck()
@@ -15,25 +12,19 @@ export function dicttomark (state: State): CycleResult {
   if (names.some(value => value.type !== ValueType.string)) {
     throw new TypeCheck()
   }
-  const dict = new Dictionary(state.memoryTracker)
+  const dictionary = new Dictionary(memoryTracker)
   try {
     names.forEach((name: InternalValue, index: number) => {
-      let value: InternalValue = operands.ref[2 * index]
-      if (value.type === ValueType.block) {
-        value = {
-          ...value,
-          type: ValueType.proc
-        }
-      }
-      assert: checkStringValue(name)
-      dict.def(name.data, value)
+      let value = operands.ref[2 * index]
+      checkStringValue(name)
+      dictionary.def(name.string, value)
     })
     operands.splice(pos + 1, {
-      type: ValueType.dict,
-      data: dict
+      type: ValueType.dictionary,
+      dictionary
     })
   } finally {
-    dict.release()
+    dictionary.release()
   }
   return null
 }
