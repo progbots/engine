@@ -22,6 +22,4 @@ export function join ({ operands }: IInternalState, operand: Internal<ArrayValue
   return null
 }
 
-setOperatorAttributes<ValueType.array>(join, {
-  typeCheck: [ValueType.array]
-})
+setOperatorAttributes(join, {}, ValueType.array)
