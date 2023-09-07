@@ -1,7 +1,7 @@
-import { UnmatchedMark } from '@errors'
-import { executeStateTests } from '@test/state/execute'
 import { Value, ValueType, checkArrayValue } from '@api'
 import { IInternalState } from '@sdk'
+import { UnmatchedMark } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 // test-for ../open-close-helper.ts
 // test-for open-array.ts
