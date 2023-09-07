@@ -1,13 +1,13 @@
-import { ValueType } from '../../index'
-import { CycleResult, State } from '../../state/index'
-import { Dictionary } from '../../objects/dictionaries/index'
+import { ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
+import { Dictionary } from '@dictionaries'
 
-export function dict (state: State): CycleResult {
-  const dict = new Dictionary(state.memoryTracker)
+export function dict (state: IInternalState): CycleResult {
+  const dictionary = new Dictionary(state.memoryTracker)
   state.operands.push({
-    type: ValueType.dict,
-    data: dict
+    type: ValueType.dictionary,
+    dictionary
   })
-  dict.release()
+  dictionary.release()
   return null
 }

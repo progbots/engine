@@ -1,16 +1,13 @@
-import { ValueType } from '../../index'
-import { Dictionary } from '../../objects/dictionaries'
-import { State } from '../../state/index'
-import { executeTests } from '../../src/test-helpers'
+import { IInternalState, scanDictionaryValue } from 'sdk'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/dict/dict', () => {
-  executeTests({
+  executeStateTests({
     'creates a new dictionary': {
       src: 'dict',
-      expect: ({ operands }: State) => {
+      expect: ({ operands }: IInternalState) => {
         const top = operands.ref[0]
-        expect(top.type).toStrictEqual(ValueType.dict)
-        expect(top.data).toBeInstanceOf(Dictionary)
+        scanDictionaryValue(top)
       }
     }
   })
