@@ -1,17 +1,16 @@
 import { Value, ValueType } from '@api'
-import { InternalValue, IWritableDictionary, scanGenericValue } from '@sdk'
-import { MemoryTracker } from '@state/MemoryTracker'
+import { IMemoryTracker, InternalValue, IWritableDictionary, MEMORY_POINTER_SIZE, scanGenericValue } from '@sdk'
 import { ShareableObject } from '@objects/ShareableObject'
 import { DICT_TYPE_INTERNAL_NAME, DICT_TYPE } from './dict-type'
 
 export class Dictionary extends ShareableObject implements IWritableDictionary {
-  public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
-  public static readonly VALUE_ADDITIONAL_SIZE = 3 * MemoryTracker.POINTER_SIZE
+  public static readonly INITIAL_SIZE = MEMORY_POINTER_SIZE
+  public static readonly VALUE_ADDITIONAL_SIZE = 3 * MEMORY_POINTER_SIZE
 
   private readonly _values: Record<string, InternalValue> = {}
 
   constructor (
-    private readonly _memoryTracker: MemoryTracker
+    private readonly _memoryTracker: IMemoryTracker
   ) {
     super()
     this._memoryTracker.increment(Dictionary.INITIAL_SIZE)

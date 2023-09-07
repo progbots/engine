@@ -1,5 +1,5 @@
 import { Value, ValueType } from '@api'
-import { InternalValue } from '@sdk'
+import { IMemoryTracker, InternalValue } from '@sdk'
 import { InternalError } from '@errors'
 import { Dictionary } from '@dictionaries/Dictionary'
 import { MemoryTracker } from '@state/MemoryTracker'
@@ -16,7 +16,7 @@ class MyArray extends BaseValueArray {
     return value
   }
 
-  public getMemoryTracker (): MemoryTracker {
+  public getMemoryTracker (): IMemoryTracker {
     return this.memoryTracker
   }
 

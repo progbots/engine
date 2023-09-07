@@ -2,6 +2,7 @@ import { IArray, IDictionary, Value, ValueType } from '@api'
 import { VMError } from '@errors'
 import { ShareableObject } from '@objects/ShareableObject'
 import { MemoryTracker } from './MemoryTracker'
+import { MEMORY_INTEGER_SIZE, MEMORY_VALUE_SIZE } from '@sdk'
 
 class MyObject extends ShareableObject {
   public disposeCalled: number = 0
@@ -69,7 +70,7 @@ describe('state/MemoryTracker', () => {
         type: ValueType.string,
         string: 'small'
       }
-      const expectedSize = MemoryTracker.VALUE_SIZE + 6
+      const expectedSize = MEMORY_VALUE_SIZE + 6
 
       it('counts small string size', () => {
         const tracker = new MemoryTracker()
@@ -99,7 +100,7 @@ describe('state/MemoryTracker', () => {
         type: ValueType.string,
         string: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef')
       }
-      const expectedSize = MemoryTracker.VALUE_SIZE + MemoryTracker.INTEGER_SIZE + MemoryTracker.CACHABLE_STRING_LENGTH + 1
+      const expectedSize = MEMORY_VALUE_SIZE + MEMORY_INTEGER_SIZE + MemoryTracker.CACHABLE_STRING_LENGTH + 1
       let tracker: MemoryTracker
       let initial: number
 
@@ -115,15 +116,15 @@ describe('state/MemoryTracker', () => {
 
       it('does not duplicate string if already reference counted', () => {
         tracker.addValueRef(value) // 2
-        expect(tracker.used).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
-        expect(tracker.peak).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
+        expect(tracker.used).toStrictEqual(expectedSize + MEMORY_VALUE_SIZE)
+        expect(tracker.peak).toStrictEqual(expectedSize + MEMORY_VALUE_SIZE)
       })
 
       it('does not free memory until removed the right number of times', () => {
         tracker.addValueRef(value) // 2
         tracker.releaseValue(value) // 1
         expect(tracker.used).toStrictEqual(expectedSize)
-        expect(tracker.peak).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
+        expect(tracker.peak).toStrictEqual(expectedSize + MEMORY_VALUE_SIZE)
       })
 
       it('frees memory on last release', () => {
@@ -131,7 +132,7 @@ describe('state/MemoryTracker', () => {
         tracker.releaseValue(value) // 1
         tracker.releaseValue(value) // 0
         expect(tracker.used).toStrictEqual(initial)
-        expect(tracker.peak).toStrictEqual(expectedSize + MemoryTracker.VALUE_SIZE)
+        expect(tracker.peak).toStrictEqual(expectedSize + MEMORY_VALUE_SIZE)
       })
     })
 
@@ -144,7 +145,7 @@ describe('state/MemoryTracker', () => {
           string: ''.padStart(MemoryTracker.CACHABLE_STRING_LENGTH, 'abcdef'),
           untracked: true
         })
-        expect(tracker.used - initial).toStrictEqual(MemoryTracker.VALUE_SIZE)
+        expect(tracker.used - initial).toStrictEqual(MEMORY_VALUE_SIZE)
       })
     })
   })

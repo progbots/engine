@@ -1,5 +1,5 @@
 import { IStateMemory, Value, ValueType } from '@api'
-import { InternalValue, IMemoryTracker } from '@sdk'
+import { InternalValue, IMemoryTracker, MEMORY_INTEGER_SIZE, MEMORY_VALUE_SIZE } from '@sdk'
 import { VMError } from '@errors'
 import { ShareableObject } from '@objects/ShareableObject'
 
@@ -19,10 +19,6 @@ function extractString (value: Value): string | undefined {
 }
 
 export class MemoryTracker implements IStateMemory, IMemoryTracker {
-  public static readonly POINTER_SIZE = 4
-  public static readonly INTEGER_SIZE = 4
-  public static readonly VALUE_TYPE_SIZE = 1
-  public static readonly VALUE_SIZE = MemoryTracker.VALUE_TYPE_SIZE + MemoryTracker.POINTER_SIZE
   public static readonly CACHABLE_STRING_LENGTH = 32
 
   private _used: number = 0
@@ -38,7 +34,7 @@ export class MemoryTracker implements IStateMemory, IMemoryTracker {
       if (pos === -1) {
         this._strings.push(string)
         this._stringsRefCount.push(1)
-        return size + MemoryTracker.INTEGER_SIZE
+        return size + MEMORY_INTEGER_SIZE
       }
       ++this._stringsRefCount[pos]
       return 0
@@ -52,7 +48,7 @@ export class MemoryTracker implements IStateMemory, IMemoryTracker {
       const pos = this._strings.indexOf(string)
       const refCount = --this._stringsRefCount[pos]
       if (refCount === 0) {
-        return size + MemoryTracker.INTEGER_SIZE
+        return size + MEMORY_INTEGER_SIZE
       }
       return 0
     }
@@ -82,7 +78,7 @@ export class MemoryTracker implements IStateMemory, IMemoryTracker {
   // region IMemoryTracker
 
   addValueRef (value: InternalValue): void {
-    let valueSize: number = MemoryTracker.VALUE_SIZE
+    let valueSize: number = MEMORY_VALUE_SIZE
     if (value.untracked !== true) {
       const string = extractString(value)
       if (string !== undefined) {
@@ -95,7 +91,7 @@ export class MemoryTracker implements IStateMemory, IMemoryTracker {
   }
 
   releaseValue (value: InternalValue): void {
-    let valueSize: number = MemoryTracker.VALUE_SIZE
+    let valueSize: number = MEMORY_VALUE_SIZE
     if (value.untracked !== true) {
       const string = extractString(value)
       if (string !== undefined) {

@@ -1,19 +1,18 @@
 import { IArray, Value } from '@api'
-import { InternalValue } from '@sdk'
+import { IMemoryTracker, InternalValue, MEMORY_POINTER_SIZE } from '@sdk'
 import { InternalError } from '@errors'
-import { MemoryTracker } from '@state/MemoryTracker'
 import { ShareableObject } from './ShareableObject'
 
 const EMPTY_ARRAY = 'Empty array'
 
 export abstract class BaseValueArray extends ShareableObject implements IArray {
-  public static readonly INITIAL_SIZE = MemoryTracker.POINTER_SIZE
-  public static readonly VALUE_ADDITIONAL_SIZE = MemoryTracker.POINTER_SIZE
+  public static readonly INITIAL_SIZE = MEMORY_POINTER_SIZE
+  public static readonly VALUE_ADDITIONAL_SIZE = MEMORY_POINTER_SIZE
 
   protected readonly _values: InternalValue[] = []
 
   constructor (
-    private readonly _memoryTracker: MemoryTracker
+    private readonly _memoryTracker: IMemoryTracker
   ) {
     super()
     this._memoryTracker.increment(BaseValueArray.INITIAL_SIZE)
@@ -36,7 +35,7 @@ export abstract class BaseValueArray extends ShareableObject implements IArray {
 
   // endregion IArray
 
-  protected get memoryTracker (): MemoryTracker {
+  protected get memoryTracker (): IMemoryTracker {
     return this._memoryTracker
   }
 
