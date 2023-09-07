@@ -1,5 +1,5 @@
 import { IStateMemory, Value, ValueType } from '@api'
-import { InternalValue } from '@sdk'
+import { InternalValue, IMemoryTracker } from '@sdk'
 import { VMError } from '@errors'
 import { ShareableObject } from '@objects/ShareableObject'
 
@@ -18,7 +18,7 @@ function extractString (value: Value): string | undefined {
   return undefined
 }
 
-export class MemoryTracker implements IStateMemory {
+export class MemoryTracker implements IStateMemory, IMemoryTracker {
   public static readonly POINTER_SIZE = 4
   public static readonly INTEGER_SIZE = 4
   public static readonly VALUE_TYPE_SIZE = 1
@@ -63,6 +63,8 @@ export class MemoryTracker implements IStateMemory {
     private readonly _total: number = Infinity
   ) {}
 
+  // region IStateMemory
+
   get used (): number {
     return this._used
   }
@@ -74,6 +76,10 @@ export class MemoryTracker implements IStateMemory {
   get total (): number {
     return this._total
   }
+
+  // endregion IStateMemory
+
+  // region IMemoryTracker
 
   addValueRef (value: InternalValue): void {
     let valueSize: number = MemoryTracker.VALUE_SIZE
@@ -112,4 +118,6 @@ export class MemoryTracker implements IStateMemory {
   decrement (bytes: number): void {
     this._used -= bytes
   }
+
+  // endregion IMemoryTracker
 }
