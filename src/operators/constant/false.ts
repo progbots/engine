@@ -1,6 +1,6 @@
-import { ValueType } from '../../index'
-import { CycleResult } from '../../state/index'
-import { setOperatorAttributes } from '../attributes'
+import { ValueType } from '@api'
+import { CycleResult } from '@sdk'
+import { setOperatorAttributes } from '@operators/attributes'
 
 export function falseOp (): CycleResult {
   return null
@@ -10,6 +10,6 @@ setOperatorAttributes(falseOp, {
   name: 'false',
   constant: {
     type: ValueType.boolean,
-    data: false
+    isSet: false
   }
 })

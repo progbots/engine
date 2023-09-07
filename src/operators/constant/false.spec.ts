@@ -1,13 +1,13 @@
-import { executeTests } from '../../src/test-helpers'
-import { ValueType } from '../../index'
+import { ValueType } from '@api'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/constant/false', () => {
-  executeTests({
+  executeStateTests({
     'adds false to the stack': {
       src: 'false',
       expect: [{
         type: ValueType.boolean,
-        data: false
+        isSet: false
       }]
     }
   })

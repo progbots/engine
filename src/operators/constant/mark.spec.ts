@@ -1,13 +1,12 @@
-import { executeTests } from '../../src/test-helpers'
-import { ValueType } from '../../index'
+import { ValueType } from '@api'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/constant/mark', () => {
-  executeTests({
+  executeStateTests({
     'adds a mark': {
       src: 'mark',
       expect: [{
-        type: ValueType.mark,
-        data: null
+        type: ValueType.mark
       }]
     }
   })
