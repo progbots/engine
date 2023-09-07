@@ -8,21 +8,26 @@ export function dicttomark ({ memoryTracker, operands }: IInternalState): CycleR
   if (pos % 2 !== 0) {
     throw new TypeCheck()
   }
-  const names = operands.ref.slice(0, pos).filter((_, index) => index % 2 === 1)
-  if (names.some(value => value.type !== ValueType.string)) {
-    throw new TypeCheck()
-  }
+  const mappings = operands.ref.slice(0, pos)
+  let index = 0
+  let value: InternalValue = { type: ValueType.mark }
   const dictionary = new Dictionary(memoryTracker)
   try {
-    names.forEach((name: InternalValue, index: number) => {
-      let value = operands.ref[2 * index]
-      checkStringValue(name)
-      dictionary.def(name.string, value)
-    })
+    for (const item of mappings) {
+      if (index % 2 === 1) {
+        checkStringValue(item)
+        dictionary.def(item.string, value)
+      } else {
+        value = item
+      }
+      ++index
+    }
     operands.splice(pos + 1, {
       type: ValueType.dictionary,
       dictionary
     })
+  } catch (e) {
+    throw new TypeCheck()
   } finally {
     dictionary.release()
   }
