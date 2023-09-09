@@ -1,5 +1,5 @@
 import { IDictionary } from '@api'
-import { InternalError } from '@errors'
+import { BaseError } from '@errors'
 import { State } from '@state/State'
 import { IStateTest } from './IStateTest'
 import { execute } from '../execute'
@@ -41,7 +41,7 @@ function executeStateTest (test: IStateTest): void {
       expect(exceptionCaught).toBeUndefined()
     } else if (exceptionCaught === undefined) {
       expect(exceptionCaught).not.toBeUndefined()
-    } else if (expectedErrorClass.prototype instanceof InternalError) {
+    } else if (expectedErrorClass.prototype instanceof BaseError) {
       expect(exceptionCaught).toBeInstanceOf(Error)
       const { name } = expectedErrorClass
       expect(exceptionCaught.name).toStrictEqual(name)

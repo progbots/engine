@@ -8,7 +8,7 @@ import { CallValue } from './CallValue'
 import { OperatorValue } from './OperatorValue'
 import { ArrayValue } from './ArrayValue'
 import { DictionaryValue } from './DictionaryValue'
-import { InternalError } from '../errors/InternalError'
+import { InternalError } from '@errors'
 
 export function throwValueIsNotOfType (expectedType: ValueType): never {
   throw new InternalError(`Value is not of type '${expectedType}`)

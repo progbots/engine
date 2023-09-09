@@ -1,7 +1,7 @@
 import { IDictionary, Value, ValueType, checkStringValue } from '@api'
 import { InternalValue, IWritableDictionary } from '@sdk'
 import { ShareableObject } from '@objects/ShareableObject'
-import { InternalError, TypeCheck } from '@errors'
+import { BaseError, TypeCheck } from '@errors'
 
 const NAME_PROPERTY = 'name'
 const MESSAGE_PROPERTY = 'message'
@@ -15,7 +15,7 @@ const extract = (dictionary: IDictionary, name: string): string => {
   return value.string
 }
 
-export class Custom extends InternalError {
+export class Custom extends BaseError {
   constructor (
     private readonly _dictionary: IWritableDictionary
   ) {

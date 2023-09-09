@@ -1,10 +1,10 @@
-import { InternalError } from '@errors'
+import { BaseError } from '@errors'
 import * as errorClasses from '@errors/operators'
 import { CycleResult, IOperatorFunction, IInternalState } from '@sdk'
 
 const errorOperators: Record<string, IOperatorFunction> = {}
 
-Object.values(errorClasses).forEach((ErrorClass: new () => InternalError) => {
+Object.values(errorClasses).forEach((ErrorClass: new () => BaseError) => {
   const ErrorConstructor = ErrorClass
 
   const operator = function (state: IInternalState): CycleResult {

@@ -1,8 +1,8 @@
-import { InternalError } from './InternalError'
+import { BaseError } from './BaseError'
 
 const message = 'Virtual memory error'
 
-export class VMError extends InternalError {
+export class VMError extends BaseError {
   constructor () {
     super(message)
   }

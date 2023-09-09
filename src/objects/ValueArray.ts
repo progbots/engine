@@ -1,5 +1,5 @@
 import { InternalValue } from '@sdk'
-import { Internal, RangeCheck, InternalError } from '@errors'
+import { RangeCheck, InternalError } from '@errors'
 import { BaseValueArray } from './BaseValueArray'
 
 const EMPTY_ARRAY = 'Empty array'
@@ -25,7 +25,7 @@ export class ValueArray extends BaseValueArray {
   shift (): InternalValue {
     const value = this._values.shift()
     if (value === undefined) {
-      throw new Internal(EMPTY_ARRAY)
+      throw new InternalError(EMPTY_ARRAY)
     }
     this.releaseValue(value)
     return value

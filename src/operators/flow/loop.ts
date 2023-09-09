@@ -1,7 +1,7 @@
 import { ValueType } from '../../index'
 import { Break } from '../../src/errors/index'
 import { State, InternalValue, CycleResult, checkBlockValue } from '../../state/index'
-import { InternalError } from '../../src/errors/InternalError'
+import { BaseError } from '../../src/errors/BaseError'
 import { setOperatorAttributes } from '../attributes'
 
 /* eslint-disable no-labels */
@@ -17,7 +17,7 @@ setOperatorAttributes(loop, {
     assert: checkBlockValue(block)
     return block
   },
-  catch (state: State, parameters: readonly InternalValue[], e: InternalError): CycleResult {
+  catch (state: State, parameters: readonly InternalValue[], e: BaseError): CycleResult {
     if (!(e instanceof Break)) {
       throw e
     }

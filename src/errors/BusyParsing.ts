@@ -1,8 +1,8 @@
-import { InternalError } from './InternalError'
+import { BaseError } from './BaseError'
 
 const MESSAGE = 'Engine is already busy parsing'
 
-export class BusyParsing extends InternalError {
+export class BusyParsing extends BaseError {
   constructor () {
     super(MESSAGE)
   }

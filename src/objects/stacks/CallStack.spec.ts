@@ -1,5 +1,5 @@
 import { IArray, Value, ValueType } from '@api'
-import { Internal, InternalError, StackUnderflow } from '@errors'
+import { InternalError, StackUnderflow } from '@errors'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { CallStack } from './CallStack'
 import { ValueStack } from './ValueStack'
@@ -202,7 +202,7 @@ describe('objects/stacks/CallStack', () => {
         })
 
         it('can be set only once', () => {
-          expect(() => { stack.parameters = [] }).toThrowError(Internal)
+          expect(() => { stack.parameters = [] }).toThrowError(InternalError)
         })
 
         it('frees the values', () => {
@@ -217,11 +217,11 @@ describe('objects/stacks/CallStack', () => {
           expect(() => stack.pushParameter({
             type: ValueType.integer,
             number: 42
-          })).toThrowError(Internal)
+          })).toThrowError(InternalError)
         })
 
         it('fails pop when parameters are not set', () => {
-          expect(() => stack.popParameter()).toThrowError(Internal)
+          expect(() => stack.popParameter()).toThrowError(InternalError)
         })
 
         it('pushes a parameter to an existing list', () => {

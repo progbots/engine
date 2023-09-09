@@ -23,7 +23,7 @@ describe('state/error', () => {
     }
   })
 
-  it('does not let an InternalError out because memory cannot be controlled (and they are not documented)', () => {
+  it('does not let an BaseError out because memory cannot be controlled (and they are not documented)', () => {
     let error: Error | undefined
     try {
       const internalError = new RangeCheck()

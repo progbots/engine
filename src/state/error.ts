@@ -1,4 +1,4 @@
-import { Break, InternalError, InvalidBreak } from '@errors'
+import { Break, BaseError, InvalidBreak } from '@errors'
 
 export function wrapError (error: Error): void {
   if (error !== undefined) {
@@ -9,7 +9,7 @@ export function wrapError (error: Error): void {
       error = invalidBreak
     }
     // No internal error should go out because memory cannot be controlled (and they are not documented)
-    if (error instanceof InternalError) {
+    if (error instanceof BaseError) {
       const ex = new Error(error.message)
       ex.name = error.name
       ex.stack = error.callstack

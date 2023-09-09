@@ -4,14 +4,14 @@ import { ShareableObject } from '../../objects/ShareableObject'
 import { TypeCheck } from '../../src/errors/index'
 import { checkIWritableDictionary } from '../../objects/dictionaries/index'
 import { Custom } from '../../src/errors/Custom'
-import { InternalError } from '../../src/errors/InternalError'
+import { BaseError } from '../../src/errors/BaseError'
 
 /* eslint-disable no-labels */
 
 export function throwOp ({ operands }: State): CycleResult {
   const [dict] = operands.check(ValueType.dict)
   assert: checkIDictionary(dict.data)
-  if (dict.data instanceof InternalError) {
+  if (dict.data instanceof BaseError) {
     throw dict.data
   }
   try {

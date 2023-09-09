@@ -3,7 +3,7 @@ import { BusyParsing, Internal } from '../src/errors/index'
 import { InternalValue, OperatorFunction, parse } from './index'
 import { CallStack, DictionaryStack, OperandStack } from '../objects/stacks/index'
 import { MemoryTracker } from './MemoryTracker'
-import { InternalError } from '../src/errors/InternalError'
+import { BaseError } from '../src/errors/BaseError'
 import { renderCallStack } from './callstack'
 import { wrapError } from './error'
 
@@ -145,7 +145,7 @@ export class State implements IState {
           error = new Internal(UNEXPECTED_EXCEPTION)
         } else {
           error = e
-          if (error instanceof InternalError) {
+          if (error instanceof BaseError) {
             error.callstack = renderCallStack(this.calls)
           }
         }
@@ -181,7 +181,7 @@ export class State implements IState {
       //     }
       //     top.generator = handler.call(this, top)
       //   }
-      // } else if (error instanceof InternalError && top.catch !== undefined) {
+      // } else if (error instanceof BaseError && top.catch !== undefined) {
       //   const internalError = error
       //   const topCatch = top.catch
       //   // if iterator replace top.generator with it

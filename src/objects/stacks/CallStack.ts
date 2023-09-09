@@ -1,6 +1,6 @@
 import { ValueType } from '@api'
 import { ICallStack, InternalValue, MEMORY_INTEGER_SIZE, MEMORY_POINTER_SIZE } from '@sdk'
-import { Internal, InternalError, StackUnderflow } from '@errors'
+import { InternalError, StackUnderflow } from '@errors'
 import { ValueStack } from './ValueStack'
 import { ValueArray } from '../ValueArray'
 
@@ -124,7 +124,7 @@ export class CallStack extends ValueStack implements ICallStack {
   set parameters (values: InternalValue[]) {
     const { state } = this._top
     if (state.parameters !== null) {
-      throw new Internal('Parameters are already set')
+      throw new InternalError('Parameters are already set')
     }
     const array = new ValueArray(this.memoryTracker)
     values.forEach(value => array.push(value))
@@ -134,7 +134,7 @@ export class CallStack extends ValueStack implements ICallStack {
   pushParameter (value: InternalValue): void {
     const { state } = this._top
     if (state.parameters === null) {
-      throw new Internal('No parameters exist')
+      throw new InternalError('No parameters exist')
     }
     state.parameters.push(value)
   }
@@ -142,7 +142,7 @@ export class CallStack extends ValueStack implements ICallStack {
   popParameter (): void {
     const { state } = this._top
     if (state.parameters === null) {
-      throw new Internal('No parameters exist')
+      throw new InternalError('No parameters exist')
     }
     state.parameters.pop()
   }

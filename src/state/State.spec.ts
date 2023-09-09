@@ -1,6 +1,6 @@
 import { InternalValue, State, isEngineSignal } from './index'
 import { EngineSignalType, ValueType } from '../index'
-import { InternalError } from '../src/errors/InternalError'
+import { BaseError } from '../src/errors/BaseError'
 import { waitForCycles } from '../src/test-helpers'
 import { renderCallStack } from './callstack'
 
@@ -387,7 +387,7 @@ describe('state/State', () => {
         waitForCycles(state.parse('typecheck'))
       } catch (e) {
         expect(e).toBeInstanceOf(Error)
-        expect(e).not.toBeInstanceOf(InternalError)
+        expect(e).not.toBeInstanceOf(BaseError)
         exceptionCaught = asError(e)
         expect(exceptionCaught.name).toStrictEqual('TypeCheck')
       }

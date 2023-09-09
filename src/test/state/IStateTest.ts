@@ -5,7 +5,7 @@ import { ITest } from '../ITest'
 export interface IStateTest extends ITest {
   src: string
   cycles?: number // default to 1
-  error?: Function // Subclass of InternalError
+  error?: Function // Subclass of BaseError
   expect?: Value[] | string | ((state: IInternalState, exceptionCaught?: Error) => void)
   host?: Record<string, IOperatorFunction>
   cleanBeforeCheckingForLeaks?: string
