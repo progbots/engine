@@ -1,5 +1,5 @@
 import { Value, ValueType, checkIntegerValue } from '@api'
-import { Internal, RangeCheck } from '@errors'
+import { InternalError, RangeCheck } from '@errors'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { ValueArray } from './ValueArray'
 
@@ -56,7 +56,7 @@ describe('objects/ValueArray', () => {
 
   it('fails shift on empty array', () => {
     const emptyArray = new ValueArray(tracker)
-    expect(() => emptyArray.shift()).toThrowError(Internal)
+    expect(() => emptyArray.shift()).toThrowError(InternalError)
   })
 
   it('implements unshift', () => {

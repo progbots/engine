@@ -1,5 +1,5 @@
 import { IArray, IDictionary, Value, ValueType } from '@api'
-import { Internal } from '@errors'
+import { InternalError } from '@errors'
 import { ShareableObject } from './ShareableObject'
 
 class MyObject extends ShareableObject implements IArray, IDictionary {
@@ -44,7 +44,7 @@ describe('objects/ShareableObject', () => {
     const object = new MyObject()
     expect(object.refCount).toStrictEqual(1)
     object.release()
-    expect(() => object.release()).toThrow(Internal)
+    expect(() => object.release()).toThrow(InternalError)
   })
 
   it('offers a generic addRef helper', () => {

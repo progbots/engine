@@ -1,6 +1,6 @@
 import { IArray, Value, ValueType, checkBlockValue, checkStringValue, getIArrayValues } from '@api'
 import { formatters, getDebugInfos } from '@sdk'
-import { Internal } from '@errors'
+import { InternalError } from '@errors'
 import { parse } from '@state/parser'
 
 const BEFORE_CURRENT = '»'
@@ -28,7 +28,7 @@ const renderers: Record<ValueType, (value: Value, callIndex: number | undefined)
       const before = string.substring(0, callIndex)
       const parsedValue = parse(string, '', callIndex)
       if (parsedValue === undefined || parsedValue.debug === undefined) {
-        throw new Internal(UNEXPECTED_PARSER_FAILURE)
+        throw new InternalError(UNEXPECTED_PARSER_FAILURE)
       }
       const keyword = formatters[parsedValue.type](parsedValue)
       const after = string.substring(parsedValue.debug.pos + parsedValue.debug.length)

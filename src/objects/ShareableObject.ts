@@ -1,6 +1,6 @@
 import { IArray, IDictionary, ValueType } from '@api'
 import { InternalValue } from '@sdk'
-import { Internal } from '@errors'
+import { InternalError } from '@errors'
 
 const TOOMANY_RELEASE = 'Superfluous release'
 
@@ -57,7 +57,7 @@ export abstract class ShareableObject {
     } else
     // Stryker disable next-line EqualityOperator
     if (refCount < 0) {
-      throw new Internal(TOOMANY_RELEASE)
+      throw new InternalError(TOOMANY_RELEASE)
     }
   }
 
