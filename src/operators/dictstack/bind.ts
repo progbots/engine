@@ -1,68 +1,62 @@
-import { ValueType } from '../../index'
-import { Internal, Undefined } from '../../src/errors/index'
-import { ArrayLike } from '../../objects/Array'
-import { InternalValue, CycleResult, State } from '../../state/index'
-import { extractDebugInfos } from '../debug-infos'
-import { setOperatorAttributes } from '../attributes'
+import { BlockValue, ValueType, checkBlockValue } from '@api'
+import { InternalValue, CycleResult, IInternalState, getDebugInfos, Internal } from '@sdk'
+import { Undefined } from '@errors'
+import { ValueArray } from '@objects/ValueArray'
+import { setOperatorAttributes } from '@operators/attributes'
 
-/* eslint-disable no-labels */
-
-export function bind (state: State, [block]: readonly InternalValue[]): CycleResult {
-  state.pushStepParameter(block)
-  state.pushStepParameter({
+export function bind ({ calls }: IInternalState, block: Internal<BlockValue>): CycleResult {
+  calls.pushParameter(block)
+  calls.pushParameter({
     type: ValueType.integer,
-    data: 0
+    number: 0
   })
   return null
 }
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* because parameters contains :
- * - at least the block being processed
- * - for each stacked block an additional index
- */
 setOperatorAttributes(bind, {
-  typeCheck: [ValueType.block],
-  loop (state: State, parameters: readonly InternalValue[]): CycleResult | false {
-    const lastParameter = parameters.at(-1)
-    if (lastParameter === undefined || lastParameter.type !== ValueType.integer) {
+  loop ({ calls, dictionaries }: IInternalState, parameters: readonly InternalValue[]): CycleResult | false {
+    const indexValue = parameters.at(-1)
+    if (indexValue === undefined || indexValue.type !== ValueType.integer) {
       return false
     }
-    let index = lastParameter.data
-    const block = parameters.at(-2)
-    assert: if (block === undefined) {
-      throw new Internal('Invalid bind parameters')
-    } else {
-      ArrayLike.check(block.data)
-    }
-    const value = block.data.at(index)
-    if (value.type === ValueType.call) {
-      try {
-        const resolvedValue = state.dictionaries.lookup(value.data)
-        // TODO: some operators can be replaced with values (true, false, mark...)
-        block.data.set(index, {
-          ...extractDebugInfos(value),
-          ...resolvedValue
-        })
-      } catch (e) {
-        if (!(e instanceof Undefined)) {
-          throw e
+    let index = indexValue.number
+    const blockValue = parameters.at(-2)
+    checkBlockValue(blockValue)
+    ValueArray.check(blockValue.block)
+    const { block } = blockValue
+    const blockItem = block.at(index)
+    if (blockItem !== null) {
+      if (blockItem.type === ValueType.call) {
+        try {
+          const resolvedValue = dictionaries.lookup(blockItem.call)
+          // TODO: some operators can be replaced with values (true, false, mark...)
+          block.set(index, {
+            ...resolvedValue,
+            debug: getDebugInfos(blockItem)
+          })
+        } catch (e) {
+          if (!(e instanceof Undefined)) {
+            throw e
+          }
         }
+      } else if (blockItem.type === ValueType.block) {
+        calls.pushParameter(blockItem)
+        calls.pushParameter({
+          type: ValueType.integer,
+          number: 0
+        })
+        return null
       }
-    } else if (value.type === ValueType.block) {
-      state.pushStepParameter(value)
-      state.pushStepParameter(value)
-      return null
     }
-    state.popStepParameter()
-    if (++index < block.data.length) {
-      state.pushStepParameter({
+    calls.popParameter()
+    if (++index < block.length) {
+      calls.pushParameter({
         type: ValueType.integer,
-        data: index + 1
+        number: index + 1
       })
     } else {
-      state.popStepParameter()
+      calls.popParameter()
     }
     return null
   }
-})
+}, ValueType.block)

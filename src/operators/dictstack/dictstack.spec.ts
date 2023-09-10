@@ -1,7 +1,7 @@
-import { executeTests } from '../../src/test-helpers'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/dictstack/dictstack', () => {
-  executeTests({
+  executeStateTests({
     'puts an array containing the dictionary stack on top of the stack': [{
       src: 'dictstack length',
       expect: '2'

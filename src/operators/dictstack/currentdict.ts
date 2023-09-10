@@ -1,6 +1,6 @@
-import { CycleResult, State } from '../../state/index'
+import { CycleResult, IInternalState } from '@sdk'
 
-export function currentdict ({ operands, dictionaries }: State): CycleResult {
-  operands.push(dictionaries.at(0))
+export function currentdict ({ operands, dictionaries }: IInternalState): CycleResult {
+  operands.push(dictionaries.top)
   return null
 }

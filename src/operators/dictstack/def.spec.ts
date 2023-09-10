@@ -1,9 +1,10 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { State } from '../../state/index'
-import { executeTests, SOURCE_FILE } from '../../src/test-helpers'
+import { ValueType } from '@api'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { IInternalState } from '@sdk'
+import { executeStateTests, SOURCE_FILE } from '@test/state/execute'
 
 describe('operators/dictstack/def', () => {
-  executeTests({
+  executeStateTests({
     'sets a value on the top dictionary': {
       src: 'dict begin "test" 42 def test end',
       expect: '42'
@@ -13,13 +14,15 @@ describe('operators/dictstack/def', () => {
       expect: '3'
     },
     'keeps debug information on proc': {
-      keepDebugInfo: true,
       src: 'dict begin "test" { 1 } def currentdict "test" get end',
-      expect: ({ operands }: State) => {
-        const [testProc] = operands.ref
-        expect(testProc.sourceFile).toStrictEqual(SOURCE_FILE)
-        expect(testProc.sourcePos).not.toBeUndefined()
-        expect(testProc.sourcePos).not.toStrictEqual(0)
+      expect: ({ operands }: IInternalState) => {
+        const [{ debug }] = operands.check(ValueType.block)
+        if (debug === undefined) {
+          throw new Error('missing debug information')
+        }
+        expect(debug.filename).toStrictEqual(SOURCE_FILE)
+        expect(debug.pos).not.toBeUndefined()
+        expect(debug.pos).not.toStrictEqual(0)
       }
     },
     'fails with StackUnderflow on empty stack': {

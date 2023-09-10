@@ -1,10 +1,11 @@
-import { InvalidAccess, StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { InternalValue, State } from '../../state/index'
-import { ArrayLike } from '../../objects/Array'
-import { executeTests } from '../../src/test-helpers'
+import { InvalidAccess, StackUnderflow, TypeCheck } from '@errors'
+import { IInternalState, CycleResult } from '@sdk'
+import { ValueArray } from '@objects/ValueArray'
+import { executeStateTests } from '@test/state/execute'
+import { ValueType } from '@api'
 
 describe('operators/dictstack/bind', () => {
-  executeTests({
+  executeStateTests({
     'replaces block calls with their callees': {
       src: '{ true [ 42 ] "unchanged" } bind aload',
       expect: `systemdict "true" get
@@ -49,12 +50,11 @@ describe('operators/dictstack/bind', () => {
     },
     'should not ignore errors': {
       host: {
-        asro: function ({ operands }: State): undefined {
-          const value = operands.ref[0]
-          ArrayLike.check(value.data)
-          value.data.set = function (index: number, value: InternalValue): void {
-            throw new InvalidAccess()
-          }
+        asro: function ({ operands }: IInternalState): CycleResult {
+          const [value] = operands.check(ValueType.block)
+          ValueArray.check(value.block)
+          value.block.set = (): never => { throw new InvalidAccess() }
+          return null
         }
       },
       src: '{ add } asro bind',
