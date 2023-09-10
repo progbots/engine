@@ -1,5 +1,5 @@
-import { IDictionary, ValueType, checkDictionaryValue } from '@api'
-import { DictionaryStackWhereResult, IDictionaryStack, InternalValue } from 'sdk'
+import { DictionaryValue, IDictionary, ValueType, checkDictionaryValue } from '@api'
+import { DictionaryStackWhereResult, IDictionaryStack, Internal, InternalValue } from 'sdk'
 import { DictStackUnderflow, Undefined } from '@errors'
 import { MemoryTracker } from '@state/MemoryTracker'
 import { ValueStack } from './ValueStack'
@@ -31,6 +31,12 @@ export class DictionaryStack extends ValueStack implements IDictionaryStack {
 
   get global (): Dictionary {
     return this._global
+  }
+
+  get top (): Internal<DictionaryValue> {
+    const value = this.safeAt(0)
+    checkDictionaryValue(value)
+    return value
   }
 
   begin (dictionary: IDictionary): void {
