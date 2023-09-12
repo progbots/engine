@@ -1,11 +1,11 @@
-import { StackUnderflow, TypeCheck, Undefined } from '../../src/errors/index'
-import { State } from '../../state/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck, Undefined } from '@errors'
+import { CycleResult, IInternalState } from '@sdk'
+import { executeStateTests } from '@test/state/execute'
 
 class Fail extends Error {}
 
 describe('operators/flow/catch', () => {
-  executeTests({
+  executeStateTests({
     'does not execute the catch block if no exception occurred': {
       src: '{ 1 2 } { 3 } catch',
       expect: '1 2'
@@ -25,7 +25,7 @@ describe('operators/flow/catch', () => {
     },
     'does not catch non managed exceptions': {
       host: {
-        fail: function (state: State): undefined {
+        fail: function (state: IInternalState): CycleResult {
           throw new Fail()
         }
       },

@@ -1,8 +1,8 @@
-import { CycleResult, State } from '../../state/index'
-import { ValueType } from '../../index'
+import { ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
 import { closeToMark } from '../open-close-helper'
 
-export function closeBlock (state: State): CycleResult {
+export function closeBlock (state: IInternalState): CycleResult {
   closeToMark(state, ValueType.block)
   state.allowCall()
   return null
