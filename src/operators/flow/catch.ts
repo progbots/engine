@@ -1,26 +1,22 @@
-import { CycleResult, InternalValue, State, checkBlockValue } from '../../state/index'
-import { ValueType } from '../../index'
-import { BaseError } from '../../src/errors/BaseError'
-import { setOperatorAttributes } from '../attributes'
+import { BlockValue, ValueType, checkBlockValue } from '@api'
+import { CycleResult, InternalValue, IInternalState, Internal, IError } from '@sdk'
+import { setOperatorAttributes } from '@operators/attributes'
 
-/* eslint-disable no-labels */
-
-export function catchOp (state: State, [, block]: readonly InternalValue[]): CycleResult {
+export function catchOp (state: IInternalState, handler: Internal<BlockValue>, block: Internal<BlockValue>): CycleResult {
   state.operands.splice(2)
-  assert: checkBlockValue(block)
   return block
 }
 
 setOperatorAttributes(catchOp, {
   name: 'catch',
-  typeCheck: [ValueType.block, ValueType.block],
-  catch (state: State, [blockCatch]: readonly InternalValue[], e: BaseError): CycleResult {
+  catch (state: IInternalState, parameters: readonly InternalValue[], e: IError): CycleResult {
     state.operands.push({
-      type: ValueType.dict,
-      data: e.dictionary
+      type: ValueType.dictionary,
+      dictionary: e.dictionary
     })
     e.release()
-    assert: checkBlockValue(blockCatch)
-    return blockCatch
+    const handler = parameters[0]
+    checkBlockValue(handler)
+    return handler
   }
-})
+}, ValueType.block, ValueType.block)
