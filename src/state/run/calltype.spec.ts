@@ -99,7 +99,7 @@ describe('state/run/calltype', () => {
       callStack: [{
         type: ValueType.call,
         call: 'add'
-      }],
+      }]
     },
     after: {
       result: {

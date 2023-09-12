@@ -1,6 +1,6 @@
-import { CycleResult, State } from '../../state/index'
+import { CycleResult, IInternalState } from '@sdk'
 
-export function end ({ dictionaries }: State): CycleResult {
+export function end ({ dictionaries }: IInternalState): CycleResult {
   dictionaries.end()
   return null
 }

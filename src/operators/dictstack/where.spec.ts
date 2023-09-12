@@ -1,8 +1,8 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/dictstack/where', () => {
-  executeTests({
+  executeStateTests({
     'returns the dictionary and true when found': {
       src: 'mark "add" where',
       expect: 'mark systemdict true'

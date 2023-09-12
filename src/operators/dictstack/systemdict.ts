@@ -1,10 +1,10 @@
-import { ValueType } from '../../index'
-import { CycleResult, State } from '../../state/index'
+import { ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
 
-export function systemdict ({ operands, dictionaries }: State): CycleResult {
+export function systemdict ({ operands, dictionaries }: IInternalState): CycleResult {
   operands.push({
-    type: ValueType.dict,
-    data: dictionaries.systemdict
+    type: ValueType.dictionary,
+    dictionary: dictionaries.system
   })
   return null
 }

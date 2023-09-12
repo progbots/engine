@@ -1,12 +1,12 @@
-import { DictStackUnderflow, Undefined } from '../../src/errors/index'
-import { State } from '../../state/index'
-import { executeTests } from '../../src/test-helpers'
+import { IInternalState } from '@sdk'
+import { DictStackUnderflow, Undefined } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/dictstack/end', () => {
-  executeTests({
+  executeStateTests({
     'removes the dictionary from the dictionary stack': {
       src: 'dict begin end',
-      expect: ({ dictionaries }: State) => {
+      expect: ({ dictionaries }: IInternalState) => {
         expect(dictionaries.length).toStrictEqual(2)
       }
     },

@@ -1,24 +1,21 @@
-import { ValueType } from '../../index'
-import { CycleResult, State, checkStringValue } from '../../state/index'
+import { ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
 
-/* eslint-disable no-labels */
-
-export function where ({ operands, dictionaries }: State): CycleResult {
-  const [name] = operands.check(ValueType.string)
-  assert: checkStringValue(name)
-  const result = dictionaries.where(name.data)
+export function where ({ operands, dictionaries }: IInternalState): CycleResult {
+  const [{ string }] = operands.check(ValueType.string)
+  const result = dictionaries.where(string)
   if (result === null) {
     operands.splice(1, {
       type: ValueType.boolean,
-      data: false
+      isSet: false
     })
   } else {
     operands.splice(1, [{
-      type: ValueType.dict,
-      data: result.dict
+      type: ValueType.dictionary,
+      dictionary: result.dictionary
     }, {
       type: ValueType.boolean,
-      data: true
+      isSet: true
     }])
   }
   return null

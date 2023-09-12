@@ -1,15 +1,17 @@
-import { ValueType } from '../../index'
-import { State } from '../../state/index'
-import { executeTests } from '../../src/test-helpers'
+import { DictionaryValue, ValueType } from '@api'
+import { IInternalState } from '@sdk'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/dictstack/globaldict', () => {
-  executeTests({
+  executeStateTests({
     'puts the globaldict on top of the stack': {
       src: 'globaldict',
-      expect: ({ operands, dictionaries }: State) => {
+      expect: ({ operands, dictionaries }: IInternalState) => {
         const top = operands.ref[0]
-        expect(top.type).toStrictEqual(ValueType.dict)
-        expect(top.data).toStrictEqual(dictionaries.globaldict)
+        expect(top).toStrictEqual<DictionaryValue>({
+          type: ValueType.dictionary,
+          dictionary: dictionaries.global
+        })
       }
     }
   })
