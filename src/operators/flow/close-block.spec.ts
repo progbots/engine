@@ -1,19 +1,20 @@
-import { UnmatchedMark } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
-import { ValueType } from '../../index'
-import { State } from '../../state/index'
+import { ValueType, checkBlockValue } from '@api'
+import { CycleResult, IInternalState, getDebugInfos } from '@sdk'
+import { UnmatchedMark } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 // test-for ../open-close-helper.ts
 
 describe('operators/flow/close-block (})', () => {
-  executeTests({
+  executeStateTests({
     'creates a block': {
       host: {
-        addCall: function ({ operands }: State): undefined {
+        addCall: function ({ operands }: IInternalState): CycleResult {
           operands.push({
             type: ValueType.call,
-            data: 'add'
+            call: 'add'
           })
+          return null
         }
       },
       src: '{ 3 4 add } aload',
@@ -29,12 +30,12 @@ describe('operators/flow/close-block (})', () => {
     },
     'keeps debug info from the opening bracket': {
       src: '{ }',
-      keepDebugInfo: true,
-      expect: ({ operands }: State) => {
-        const { type, sourceFile, sourcePos } = operands.ref[0]
-        expect(type).toStrictEqual(ValueType.block)
-        expect(sourceFile).toStrictEqual('test-src.ps')
-        expect(sourcePos).toStrictEqual(0)
+      expect: ({ operands }: IInternalState) => {
+        const block = operands.ref[0]
+        checkBlockValue(block)
+        const { filename, pos } = getDebugInfos(block) ?? {}
+        expect(filename).toStrictEqual('test-src.ps')
+        expect(pos).toStrictEqual(0)
       }
     },
     'fails with UnmatchedMark if the stack does not contain a mark': {
