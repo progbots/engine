@@ -1,8 +1,8 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/flow/if', () => {
-  executeTests({
+  executeStateTests({
     'evaluates block if true': {
       src: '0 true { 42 } if',
       expect: '0 42'

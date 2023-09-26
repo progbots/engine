@@ -1,20 +1,15 @@
-import { CycleResult, InternalValue, State, checkBlockValue, checkBooleanValue } from '../../state/index'
-import { ValueType } from '../../index'
-import { setOperatorAttributes } from '../attributes'
+import { BlockValue, BooleanValue, ValueType } from '@api'
+import { CycleResult, Internal, IInternalState } from '@sdk'
+import { setOperatorAttributes } from '@operators/attributes'
 
-/* eslint-disable no-labels */
-
-export function ifOp (state: State, [block, condition]: readonly InternalValue[]): CycleResult {
+export function ifOp (state: IInternalState, block: Internal<BlockValue>, condition: Internal<BooleanValue>): CycleResult {
   state.operands.splice(2)
-  assert: checkBooleanValue(condition)
-  if (condition.data) {
-    assert: checkBlockValue(block)
+  if (condition.isSet) {
     return block
   }
   return null
 }
 
 setOperatorAttributes(ifOp, {
-  name: 'if',
-  typeCheck: [ValueType.block, ValueType.boolean]
-})
+  name: 'if'
+}, ValueType.block, ValueType.boolean)
