@@ -1,8 +1,8 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/flow/loop', () => {
-  executeTests({
+  executeStateTests({
     'loops until break is called': {
       src: '{ count 5 eq { break } if 1 } loop',
       expect: '1 1 1 1 1'
