@@ -1,8 +1,8 @@
-import { StackUnderflow, TypeCheck, Undefined } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck, Undefined } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/flow/finally', () => {
-  executeTests({
+  executeStateTests({
     'always execute the finally block': {
       src: '{ 1 2 } { 3 } finally',
       expect: '1 2 3'

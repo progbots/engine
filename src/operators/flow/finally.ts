@@ -1,21 +1,19 @@
-import { CycleResult, InternalValue, State, checkBlockValue } from '../../state/index'
-import { ValueType } from '../../index'
+import { BlockValue, ValueType, checkBlockValue } from '@api'
+import { CycleResult, InternalValue, IInternalState, Internal } from '@sdk'
 import { setOperatorAttributes } from '../attributes'
 
 /* eslint-disable no-labels */
 
-export function finallyOp (state: State, [, block]: readonly InternalValue[]): CycleResult {
-  const { operands } = state
+export function finallyOp ({ operands }: IInternalState, handler: Internal<BlockValue>, block: Internal<BlockValue>): CycleResult {
   operands.splice(2)
-  assert: checkBlockValue(block)
   return block
 }
 
 setOperatorAttributes(finallyOp, {
   name: 'finally',
-  typeCheck: [ValueType.block, ValueType.block],
-  finally (state: State, [blockFinally]: readonly InternalValue[]): CycleResult {
-    assert: checkBlockValue(blockFinally)
-    return blockFinally
+  finally (state: IInternalState, parameters: readonly InternalValue[]): CycleResult {
+    const handler = parameters[0]
+    checkBlockValue(handler)
+    return handler
   }
-})
+}, ValueType.block, ValueType.block)
