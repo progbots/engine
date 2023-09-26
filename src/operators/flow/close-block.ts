@@ -1,6 +1,7 @@
 import { ValueType } from '@api'
 import { CycleResult, IInternalState } from '@sdk'
 import { closeToMark } from '../open-close-helper'
+import { setOperatorAttributes } from '@operators/attributes'
 
 export function closeBlock (state: IInternalState): CycleResult {
   closeToMark(state, ValueType.block)
@@ -8,7 +9,6 @@ export function closeBlock (state: IInternalState): CycleResult {
   return null
 }
 
-Object.defineProperty(closeBlock, 'name', {
-  value: '}',
-  writable: false
+setOperatorAttributes(closeBlock, {
+  name: '}'
 })

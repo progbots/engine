@@ -1,15 +1,14 @@
-import { executeTests } from '../../src/test-helpers'
-import { ValueType } from '../../index'
+import { ValueType } from '@api'
+import { executeStateTests } from '@test/state/execute'
 
 // test-for ../open-close-helper.ts
 
 describe('operators/flow/open-block ({)', () => {
-  executeTests({
+  executeStateTests({
     'adds a mark': {
       src: '{',
       expect: [{
-        type: ValueType.mark,
-        data: null
+        type: ValueType.mark
       }],
       cleanBeforeCheckingForLeaks: '}'
     },
@@ -17,10 +16,9 @@ describe('operators/flow/open-block ({)', () => {
       src: '{ add',
       expect: [{
         type: ValueType.call,
-        data: 'add'
+        call: 'add'
       }, {
-        type: ValueType.mark,
-        data: null
+        type: ValueType.mark
       }],
       cleanBeforeCheckingForLeaks: '}'
     },
@@ -28,19 +26,17 @@ describe('operators/flow/open-block ({)', () => {
       src: '{ add { dup } sub ',
       expect: [{
         type: ValueType.call,
-        data: 'sub'
+        call: 'sub'
       }, {
         type: ValueType.block,
-        data: expect.anything() // Not relevant here
+        block: expect.anything() // Not relevant here
       }, {
         type: ValueType.call,
-        data: 'add'
+        call: 'add'
       }, {
-        type: ValueType.mark,
-        data: null
+        type: ValueType.mark
       }],
       cleanBeforeCheckingForLeaks: '}'
     }
-
   })
 })

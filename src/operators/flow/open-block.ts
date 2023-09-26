@@ -1,13 +1,13 @@
-import { CycleResult, State } from '../../state/index'
+import { CycleResult, IInternalState } from '@sdk'
 import { openWithMark } from '../open-close-helper'
+import { setOperatorAttributes } from '@operators/attributes'
 
-export function openBlock (state: State): CycleResult {
+export function openBlock (state: IInternalState): CycleResult {
   openWithMark(state)
   state.preventCall()
   return null
 }
 
-Object.defineProperty(openBlock, 'name', {
-  value: '{',
-  writable: false
+setOperatorAttributes(openBlock, {
+  name: '{'
 })
