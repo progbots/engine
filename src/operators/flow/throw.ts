@@ -1,31 +1,27 @@
-import { CycleResult, State, checkIDictionary } from '../../state/index'
-import { ValueType } from '../../index'
-import { ShareableObject } from '../../objects/ShareableObject'
-import { TypeCheck } from '../../src/errors/index'
-import { checkIWritableDictionary } from '../../objects/dictionaries/index'
-import { Custom } from '../../src/errors/Custom'
-import { BaseError } from '../../src/errors/BaseError'
+import { CycleResult, IInternalState, Internal, scanIWritableDictionary } from '@sdk'
+import { DictionaryValue, ValueType } from '@api'
+import { ShareableObject } from '@objects/ShareableObject'
+import { TypeCheck, BaseError, Custom } from '@errors'
+import { setOperatorAttributes } from '@operators/attributes'
 
-/* eslint-disable no-labels */
-
-export function throwOp ({ operands }: State): CycleResult {
-  const [dict] = operands.check(ValueType.dict)
-  assert: checkIDictionary(dict.data)
-  if (dict.data instanceof BaseError) {
-    throw dict.data
+export function throwOp ({ operands }: IInternalState, { dictionary }: Internal<DictionaryValue>): CycleResult {
+  if (dictionary instanceof BaseError) {
+    throw dictionary
   }
   try {
-    checkIWritableDictionary(dict.data)
+    scanIWritableDictionary(dictionary)
   } catch (e) {
     throw new TypeCheck()
   }
-  const customError = new Custom(dict.data) // may throw TypeCheck
-  ShareableObject.addRef(dict)
+  const customError = new Custom(dictionary) // may throw TypeCheck
+  ShareableObject.addRef({
+    type: ValueType.dictionary,
+    dictionary
+  })
   operands.pop()
   throw customError
 }
 
-Object.defineProperty(throwOp, 'name', {
-  value: 'throw',
-  writable: false
-})
+setOperatorAttributes(throwOp, {
+  name: 'throw'
+}, ValueType.dictionary)

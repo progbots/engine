@@ -1,10 +1,11 @@
-import { Value, ValueType } from '../../index'
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { State } from '../../state/index'
-import { executeTests } from '../../src/test-helpers'
+import { ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
+import { toIDictionary } from '@test/toIDictionary'
 
 describe('operators/flow/throw', () => {
-  executeTests({
+  executeStateTests({
     'enables the forward of a known excption': {
       src: '{ stackunderflow } { throw } catch',
       error: StackUnderflow
@@ -14,7 +15,7 @@ describe('operators/flow/throw', () => {
             dup "name" "test" set
             dup "message" "this is a test" set
             throw`,
-      expect: (state: State, exceptionCaught?: Error) => {
+      expect: (state: IInternalState, exceptionCaught?: Error) => {
         expect(exceptionCaught).not.toBeUndefined()
         if (exceptionCaught !== undefined) {
           expect(exceptionCaught.name).toStrictEqual('Custom:test')
@@ -46,18 +47,15 @@ describe('operators/flow/throw', () => {
     }],
     'fails with TypeCheck if the operand is not a writable dict': {
       host: {
-        rodict: function ({ operands }: State): undefined {
+        rodict: function ({ operands }: IInternalState): CycleResult {
           operands.push({
-            type: ValueType.dict,
-            data: {
-              get names () {
-                return ['name', 'message']
-              },
-              lookup (name: string): Value | null {
-                return null
-              }
-            }
+            type: ValueType.dictionary,
+            dictionary: toIDictionary({
+              name: '',
+              message: ''
+            })
           })
+          return null
         }
       },
       src: 'rodict throw',
