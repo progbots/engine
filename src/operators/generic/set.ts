@@ -1,62 +1,63 @@
-import { ValueType } from '../../index'
-import { RangeCheck, TypeCheck } from '../../src/errors/index'
-import { CycleResult, InternalValue, State, checkDictValue, checkStringValue } from '../../state/index'
-import { ArrayLike } from '../../objects/Array'
-import { checkIWritableDictionary } from '../../objects/dictionaries/index'
+import { Value, ValueType, checkIntegerValue, checkStringValue } from '@api'
+import { CycleResult, InternalValue, IInternalState, scanIWritableDictionary } from '@sdk'
+import { RangeCheck, TypeCheck } from '@errors'
+import { ValueArray } from '@objects/ValueArray'
 
-/* eslint-disable no-labels */
+function checkIntegerIndex (index: InternalValue, max: number): number {
+  try {
+    checkIntegerValue(index)
+  } catch (e) {
+    throw new TypeCheck()
+  }
+  const { number } = index
+  if (number < 0 || number >= max) {
+    throw new RangeCheck()
+  }
+  return number
+}
 
-const setters: Record<string, (container: InternalValue, index: InternalValue, value: InternalValue) => InternalValue> = {
-  [ValueType.string]: (container: InternalValue, index: InternalValue, value: InternalValue): InternalValue => {
-    assert: checkStringValue(container)
-    if (index.type !== ValueType.integer || value.type !== ValueType.integer) {
+const implementations: { [type in ValueType]?: (container: Value<type>, index: InternalValue, value: InternalValue) => InternalValue | undefined} = {
+  [ValueType.string]: ({ string }, index, value) => {
+    const pos = checkIntegerIndex(index, string.length)
+    try {
+      checkIntegerValue(value)
+    } catch (e) {
       throw new TypeCheck()
-    }
-    const pos = index.data
-    if (pos < 0 || pos >= container.data.length) {
-      throw new RangeCheck()
     }
     return {
       type: ValueType.string,
-      data: [
-        container.data.substring(0, pos),
-        String.fromCharCode(value.data),
-        container.data.substring(pos + 1)
+      string: [
+        string.substring(0, pos),
+        String.fromCharCode(value.number),
+        string.substring(pos + 1)
       ].join('')
     }
   },
 
-  [ValueType.array]: (container: InternalValue, index: InternalValue, value: InternalValue): InternalValue => {
-    assert: ArrayLike.check(container.data)
-    if (index.type !== ValueType.integer) {
-      throw new TypeCheck()
-    }
-    const pos = index.data
-    if (pos >= container.data.length) {
-      throw new RangeCheck()
-    }
-    container.data.set(pos, value)
-    return container
+  [ValueType.array]: ({ array }, index, value) => {
+    ValueArray.check(array)
+    array.set(checkIntegerIndex(index, array.length), value)
+    return undefined
   },
 
-  [ValueType.dict]: (container: InternalValue, index: InternalValue, value: InternalValue): InternalValue => {
-    assert: checkDictValue(container)
-    if (index.type !== ValueType.string) {
+  [ValueType.dictionary]: ({ dictionary }, index, value) => {
+    try {
+      checkStringValue(index)
+    } catch (e) {
       throw new TypeCheck()
     }
-    const name = index.data
-    checkIWritableDictionary(container.data)
-    container.data.def(name, value)
-    return container
+    scanIWritableDictionary(dictionary)
+    dictionary.def(index.string, value)
+    return undefined
   }
 }
 
-export function set ({ operands }: State): CycleResult {
+export function set ({ operands }: IInternalState): CycleResult {
   const [value, index, container] = operands.check(null, null, null)
-  const setter = setters[container.type]
-  if (setter === undefined) {
+  const implementation = implementations[container.type]
+  if (implementation === undefined) {
     throw new TypeCheck()
   }
-  operands.splice(3, setter(container, index, value))
+  operands.splice(3, implementation(container as never, index, value) ?? container)
   return null
 }

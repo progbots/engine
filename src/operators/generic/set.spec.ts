@@ -1,8 +1,8 @@
-import { RangeCheck, StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { RangeCheck, StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/generic/set', () => {
-  executeTests({
+  executeStateTests({
     'sets item in an array': {
       src: '[31 41 59] 1 42 set',
       expect: '[31 42 59]'
