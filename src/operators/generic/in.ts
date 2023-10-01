@@ -1,6 +1,6 @@
 import { IArray, Value, ValueType, checkStringValue, valueOf } from '@api'
-import { TypeCheck } from '@errors'
 import { CycleResult, InternalValue, IInternalState } from '@sdk'
+import { TypeCheck } from '@errors'
 import { ValueArray } from '@objects/ValueArray'
 
 function arrayLikeImplementation (container: IArray, value: InternalValue): boolean {
