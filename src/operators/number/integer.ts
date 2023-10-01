@@ -1,27 +1,23 @@
-import { ValueType } from '../../index'
-import { State, checkIntegerValue } from '../../state/index'
+import { ValueType } from '@api'
+import { IInternalState } from '@sdk'
 
-/* eslint-disable no-labels */
-
-function extract ({ operands }: State): number[] {
-  return operands.check(ValueType.integer, ValueType.integer).map(value => {
-    assert: checkIntegerValue(value)
-    return value.data
-  })
+function extract ({ operands }: IInternalState): [number, number] {
+  const [{ number: value2 }, { number: value1 }] = operands.check(ValueType.integer, ValueType.integer)
+  return [value2, value1]
 }
 
-export function compare (state: State, implementation: (value1: number, value2: number) => boolean): void {
+export function compare (state: IInternalState, implementation: (value1: number, value2: number) => boolean): void {
   const [value2, value1] = extract(state)
   state.operands.splice(2, {
     type: ValueType.boolean,
-    data: implementation(value1, value2)
+    isSet: implementation(value1, value2)
   })
 }
 
-export function compute (state: State, implementation: (value1: number, value2: number) => number): void {
+export function compute (state: IInternalState, implementation: (value1: number, value2: number) => number): void {
   const [value2, value1] = extract(state)
   state.operands.splice(2, {
     type: ValueType.integer,
-    data: implementation(value1, value2)
+    number: implementation(value1, value2)
   })
 }
