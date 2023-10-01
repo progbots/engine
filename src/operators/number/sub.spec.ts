@@ -1,8 +1,10 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
+
+// test-for integer.ts
 
 describe('operators/number/sub', () => {
-  executeTests({
+  executeStateTests({
     'substracts two numbers': {
       src: '2 3 sub',
       expect: '-1'
