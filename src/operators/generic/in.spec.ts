@@ -1,8 +1,8 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/generic/in', () => {
-  executeTests({
+  executeStateTests({
     'checks item of an array': [{
       src: '[31 41 59] 41 in',
       expect: 'true'

@@ -1,41 +1,38 @@
-import { ValueType } from '../../index'
-import { TypeCheck } from '../../src/errors/index'
-import { CycleResult, InternalValue, State, checkDictValue } from '../../state/index'
-import { ArrayLike } from '../../objects/Array'
+import { IArray, Value, ValueType, checkStringValue, valueOf } from '@api'
+import { TypeCheck } from '@errors'
+import { CycleResult, InternalValue, IInternalState } from '@sdk'
+import { ValueArray } from '@objects/ValueArray'
 
-/* eslint-disable no-labels */
-
-function arrayLikeImpl (container: InternalValue, value: InternalValue): boolean {
-  assert: ArrayLike.check(container.data)
-  return container.data.some((item: InternalValue) => item.type === value.type && item.data === value.data)
+function arrayLikeImplementation (container: IArray, value: InternalValue): boolean {
+  ValueArray.check(container)
+  return container.some((item: InternalValue) => item.type === value.type && valueOf(item) === valueOf(value))
 }
 
-const implementations: Record<string, (container: InternalValue, value: InternalValue) => boolean> = {
-  [ValueType.array]: arrayLikeImpl,
+const implementations: { [type in ValueType]?: (container: Value<type>, value: InternalValue) => boolean } = {
+  [ValueType.array]: ({ array }, value) => arrayLikeImplementation(array, value),
 
-  [ValueType.dict]: (container: InternalValue, index: InternalValue): boolean => {
-    assert: checkDictValue(container)
-    if (index.type !== ValueType.string) {
+  [ValueType.dictionary]: ({ dictionary }, value): boolean => {
+    try {
+      checkStringValue(value)
+    } catch (e) {
       throw new TypeCheck()
     }
-    const name = index.data
-    return container.data.names.includes(name)
+    const { string } = value
+    return dictionary.names.includes(string)
   },
 
-  [ValueType.block]: arrayLikeImpl,
-
-  [ValueType.proc]: arrayLikeImpl
+  [ValueType.block]: ({ block }, value) => arrayLikeImplementation(block, value)
 }
 
-export function inOp ({ operands }: State): CycleResult {
+export function inOp ({ operands }: IInternalState): CycleResult {
   const [value, container] = operands.check(null, null)
-  const impl = implementations[container.type]
-  if (impl === undefined) {
+  const implementation = implementations[container.type]
+  if (implementation === undefined) {
     throw new TypeCheck()
   }
   operands.splice(2, {
     type: ValueType.boolean,
-    data: impl(container, value)
+    isSet: implementation(container as never, value)
   })
   return null
 }
