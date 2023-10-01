@@ -16,7 +16,7 @@ function checkIntegerIndex (index: InternalValue, max: number): number {
   return number
 }
 
-function arrayLikeGetter (container: IArray, index: InternalValue): InternalValue {
+function arrayLikeImplementation (container: IArray, index: InternalValue): InternalValue {
   ValueArray.check(container)
   const result = container.at(checkIntegerIndex(index, container.length))
   if (result === null) {
@@ -25,7 +25,7 @@ function arrayLikeGetter (container: IArray, index: InternalValue): InternalValu
   return result
 }
 
-const getters: { [type in ValueType]?: (container: Value<type>, index: InternalValue) => InternalValue } = {
+const implementations: { [type in ValueType]?: (container: Value<type>, index: InternalValue) => InternalValue } = {
   [ValueType.string]: ({ string }, index): InternalValue => {
     const pos = checkIntegerIndex(index, string.length)
     return {
@@ -34,7 +34,7 @@ const getters: { [type in ValueType]?: (container: Value<type>, index: InternalV
     }
   },
 
-  [ValueType.array]: ({ array }, index): InternalValue => arrayLikeGetter(array, index),
+  [ValueType.array]: ({ array }, index): InternalValue => arrayLikeImplementation(array, index),
 
   [ValueType.dictionary]: ({ dictionary }, index): InternalValue => {
     try {
@@ -49,16 +49,16 @@ const getters: { [type in ValueType]?: (container: Value<type>, index: InternalV
     return value
   },
 
-  [ValueType.block]: ({ block }, index): InternalValue => arrayLikeGetter(block, index)
+  [ValueType.block]: ({ block }, index): InternalValue => arrayLikeImplementation(block, index)
 }
 
 export function get ({ operands }: IInternalState): CycleResult {
   const [index, container] = operands.check(null, null)
-  const getter = getters[container.type]
-  if (getter === undefined) {
+  const implementation = implementations[container.type]
+  if (implementation === undefined) {
     throw new TypeCheck()
   }
-  const value = getter(container as never, index)
+  const value = implementation(container as never, index)
   operands.splice(2, value)
   return null
 }
