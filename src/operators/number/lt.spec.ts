@@ -1,10 +1,10 @@
-import { StackUnderflow, TypeCheck } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow, TypeCheck } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 // test-for integer.ts
 
 describe('operators/number/lt', () => {
-  executeTests({
+  executeStateTests({
     'outputs 1 < 1': {
       src: '1 1 lt',
       expect: 'false'
