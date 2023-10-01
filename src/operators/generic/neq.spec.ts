@@ -1,8 +1,8 @@
-import { StackUnderflow } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/generic/neq', () => {
-  executeTests({
+  executeStateTests({
     'outputs 1 != 1': {
       src: '1 1 neq',
       expect: 'false'
