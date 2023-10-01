@@ -1,10 +1,10 @@
-import { ValueType } from '../../index'
-import { RangeCheck, StackUnderflow, TypeCheck, Undefined } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { ValueType } from '@api'
+import { RangeCheck, StackUnderflow, TypeCheck, Undefined } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 import { add } from '../number/add'
 
 describe('operators/generic/get', () => {
-  executeTests({
+  executeStateTests({
     'gets item of an array': {
       src: '[31 41 59] 0 get',
       expect: '31'
@@ -17,7 +17,7 @@ describe('operators/generic/get', () => {
       src: 'systemdict "add" get',
       expect: [{
         type: ValueType.operator,
-        data: add
+        operator: add
       }]
     },
     'gets item of a block': {
