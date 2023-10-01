@@ -26,7 +26,7 @@ function arrayLikeImplementation (container: IArray, index: InternalValue): Inte
 }
 
 const implementations: { [type in ValueType]?: (container: Value<type>, index: InternalValue) => InternalValue } = {
-  [ValueType.string]: ({ string }, index): InternalValue => {
+  [ValueType.string]: ({ string }, index) => {
     const pos = checkIntegerIndex(index, string.length)
     return {
       type: ValueType.integer,
@@ -34,9 +34,9 @@ const implementations: { [type in ValueType]?: (container: Value<type>, index: I
     }
   },
 
-  [ValueType.array]: ({ array }, index): InternalValue => arrayLikeImplementation(array, index),
+  [ValueType.array]: ({ array }, index) => arrayLikeImplementation(array, index),
 
-  [ValueType.dictionary]: ({ dictionary }, index): InternalValue => {
+  [ValueType.dictionary]: ({ dictionary }, index) => {
     try {
       checkStringValue(index)
     } catch (e) {
@@ -49,7 +49,7 @@ const implementations: { [type in ValueType]?: (container: Value<type>, index: I
     return value
   },
 
-  [ValueType.block]: ({ block }, index): InternalValue => arrayLikeImplementation(block, index)
+  [ValueType.block]: ({ block }, index) => arrayLikeImplementation(block, index)
 }
 
 export function get ({ operands }: IInternalState): CycleResult {

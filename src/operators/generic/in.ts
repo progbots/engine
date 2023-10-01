@@ -11,7 +11,7 @@ function arrayLikeImplementation (container: IArray, value: InternalValue): bool
 const implementations: { [type in ValueType]?: (container: Value<type>, value: InternalValue) => boolean } = {
   [ValueType.array]: ({ array }, value) => arrayLikeImplementation(array, value),
 
-  [ValueType.dictionary]: ({ dictionary }, value): boolean => {
+  [ValueType.dictionary]: ({ dictionary }, value) => {
     try {
       checkStringValue(value)
     } catch (e) {
