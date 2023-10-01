@@ -1,8 +1,8 @@
-import { StackUnderflow } from '../../src/errors/index'
-import { executeTests } from '../../src/test-helpers'
+import { StackUnderflow } from '@errors'
+import { executeStateTests } from '@test/state/execute'
 
 describe('operators/generic/type', () => {
-  executeTests({
+  executeStateTests({
     'gives type of a boolean': {
       src: '42 true type',
       expect: '42 "booleantype"'
