@@ -1,42 +1,26 @@
-import { ValueType } from '../../index'
-import { TypeCheck } from '../../src/errors/index'
-import { CycleResult, InternalValue, State, checkDictValue, checkStringValue } from '../../state/index'
-import { ArrayLike } from '../../objects/Array'
+import { Value, ValueType } from '@api'
+import { CycleResult, IInternalState } from '@sdk'
+import { TypeCheck } from '@errors'
 
-/* eslint-disable no-labels */
+const implementations: { [type in ValueType]?: (container: Value<type>) => number } = {
+  [ValueType.string]: ({ string }) => string.length,
 
-function arrayLikeLength (container: InternalValue): number {
-  assert: ArrayLike.check(container.data)
-  return container.data.length
+  [ValueType.array]: ({ array }) => array.length,
+
+  [ValueType.dictionary]: ({ dictionary }) => dictionary.names.length,
+
+  [ValueType.block]: ({ block }) => block.length
 }
 
-const sizers: Record<string, (container: InternalValue) => number> = {
-  [ValueType.string]: (container: InternalValue): number => {
-    assert: checkStringValue(container)
-    return container.data.length
-  },
-
-  [ValueType.array]: arrayLikeLength,
-
-  [ValueType.dict]: (container: InternalValue): number => {
-    assert: checkDictValue(container)
-    return container.data.names.length
-  },
-
-  [ValueType.block]: arrayLikeLength,
-
-  [ValueType.proc]: arrayLikeLength
-}
-
-export function length ({ operands }: State): CycleResult {
+export function length ({ operands }: IInternalState): CycleResult {
   const [container] = operands.check(null)
-  const sizer = sizers[container.type]
-  if (sizer === undefined) {
+  const implementation = implementations[container.type]
+  if (implementation === undefined) {
     throw new TypeCheck()
   }
   operands.splice(1, {
     type: ValueType.integer,
-    data: sizer(container)
+    number: implementation(container as never)
   })
   return null
 }
