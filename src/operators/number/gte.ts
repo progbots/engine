@@ -1,7 +1,7 @@
-import { CycleResult, State } from '../../state/index'
+import { CycleResult, IInternalState } from '@sdk'
 import { compare } from './integer'
 
-export function gte (state: State): CycleResult {
+export function gte (state: IInternalState): CycleResult {
   compare(state, (value1: number, value2: number) => value1 >= value2)
   return null
 }
