@@ -1,5 +1,5 @@
-import { IArray, Value, ValueType, checkBlockValue, checkStringValue, getIArrayValues } from '@api'
-import { formatters, getDebugInfos } from '@sdk'
+import { IArray, Value, ValueType, getIArrayValues } from '@api'
+import { toString, getDebugInfos } from '@sdk'
 import { InternalError } from '@errors'
 import { parse } from '@state/parser'
 
@@ -16,21 +16,19 @@ function stringify (text: string): string {
   )
 }
 
-const format = (value: Value): string => formatters[value.type](value)
+const format = (value: Value): string => toString(value)
 
-const renderers: Record<ValueType, (value: Value, callIndex: number | undefined) => string> = {
+const implementations: { [type in ValueType]: (container: Value<type>, callIndex: number | undefined) => string } = {
   [ValueType.boolean]: unexpected,
   [ValueType.integer]: unexpected,
-  [ValueType.string]: (value: Value, callIndex: number | undefined): string => {
-    checkStringValue(value)
-    const { string } = value
+  [ValueType.string]: ({ string }, callIndex: number | undefined): string => {
     if (callIndex !== undefined) {
       const before = string.substring(0, callIndex)
       const parsedValue = parse(string, '', callIndex)
       if (parsedValue === undefined || parsedValue.debug === undefined) {
         throw new InternalError(UNEXPECTED_PARSER_FAILURE)
       }
-      const keyword = formatters[parsedValue.type](parsedValue)
+      const keyword = toString(parsedValue)
       const after = string.substring(parsedValue.debug.pos + parsedValue.debug.length)
       return stringify(`${before}${BEFORE_CURRENT}${keyword}${AFTER_CURRENT}${after}`)
     }
@@ -47,9 +45,7 @@ const renderers: Record<ValueType, (value: Value, callIndex: number | undefined)
   [ValueType.mark]: unexpected,
   [ValueType.array]: unexpected,
   [ValueType.dictionary]: unexpected,
-  [ValueType.block]: (value: Value, callIndex: number | undefined): string => {
-    checkBlockValue(value)
-    const { block } = value
+  [ValueType.block]: ({ block }, callIndex: number | undefined): string => {
     const output = ['{']
     let index = 0
     for (const item of getIArrayValues(block)) {
@@ -84,7 +80,7 @@ export function renderCallStack (calls: IArray): string {
         debugInfo = ` @${debug.filename}:${debug.pos.toString()}`
       }
     }
-    const rendered = renderers[value.type](value, callIndex)
+    const rendered = implementations[value.type](value as never, callIndex)
     callstack.push(rendered + debugInfo)
     callIndex = undefined
   }

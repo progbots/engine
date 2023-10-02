@@ -12,9 +12,6 @@ module.exports = {
   ],
   coveragePathIgnorePatterns: [
     '\\.spec\\.ts',
-    'factory\\.ts',
-    'formatters\\.ts',
-    'test-helpers\\.ts',
     'utf8toansii\\.ts',
     '/engine/repl'
   ],
