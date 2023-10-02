@@ -16,7 +16,7 @@ function checkIntegerIndex (index: InternalValue, max: number): number {
   return number
 }
 
-const implementations: { [type in ValueType]?: (container: Value<type>, index: InternalValue, value: InternalValue) => InternalValue | undefined} = {
+const implementations: { [type in ValueType]?: (container: Value<type>, index: InternalValue, value: InternalValue) => InternalValue | undefined } = {
   [ValueType.string]: ({ string }, index, value) => {
     const pos = checkIntegerIndex(index, string.length)
     try {
